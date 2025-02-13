@@ -4,6 +4,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,8 +21,11 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedSuggestionChip
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,12 +51,13 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.yaabelozerov.superfinancer.ui.viewmodel.MainVM
 
+@OptIn(ExperimentalLayoutApi::class)
 @Destination<RootGraph>(start = true)
 @Composable
 fun MainScreen(viewModel: MainVM = viewModel()) {
     val uiState by viewModel.state.collectAsState()
-    val story = viewModel.storyFlow.collectAsLazyPagingItems()
-    LaunchedEffect(Unit) { viewModel.fetchTickers() }
+    val storyFlow = viewModel.stories.collectAsLazyPagingItems()
+    LaunchedEffect(Unit) { viewModel.fetchAll() }
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item {
             uiState.ticker.error?.let {
@@ -123,8 +129,33 @@ fun MainScreen(viewModel: MainVM = viewModel()) {
                 }
             }
         }
-        items(story.itemCount) { index ->
-            story[index]?.let {
+        item {
+
+            var isExpanded by remember { mutableStateOf(false) }
+            if (isExpanded) FlowRow {
+                uiState.sections.list.forEach {
+                    FilterChip(it.key == uiState.sections.selected?.key, onClick = {
+                        viewModel.setSection(it)
+                        storyFlow.refresh()
+                    }, label = { Text(it.name) })
+                }
+            } else {
+                Box {
+                    LazyRow {
+                        items(uiState.sections.list) {
+                            val selected = it.key == uiState.sections.selected?.key
+                            FilterChip(selected, onClick = {
+                                viewModel.setSection(if (selected) null else it)
+                                storyFlow.refresh()
+                            }, label = { Text(it.name) })
+                        }
+                    }
+                    ElevatedSuggestionChip(onClick = { isExpanded = true }, label = { Text("More...") })
+                }
+            }
+        }
+        items(storyFlow.itemCount) { index ->
+            storyFlow[index]?.let { story ->
                 Card(
                     modifier = Modifier
                         .animateItem()
@@ -135,16 +166,8 @@ fun MainScreen(viewModel: MainVM = viewModel()) {
                         modifier = Modifier.padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Box() {
-                            Card(
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            ) {
-                                Text(it.section, modifier = Modifier.padding(4.dp))
-                            }
-                            it.multimedia.maxByOrNull { it.width }?.url?.let { url ->
+                        Box {
+                            story.photoUrl?.let { url ->
                                 AsyncImage(
                                     model = url,
                                     contentDescription = null,
@@ -154,10 +177,29 @@ fun MainScreen(viewModel: MainVM = viewModel()) {
                                     contentScale = ContentScale.FillWidth
                                 )
                             }
+                            Card(
+                                onClick = {
+                                    uiState.sections.list.find { it.name == story.sectionName }
+                                        ?.let { viewModel.setSection(it) }
+                                },
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                ),
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(12.dp),
+                                shape = MaterialTheme.shapes.small
+                            ) {
+                                Text(
+                                    story.sectionName,
+                                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                                )
+                            }
                         }
-                        Text(it.title, style = MaterialTheme.typography.headlineSmall)
-                        if (it.abstract.isNotEmpty()) {
-                            Text(it.abstract)
+                        Text(story.title, style = MaterialTheme.typography.headlineSmall)
+                        story.description?.let {
+                            Text(it)
                         }
                     }
                 }
