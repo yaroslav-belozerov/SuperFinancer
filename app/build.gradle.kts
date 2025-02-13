@@ -1,10 +1,29 @@
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.kotlinx.serialization) apply false
+    alias(libs.plugins.kotlinx.serialization)
 }
+
+var finnhubToken: String = ""
+val propertiesFileName = "local.properties"
+try {
+    val apikeyPropertiesFile = rootProject.file(propertiesFileName)
+    val apikeyProperties = Properties()
+    apikeyProperties.load(FileInputStream(apikeyPropertiesFile))
+    finnhubToken = apikeyProperties["FINNHUB_TOKEN"].toString()
+    if (finnhubToken.isEmpty()) {
+        throw IllegalArgumentException("FINNHUB_TOKEN in local.properties is empty.")
+    }
+}  catch (e: Exception) {
+    throw e
+}
+
 
 android {
     namespace = "com.yaabelozerov.superfinancer"
@@ -18,6 +37,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "FINNHUB_TOKEN", finnhubToken)
     }
 
     buildTypes {
@@ -38,6 +59,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
