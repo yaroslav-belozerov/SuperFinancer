@@ -19,11 +19,25 @@ private infix fun TickerDto.combine(info: ProfileDto): Ticker {
     )
 }
 
+private fun TickerDto.isValid(): Boolean {
+    return current != 0.0 && high != 0.0 && low != 0.0 && open != 0.0 && previousOpen != 0.0 && deltaPercent != null && delta != null
+}
+
 class TickerUseCase(private val source: FinnhubSource = FinnhubSource()) {
     fun tickerFlow(symbols: List<String>): Flow<Triple<String, Ticker?, Throwable?>> = flow {
         symbols.forEach { symbol ->
             val rate = source.getRateForSymbol(symbol);
             val rateContent = rate.getOrNull()
+            if (rateContent?.isValid() == false) {
+                emit(
+                    Triple(
+                        symbol,
+                        null,
+                        Throwable("No ticker for symbol $symbol")
+                    )
+                )
+                return@forEach
+            }
             val info = source.getInfoForSymbol(symbol);
             val infoContent = info.getOrNull()
             if (rateContent == null || infoContent == null) {

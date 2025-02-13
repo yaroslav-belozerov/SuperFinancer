@@ -15,7 +15,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yaabelozerov.superfinancer.ui.screens.MainScreen
 import com.yaabelozerov.superfinancer.ui.theme.SuperFinancerTheme
 import com.yaabelozerov.superfinancer.ui.viewmodel.MainVM

@@ -2,12 +2,9 @@ package com.yaabelozerov.superfinancer.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.yaabelozerov.superfinancer.data.remote.finnhub.FinnhubSource
 import com.yaabelozerov.superfinancer.domain.model.Ticker
 import com.yaabelozerov.superfinancer.domain.usecase.TickerUseCase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest

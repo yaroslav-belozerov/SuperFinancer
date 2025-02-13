@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -30,9 +32,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil3.compose.AsyncImage
 import com.yaabelozerov.superfinancer.ui.viewmodel.MainVM
 
 @Composable
@@ -44,34 +49,63 @@ fun MainScreen(contentPadding: PaddingValues, viewModel: MainVM = viewModel()) {
             uiState.ticker.error?.let {
                 var showDetails by remember { mutableStateOf(false) }
                 Card(
-                    onClick = { showDetails = !showDetails },
-                    colors = CardDefaults.cardColors(
+                    onClick = { showDetails = !showDetails }, colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.errorContainer,
                         contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    ),
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).animateItem()
+                    ), modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .animateItem()
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(start = 16.dp)) {
-                        Icon(Icons.Default.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.onErrorContainer)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(start = 16.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onErrorContainer
+                        )
                         Text("Some tickers failed to load")
                         Spacer(Modifier.weight(1f))
                         IconButton(onClick = { showDetails = !showDetails }) {
-                            Icon(if (showDetails) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown, contentDescription = null, tint = MaterialTheme.colorScheme.onErrorContainer)
+                            Icon(
+                                if (showDetails) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onErrorContainer
+                            )
                         }
                     }
                     AnimatedVisibility(showDetails) {
-                        Column(modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)) {
-                            Text(it.localizedMessage ?: it.message ?: it.stackTrace.contentToString())
+                        Column(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .padding(bottom = 16.dp)
+                        ) {
+                            Text(
+                                it.localizedMessage ?: it.message ?: it.stackTrace.contentToString()
+                            )
                         }
                     }
                 }
             }
         }
         item {
-            LazyRow(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 items(uiState.ticker.map.entries.toList(), key = { it.key }) {
                     Card(modifier = Modifier.animateItem()) {
                         Column(modifier = Modifier.padding(12.dp)) {
+                            AsyncImage(
+                                model = it.value.logoUrl,
+                                contentDescription = null,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                                    .size(48.dp).clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
                             Text(it.value.name, fontWeight = FontWeight.Bold)
                             Text(it.value.run { "$value $currency" })
                         }
