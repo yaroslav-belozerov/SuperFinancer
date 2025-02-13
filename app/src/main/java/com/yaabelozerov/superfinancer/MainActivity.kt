@@ -16,6 +16,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.yaabelozerov.superfinancer.ui.screens.MainScreen
 import com.yaabelozerov.superfinancer.ui.theme.SuperFinancerTheme
 import com.yaabelozerov.superfinancer.ui.viewmodel.MainVM
 
@@ -24,25 +25,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val vm: MainVM = viewModel()
-            val uiState by vm.state.collectAsState()
-            LaunchedEffect(Unit) { vm.fetchForex() }
             SuperFinancerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LazyColumn(contentPadding = innerPadding) {
-                        item {
-                            LazyRow {
-                                item {
-                                    uiState.forex.error?.let {
-                                        Text(it.localizedMessage ?: it.message ?: it.stackTrace.contentToString(), color = MaterialTheme.colorScheme.error)
-                                    }
-                                }
-                                items(uiState.forex.list, key = { it.symbol }) {
-                                    Text(it.value)
-                                }
-                            }
-                        }
-                    }
+                    MainScreen(innerPadding)
                 }
             }
         }

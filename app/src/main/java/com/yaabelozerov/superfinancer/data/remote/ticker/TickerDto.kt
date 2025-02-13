@@ -1,11 +1,11 @@
-package com.yaabelozerov.superfinancer.data.remote.forex
+package com.yaabelozerov.superfinancer.data.remote.ticker
 
-import com.yaabelozerov.superfinancer.domain.model.Forex
+import com.yaabelozerov.superfinancer.domain.model.Ticker
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ForexDto(
+data class TickerDto(
     @SerialName("c") val current: Double,
     @SerialName("d") val delta: Double?,
     @SerialName("dp") val deltaPercent: Double?,
@@ -15,12 +15,6 @@ data class ForexDto(
     @SerialName("pc") val previousOpen: Double,
 )
 
-fun ForexDto.isValid(): Boolean {
+fun TickerDto.isValid(): Boolean {
     return current != 0.0 && high != 0.0 && low != 0.0 && open != 0.0 && previousOpen != 0.0 && deltaPercent != null && delta != null
 }
-
-fun ForexDto.toDomainOfSymbol(symbol: String) = Forex(
-    symbol = symbol,
-    value = current.toString(),
-    changePercent = deltaPercent,
-)
