@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.yaabelozerov.superfinancer.domain.model.Ticker
 import com.yaabelozerov.superfinancer.domain.usecase.StoryPagingConfig
 import com.yaabelozerov.superfinancer.domain.usecase.StoryUseCase
@@ -34,7 +35,7 @@ class MainVM(
 
     val storyFlow = Pager(
         PagingConfig(pageSize = StoryUseCase.DefaultConfig.limit)
-    ) { storyUseCase }.flow
+    ) { storyUseCase }.flow.cachedIn(viewModelScope)
 
     fun fetchTickers() {
         viewModelScope.launch(Dispatchers.IO) {
