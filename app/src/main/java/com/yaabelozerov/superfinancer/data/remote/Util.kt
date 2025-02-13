@@ -5,11 +5,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.math.max
 
-class RateLimiter(eventsPerMinute: Int) {
+class RateLimiter(eventsPerSecond: Double) {
     private val mutex = Mutex()
 
     @Volatile private var next = Long.MIN_VALUE
-    private val delayNanos = 1_000_000_000L / eventsPerMinute * 60
+    private val delayNanos = (1_000_000_000L / eventsPerSecond).toLong()
 
     suspend fun acquire() {
         val now = System.nanoTime()
