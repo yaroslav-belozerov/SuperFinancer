@@ -1,4 +1,4 @@
-package com.yaabelozerov.superfinancer.data.remote.ticker
+package com.yaabelozerov.superfinancer.data.remote.finnhub.ticker
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

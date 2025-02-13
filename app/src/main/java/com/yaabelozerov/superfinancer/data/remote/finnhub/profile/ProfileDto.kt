@@ -1,4 +1,4 @@
-package com.yaabelozerov.superfinancer.data.remote.profile
+package com.yaabelozerov.superfinancer.data.remote.finnhub.profile
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

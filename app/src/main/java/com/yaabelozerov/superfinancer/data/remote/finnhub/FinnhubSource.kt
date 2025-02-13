@@ -2,8 +2,8 @@ package com.yaabelozerov.superfinancer.data.remote.finnhub
 
 import com.yaabelozerov.superfinancer.BuildConfig
 import com.yaabelozerov.superfinancer.data.remote.Net
-import com.yaabelozerov.superfinancer.data.remote.profile.ProfileDto
-import com.yaabelozerov.superfinancer.data.remote.ticker.TickerDto
+import com.yaabelozerov.superfinancer.data.remote.finnhub.profile.ProfileDto
+import com.yaabelozerov.superfinancer.data.remote.finnhub.ticker.TickerDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get

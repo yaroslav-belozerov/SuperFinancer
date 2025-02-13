@@ -1,8 +1,8 @@
 package com.yaabelozerov.superfinancer.domain.usecase
 
 import com.yaabelozerov.superfinancer.data.remote.finnhub.FinnhubSource
-import com.yaabelozerov.superfinancer.data.remote.profile.ProfileDto
-import com.yaabelozerov.superfinancer.data.remote.ticker.TickerDto
+import com.yaabelozerov.superfinancer.data.remote.finnhub.profile.ProfileDto
+import com.yaabelozerov.superfinancer.data.remote.finnhub.ticker.TickerDto
 import com.yaabelozerov.superfinancer.domain.model.Ticker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
