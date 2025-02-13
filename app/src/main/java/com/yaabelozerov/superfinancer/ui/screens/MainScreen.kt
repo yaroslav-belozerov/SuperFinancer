@@ -2,6 +2,7 @@ package com.yaabelozerov.superfinancer.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -36,7 +38,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastMaxBy
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -46,8 +50,9 @@ import com.yaabelozerov.superfinancer.ui.viewmodel.MainVM
 @Composable
 fun MainScreen(viewModel: MainVM = viewModel()) {
     val uiState by viewModel.state.collectAsState()
+    val story = viewModel.storyFlow.collectAsLazyPagingItems()
     LaunchedEffect(Unit) { viewModel.fetchTickers() }
-    LazyColumn {
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         item {
             uiState.ticker.error?.let {
                 var showDetails by remember { mutableStateOf(false) }
@@ -105,12 +110,54 @@ fun MainScreen(viewModel: MainVM = viewModel()) {
                             AsyncImage(
                                 model = it.value.logoUrl,
                                 contentDescription = null,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                                    .size(48.dp).clip(CircleShape),
+                                modifier = Modifier
+                                    .padding(bottom = 8.dp)
+                                    .size(48.dp)
+                                    .clip(CircleShape),
                                 contentScale = ContentScale.Crop
                             )
                             Text(it.value.name, fontWeight = FontWeight.Bold)
                             Text(it.value.run { "$value $currency" })
+                        }
+                    }
+                }
+            }
+        }
+        items(story.itemCount) { index ->
+            story[index]?.let {
+                Card(
+                    modifier = Modifier
+                        .animateItem()
+                        .fillParentMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box() {
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            ) {
+                                Text(it.section, modifier = Modifier.padding(4.dp))
+                            }
+                            it.multimedia.maxByOrNull { it.width }?.url?.let { url ->
+                                AsyncImage(
+                                    model = url,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .clip(MaterialTheme.shapes.small)
+                                        .fillMaxWidth(),
+                                    contentScale = ContentScale.FillWidth
+                                )
+                            }
+                        }
+                        Text(it.title, style = MaterialTheme.typography.headlineSmall)
+                        if (it.abstract.isNotEmpty()) {
+                            Text(it.abstract)
                         }
                     }
                 }

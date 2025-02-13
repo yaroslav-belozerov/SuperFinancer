@@ -1,5 +1,4 @@
 import java.io.FileInputStream
-import java.io.FileNotFoundException
 import java.util.Properties
 
 plugins {
@@ -10,20 +9,16 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
 }
 
-var finnhubToken: String = ""
+val properties = mutableMapOf("FINNHUB_TOKEN" to "", "NYT_TOKEN" to "")
 val propertiesFileName = "local.properties"
-try {
-    val apikeyPropertiesFile = rootProject.file(propertiesFileName)
-    val apikeyProperties = Properties()
-    apikeyProperties.load(FileInputStream(apikeyPropertiesFile))
-    finnhubToken = apikeyProperties["FINNHUB_TOKEN"].toString()
-    if (finnhubToken.isEmpty()) {
-        throw IllegalArgumentException("FINNHUB_TOKEN in local.properties is empty.")
-    }
-}  catch (e: Exception) {
-    throw e
+val apikeyPropertiesFile = rootProject.file(propertiesFileName)
+val apikeyProperties = Properties()
+apikeyProperties.load(FileInputStream(apikeyPropertiesFile))
+for (name in properties.keys) {
+    val value = apikeyProperties[name].toString()
+    if (value.isEmpty()) throw IllegalArgumentException("FINNHUB_TOKEN in local.properties is empty.")
+    properties[name] = value
 }
-
 
 android {
     namespace = "com.yaabelozerov.superfinancer"
@@ -38,7 +33,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "FINNHUB_TOKEN", finnhubToken)
+        for ((name, value) in properties) {
+            buildConfigField("String", name, value)
+        }
     }
 
     buildTypes {
@@ -97,4 +94,8 @@ dependencies {
     // Compose Destinations Navigation
     implementation(libs.compose.destinations.core)
     ksp(libs.compose.destinations.ksp)
+
+    // Paging 3
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
 }
