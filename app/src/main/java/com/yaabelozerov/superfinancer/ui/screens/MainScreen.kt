@@ -38,13 +38,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import com.yaabelozerov.superfinancer.ui.viewmodel.MainVM
 
+@Destination<RootGraph>(start = true)
 @Composable
-fun MainScreen(contentPadding: PaddingValues, viewModel: MainVM = viewModel()) {
+fun MainScreen(viewModel: MainVM = viewModel()) {
     val uiState by viewModel.state.collectAsState()
     LaunchedEffect(Unit) { viewModel.fetchTickers() }
-    LazyColumn(contentPadding = contentPadding) {
+    LazyColumn {
         item {
             uiState.ticker.error?.let {
                 var showDetails by remember { mutableStateOf(false) }
