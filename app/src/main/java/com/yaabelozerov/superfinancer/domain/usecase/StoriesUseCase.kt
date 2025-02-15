@@ -6,6 +6,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.yaabelozerov.superfinancer.data.remote.nytimes.NytSource
 import com.yaabelozerov.superfinancer.data.remote.nytimes.stories.NytStoryPagingSource
+import com.yaabelozerov.superfinancer.data.remote.nytimes.stories.SectionDto
 import com.yaabelozerov.superfinancer.data.remote.nytimes.stories.StoryPagingDefaults
 import com.yaabelozerov.superfinancer.data.remote.nytimes.stories.StoryPagingDefaults.EXCLUDE
 import com.yaabelozerov.superfinancer.data.remote.nytimes.stories.StoryPagingDefaults.SECTION
@@ -17,13 +18,13 @@ import kotlinx.coroutines.flow.map
 class StoriesUseCase(
     private val remoteSource: NytSource = NytSource(),
 ) {
-    suspend fun getSections(): List<Section> {
-        return remoteSource.getSections().getOrNull()?.let {
-            it.list.mapNotNull {
+    suspend fun getSections(interceptDto: (suspend (List<Section>) -> Unit)? = null): List<Section> {
+        return remoteSource.getSections().getOrNull()?.let { dto ->
+            dto.list.mapNotNull {
                 if (it.section.isNotEmpty() && it.name.isNotEmpty()) {
                     Section(it.name, it.section)
                 } else null
-            }.filterNot { EXCLUDE.contains(it.key) }
+            }.filterNot { EXCLUDE.contains(it.key) }.also { interceptDto?.invoke(it) }
         } ?: emptyList()
     }
 
