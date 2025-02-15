@@ -90,10 +90,10 @@ fun MainScreen(snackBarHostState: SnackbarHostState, viewModel: MainVM = viewMod
     }
     val refreshState = rememberPullToRefreshState()
     val haptic = LocalHapticFeedback.current
-    var firstTime by remember { mutableStateOf(true) }
+    var firstTime by remember { mutableStateOf(false) }
     LaunchedEffect(refreshState.distanceFraction >= 1f) {
-        if (!firstTime) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-        firstTime = false
+        if (firstTime) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        firstTime = true
     }
     SharedTransitionLayout {
         AnimatedContent(isSearching) { searching ->
