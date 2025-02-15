@@ -1,17 +1,14 @@
 package com.yaabelozerov.superfinancer.domain.usecase
 
 import com.yaabelozerov.superfinancer.data.remote.finnhub.FinnhubSource
-import com.yaabelozerov.superfinancer.data.remote.finnhub.profile.ProfileDto
+import com.yaabelozerov.superfinancer.data.remote.finnhub.ticker.ProfileDto
 import com.yaabelozerov.superfinancer.data.remote.finnhub.ticker.TickerDto
 import com.yaabelozerov.superfinancer.domain.model.Ticker
 import com.yaabelozerov.superfinancer.ui.toString
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 
 private infix fun TickerDto.combine(info: ProfileDto): Ticker {
     return Ticker(
