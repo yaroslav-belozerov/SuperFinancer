@@ -1,9 +1,7 @@
-package com.yaabelozerov.superfinancer.ui.screens
+package com.yaabelozerov.superfinancer.ui.screens.main
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,134 +10,114 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.pullToRefresh
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.yaabelozerov.superfinancer.ui.viewmodel.MainVM
+import kotlin.math.min
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Destination<RootGraph>(start = true)
 @Composable
-fun MainScreen(viewModel: MainVM = viewModel()) {
+fun MainScreen(snackBarHostState: SnackbarHostState, viewModel: MainVM = viewModel()) {
     val ticker by viewModel.tickerState.collectAsState()
     val sections by viewModel.sectionState.collectAsState()
     val storyFlow = viewModel.stories.collectAsLazyPagingItems()
-    PullToRefreshBox(isRefreshing = ticker.isLoading, onRefresh = viewModel::fetchAll) {
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            item {
-                ticker.error?.let {
-                    var showDetails by remember { mutableStateOf(false) }
-                    Card(
-                        onClick = { showDetails = !showDetails },
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                            contentColor = MaterialTheme.colorScheme.onErrorContainer
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .animateItem()
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.padding(start = 16.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.Warning,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onErrorContainer
-                            )
-                            Text("Some tickers failed to load")
-                            Spacer(Modifier.weight(1f))
-                            IconButton(onClick = { showDetails = !showDetails }) {
-                                Icon(
-                                    if (showDetails) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onErrorContainer
-                                )
-                            }
-                        }
-                        AnimatedVisibility(showDetails) {
-                            Column(
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .padding(bottom = 16.dp)
-                            ) {
-                                Text(
-                                    it.localizedMessage ?: it.message
-                                    ?: it.stackTrace.contentToString()
-                                )
-                            }
-                        }
-                    }
-                }
+    LaunchedEffect(ticker.error) {
+        ticker.error?.run {
+            val action = snackBarHostState.showSnackbar(
+                message = localizedMessage ?: message ?: stackTraceToString(),
+                actionLabel = "Refresh",
+                withDismissAction = true,
+                duration = SnackbarDuration.Indefinite
+            )
+            when (action) {
+                SnackbarResult.Dismissed -> Unit
+                SnackbarResult.ActionPerformed -> viewModel.fetchAll()
             }
+        }
+    }
+    val refreshState = rememberPullToRefreshState()
+    val haptic = LocalHapticFeedback.current
+    var firstTime by remember { mutableStateOf(true) }
+    LaunchedEffect(refreshState.distanceFraction >= 1f) {
+        if (!firstTime) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        firstTime = false
+    }
+    Box(
+        Modifier.fillMaxSize().pullToRefresh(
+            isRefreshing = ticker.isLoading, onRefresh = viewModel::fetchAll, state = refreshState
+        )
+    ) {
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxSize()) {
             item {
-                LazyRow(
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .zIndex(1f)
+                        .fillParentMaxWidth()
+                        .height(refreshState.distanceFraction.times(48.dp))
                 ) {
-                    items(ticker.map.entries.toList(), key = { it.key }) {
-                        Card(modifier = Modifier.animateItem()) {
-                            Column(modifier = Modifier.padding(12.dp)) {
-                                AsyncImage(
-                                    model = it.value.logoUrl,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .padding(bottom = 8.dp)
-                                        .size(48.dp)
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
-                                )
-                                Text(it.value.name, fontWeight = FontWeight.Bold)
-                                Text(it.value.run { "$value $currency" })
-                            }
-                        }
-                    }
+                    val textColor by animateColorAsState(
+                        MaterialTheme.colorScheme.onBackground.copy(
+                            min(refreshState.distanceFraction, 0.85f)
+                        )
+                    )
+                    Text(
+                        ticker.lastUpdated.let {
+                            if (it.isBlank() || ticker.isLoading) "Refreshing..."
+                            else "Last updated: $it"
+                        }, color = textColor
+                    )
                 }
             }
+            item { TickerRow(ticker) }
             item {
                 var isExpanded by remember { mutableStateOf(false) }
                 CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
@@ -247,7 +225,10 @@ fun MainScreen(viewModel: MainVM = viewModel()) {
                                         Text(story.sectionName)
                                     })
                             }
-                            Text(story.title, style = MaterialTheme.typography.headlineSmall)
+                            Text(
+                                story.title,
+                                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
+                            )
                             story.description?.let {
                                 Text(it)
                             }

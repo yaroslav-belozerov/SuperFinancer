@@ -9,6 +9,8 @@ import com.yaabelozerov.superfinancer.domain.model.Story
 import com.yaabelozerov.superfinancer.domain.model.Ticker
 import com.yaabelozerov.superfinancer.domain.usecase.StoriesUseCase
 import com.yaabelozerov.superfinancer.domain.usecase.TickerUseCase
+import com.yaabelozerov.superfinancer.ui.currentLocalDateTimeFormatted
+import com.yaabelozerov.superfinancer.ui.toString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -18,11 +20,13 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 data class TickerState(
     val map: Map<String, Ticker> = emptyMap(),
     val error: Throwable? = null,
     val isLoading: Boolean = false,
+    val lastUpdated: String = ""
 )
 
 data class SectionState(
@@ -32,7 +36,7 @@ data class SectionState(
 
 class MainVM(
     private val tickerUseCase: TickerUseCase = TickerUseCase(),
-    private val storyUseCase: StoriesUseCase = StoriesUseCase()
+    private val storyUseCase: StoriesUseCase = StoriesUseCase(),
 ) : ViewModel() {
     private val _tickerState = MutableStateFlow(TickerState())
     val tickerState = _tickerState.asStateFlow()
@@ -47,28 +51,45 @@ class MainVM(
 
     init {
         fetchAll()
+        subscribeToTickers()
     }
 
     fun fetchAll() {
-        fetchTickers()
+        fetchTickerInfos()
         fetchSections()
     }
 
-    private fun fetchTickers() {
+    private fun fetchTickerInfos() {
         viewModelScope.launch(Dispatchers.IO) {
-            val lst =
-                listOf("GOOG", "AAPL", "MSFT", "TESLA", "AMZN", "META", "WMT", "JPM", "V", "MA")
-            _tickerState.update { it.copy(isLoading = true, map = emptyMap()) }
-            tickerUseCase.tickerFlow(lst).collectLatest { tickerItem ->
+            _tickerState.update { it.copy(isLoading = true) }
+            _tickerState.update {
+                it.copy(
+                    map = tickerUseCase.getFullInfoForSymbols(tickerList)
+                )
+            }
+            _tickerState.update { it.copy(isLoading = false, lastUpdated = currentLocalDateTimeFormatted()) }
+        }
+    }
+
+    private fun subscribeToTickers() {
+        viewModelScope.launch(Dispatchers.IO) {
+            tickerUseCase.tickerConnectionFlow(tickerList).collectLatest { newValue ->
                 _tickerState.update {
-                    if (tickerItem.second != null) {
-                        it.copy(map = it.map.plus(tickerItem.first to tickerItem.second!!))
-                    } else {
-                        it.copy(error = tickerItem.third)
-                    }
+                    val inMap = it.map[newValue.first]
+                    if (inMap != null) {
+                        it.copy(
+                            map = it.map.plus(
+                                newValue.first to inMap.copy(
+                                    value = newValue.second.toString(
+                                        2
+                                    )
+                                )
+                            ),
+                            lastUpdated = currentLocalDateTimeFormatted()
+                        )
+                    } else it
                 }
             }
-            _tickerState.update { it.copy(isLoading = false) }
         }
     }
 
@@ -84,9 +105,14 @@ class MainVM(
 
     fun setSection(section: Section?) {
         if (section?.key == _sectionState.value.selected?.key) {
-           _sectionState.update { it.copy(selected = null) }
+            _sectionState.update { it.copy(selected = null) }
         } else {
             _sectionState.update { it.copy(selected = section) }
         }
+    }
+
+    companion object {
+        private val tickerList =
+            listOf("GOOG", "AAPL", "MSFT", "TESLA", "AMZN", "META", "WMT", "JPM", "V", "MA")
     }
 }
