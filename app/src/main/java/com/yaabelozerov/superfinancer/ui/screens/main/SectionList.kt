@@ -67,9 +67,8 @@ fun SectionList(
                         contentPadding = PaddingValues(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(sections.list) {
-                            val selected = it.key == sections.selected?.key
-                            if (!selected) FilterChip(false, onClick = {
+                        items(sections.list.filter { it.key != sections.selected?.key }) {
+                            FilterChip(false, onClick = {
                                 onSetSection(it)
                             }, label = { Text(it.name) })
                         }

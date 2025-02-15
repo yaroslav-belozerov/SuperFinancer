@@ -12,8 +12,13 @@ import com.yaabelozerov.superfinancer.data.remote.nytimes.stories.StoryPagingDef
 import com.yaabelozerov.superfinancer.data.remote.nytimes.stories.StoryPagingDefaults.SECTION
 import com.yaabelozerov.superfinancer.domain.model.Section
 import com.yaabelozerov.superfinancer.domain.model.Story
+import com.yaabelozerov.superfinancer.ui.format
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 class StoriesUseCase(
     private val remoteSource: NytSource = NytSource(),
@@ -45,7 +50,11 @@ class StoriesUseCase(
                 description = it.abstract.ifBlank { it.subHeadline }.ifBlank { null },
                 author = it.byline,
                 photoUrl = it.multimedia.maxByOrNull { it.width }?.url,
-                sectionName = it.section
+                sectionName = it.section,
+                date = LocalDateTime.ofInstant(
+                    Instant.parse(it.updatedDate.ifBlank { it.firstPublishedDate.ifBlank { it.createdDate } }),
+                    ZoneId.systemDefault()
+                ).format()
             )
         }
     }

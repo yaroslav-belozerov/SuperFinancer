@@ -17,13 +17,12 @@ import androidx.compose.ui.zIndex
 import kotlin.math.min
 
 @Composable
-fun LazyItemScope.RefreshIndicator(isLoading: Boolean, text: String, distanceFraction: Float, modifier: Modifier = Modifier) {
+fun RefreshIndicator(isLoading: Boolean, text: String, distanceFraction: Float, modifier: Modifier = Modifier) {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .zIndex(1f)
-            .fillParentMaxWidth()
             .height(distanceFraction.times(48.dp))
     ) {
         val textColor by animateColorAsState(

@@ -70,14 +70,23 @@ fun MainScreen(snackBarHostState: SnackbarHostState, viewModel: MainVM = viewMod
         ) {
             item {
                 RefreshIndicator(
-                    ticker.isLoading, ticker.lastUpdated, refreshState.distanceFraction
+                    ticker.isLoading,
+                    ticker.lastUpdated,
+                    refreshState.distanceFraction,
+                    modifier = Modifier.fillParentMaxWidth()
                 )
             }
             item { TickerRow(ticker) }
             item { SectionList(sections, viewModel::setSection) }
             items(storyFlow.itemCount) { index ->
                 storyFlow[index]?.let { story ->
-                    StoryCard(story = story, onClickSectionName = viewModel::setSection)
+                    StoryCard(
+                        story = story,
+                        onClickSectionName = viewModel::setSection,
+                        modifier = Modifier
+                            .animateItem()
+                            .fillParentMaxWidth()
+                    )
                 }
             }
         }
