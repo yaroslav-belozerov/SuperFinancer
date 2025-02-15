@@ -89,150 +89,27 @@ fun MainScreen(snackBarHostState: SnackbarHostState, viewModel: MainVM = viewMod
         firstTime = false
     }
     Box(
-        Modifier.fillMaxSize().pullToRefresh(
-            isRefreshing = ticker.isLoading, onRefresh = viewModel::refreshAll, state = refreshState
-        )
+        Modifier
+            .fillMaxSize()
+            .pullToRefresh(
+                isRefreshing = ticker.isLoading,
+                onRefresh = viewModel::refreshAll,
+                state = refreshState
+            )
     ) {
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxSize()
+        ) {
             item {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .zIndex(1f)
-                        .fillParentMaxWidth()
-                        .height(refreshState.distanceFraction.times(48.dp))
-                ) {
-                    val textColor by animateColorAsState(
-                        MaterialTheme.colorScheme.onBackground.copy(
-                            min(refreshState.distanceFraction, 0.85f)
-                        )
-                    )
-                    Text(
-                        ticker.lastUpdated.let {
-                            if (it.isBlank() || ticker.isLoading) "Refreshing..."
-                            else "Last updated: $it"
-                        }, color = textColor
-                    )
-                }
+                RefreshIndicator(
+                    ticker.isLoading, ticker.lastUpdated, refreshState.distanceFraction
+                )
             }
             item { TickerRow(ticker) }
-            item {
-                var isExpanded by remember { mutableStateOf(false) }
-                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        FilterChip(true, onClick = {
-                            isExpanded = !isExpanded
-                        }, label = {
-                            Text(
-                                if (isExpanded) "Collapse" else "Expand",
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }, trailingIcon = {
-                            Icon(
-                                if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        })
-                        sections.selected?.let {
-                            FilterChip(false, onClick = {
-                                viewModel.setSection(null)
-                            }, label = {
-                                Text(it.name, color = MaterialTheme.colorScheme.primary)
-                            }, trailingIcon = {
-                                Icon(
-                                    Icons.Default.Close,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            })
-                        }
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    AnimatedContent(isExpanded) { expandSectionList ->
-                        if (expandSectionList) FlowRow(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            sections.list.forEach {
-                                val selected = it.key == sections.selected?.key
-                                FilterChip(selected, onClick = {
-                                    viewModel.setSection(it)
-                                }, label = { Text(it.name) }, leadingIcon = if (selected) {
-                                    {
-                                        Icon(
-                                            Icons.Default.Check,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.secondary
-                                        )
-                                    }
-                                } else null)
-                            }
-                        } else {
-                            LazyRow(
-                                contentPadding = PaddingValues(horizontal = 16.dp),
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                items(sections.list) {
-                                    val selected = it.key == sections.selected?.key
-                                    FilterChip(selected, onClick = {
-                                        viewModel.setSection(it)
-                                    }, label = { Text(it.name) })
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            item { SectionList(sections, viewModel::setSection) }
             items(storyFlow.itemCount) { index ->
                 storyFlow[index]?.let { story ->
-                    Card(
-                        modifier = Modifier
-                            .animateItem()
-                            .fillParentMaxWidth()
-                            .padding(horizontal = 16.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Box {
-                                story.photoUrl?.let { url ->
-                                    AsyncImage(
-                                        model = url,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .clip(MaterialTheme.shapes.small)
-                                            .fillMaxWidth(),
-                                        contentScale = ContentScale.FillWidth
-                                    )
-                                }
-                                FilterChip(selected = true,
-                                    onClick = {
-                                        sections.list.find { it.name == story.sectionName }
-                                            ?.let { viewModel.setSection(it) }
-                                    },
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .padding(vertical = 6.dp, horizontal = 12.dp),
-                                    label = {
-                                        Text(story.sectionName)
-                                    })
-                            }
-                            Text(
-                                story.title,
-                                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
-                            )
-                            story.description?.let {
-                                Text(it)
-                            }
-                        }
-                    }
+                    StoryCard(story = story, onClickSectionName = viewModel::setSection)
                 }
             }
         }

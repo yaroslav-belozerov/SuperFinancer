@@ -121,6 +121,10 @@ class MainVM(
         }
     }
 
+    fun setSection(sectionName: String) {
+        _sectionState.value.list.firstOrNull { it.name == sectionName }?.let { setSection(it) }
+    }
+
     companion object {
         private val tickerList =
             listOf("GOOG", "AAPL", "MSFT", "TESLA", "AMZN", "META", "WMT", "JPM", "V", "MA")
