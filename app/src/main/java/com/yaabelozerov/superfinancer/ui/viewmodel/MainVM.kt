@@ -9,6 +9,7 @@ import com.yaabelozerov.superfinancer.domain.model.Story
 import com.yaabelozerov.superfinancer.domain.model.Ticker
 import com.yaabelozerov.superfinancer.domain.usecase.StoriesUseCase
 import com.yaabelozerov.superfinancer.domain.usecase.TickerUseCase
+import com.yaabelozerov.superfinancer.ui.currentLocalDateTimeFormatted
 import com.yaabelozerov.superfinancer.ui.toString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -19,11 +20,13 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 data class TickerState(
     val map: Map<String, Ticker> = emptyMap(),
     val error: Throwable? = null,
     val isLoading: Boolean = false,
+    val lastUpdated: String = ""
 )
 
 data class SectionState(
@@ -64,7 +67,7 @@ class MainVM(
                     map = tickerUseCase.getFullInfoForSymbols(tickerList)
                 )
             }
-            _tickerState.update { it.copy(isLoading = false) }
+            _tickerState.update { it.copy(isLoading = false, lastUpdated = currentLocalDateTimeFormatted()) }
         }
     }
 
@@ -81,7 +84,8 @@ class MainVM(
                                         2
                                     )
                                 )
-                            )
+                            ),
+                            lastUpdated = currentLocalDateTimeFormatted()
                         )
                     } else it
                 }

@@ -20,12 +20,25 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.unit.Dp
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 fun Double.toString(precision: Int) = "%.${precision}f".format(this)
 
+fun currentLocalDateTimeFormatted() = LocalDateTime.now().run {
+    "${hour.toString().padStart(2, '0')}:${
+        minute.toString().padStart(2, '0')
+    } ${dayOfMonth.toString().padStart(2, '0')}/${
+        monthValue.toString().padStart(2, '0')
+    }/${year}"
+}
+
 @Composable
-fun LoadingBox(width: Dp, height: Dp, shape: Shape = MaterialTheme.shapes.medium) =
-    Box(modifier = Modifier.size(width, height).shimmerBackground(shape))
+fun LoadingBox(width: Dp, height: Dp, shape: Shape = MaterialTheme.shapes.medium) = Box(
+    modifier = Modifier
+        .size(width, height)
+        .shimmerBackground(shape)
+)
 
 fun Modifier.shimmerBackground(shape: Shape): Modifier = composed {
     val transition = rememberInfiniteTransition()

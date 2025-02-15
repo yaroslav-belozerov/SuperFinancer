@@ -1,6 +1,7 @@
 package com.yaabelozerov.superfinancer.ui.screens.main
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshState
+import androidx.compose.material3.pulltorefresh.pullToRefresh
+import androidx.compose.material3.pulltorefresh.pullToRefreshIndicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -42,15 +47,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
+import androidx.compose.ui.unit.times
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.yaabelozerov.superfinancer.ui.viewmodel.MainVM
+import kotlin.math.min
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Destination<RootGraph>(start = true)
@@ -59,20 +74,53 @@ fun MainScreen(snackBarHostState: SnackbarHostState, viewModel: MainVM = viewMod
     val ticker by viewModel.tickerState.collectAsState()
     val sections by viewModel.sectionState.collectAsState()
     val storyFlow = viewModel.stories.collectAsLazyPagingItems()
-    LaunchedEffect(ticker.error) { ticker.error?.run {
-        val action = snackBarHostState.showSnackbar(
-            message = localizedMessage ?: message ?: stackTraceToString(),
-            actionLabel = "Refresh",
-            withDismissAction = true,
-            duration = SnackbarDuration.Indefinite
-        )
-        when (action) {
-            SnackbarResult.Dismissed -> Unit
-            SnackbarResult.ActionPerformed -> viewModel.fetchAll()
+    LaunchedEffect(ticker.error) {
+        ticker.error?.run {
+            val action = snackBarHostState.showSnackbar(
+                message = localizedMessage ?: message ?: stackTraceToString(),
+                actionLabel = "Refresh",
+                withDismissAction = true,
+                duration = SnackbarDuration.Indefinite
+            )
+            when (action) {
+                SnackbarResult.Dismissed -> Unit
+                SnackbarResult.ActionPerformed -> viewModel.fetchAll()
+            }
         }
-    } }
-    PullToRefreshBox(isRefreshing = ticker.isLoading, onRefresh = viewModel::fetchAll) {
+    }
+    val refreshState = rememberPullToRefreshState()
+    val haptic = LocalHapticFeedback.current
+    LaunchedEffect(refreshState.distanceFraction >= 1f) {
+        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
+    Box(
+        Modifier.pullToRefresh(
+            isRefreshing = ticker.isLoading, onRefresh = viewModel::fetchAll, state = refreshState
+        )
+    ) {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .zIndex(1f)
+                        .fillParentMaxWidth()
+                        .height(refreshState.distanceFraction.times(48.dp))
+                ) {
+                    val textColor by animateColorAsState(
+                        MaterialTheme.colorScheme.onBackground.copy(
+                            min(refreshState.distanceFraction, 0.85f)
+                        )
+                    )
+                    Text(
+                        ticker.lastUpdated.let {
+                            if (it.isBlank() || ticker.isLoading) "Refreshing..."
+                            else "Last updated: $it"
+                        }, color = textColor
+                    )
+                }
+            }
             item { TickerRow(ticker) }
             item {
                 var isExpanded by remember { mutableStateOf(false) }
@@ -181,7 +229,10 @@ fun MainScreen(snackBarHostState: SnackbarHostState, viewModel: MainVM = viewMod
                                         Text(story.sectionName)
                                     })
                             }
-                            Text(story.title, style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold))
+                            Text(
+                                story.title,
+                                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
+                            )
                             story.description?.let {
                                 Text(it)
                             }
