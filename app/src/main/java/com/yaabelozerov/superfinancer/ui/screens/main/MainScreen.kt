@@ -2,13 +2,19 @@ package com.yaabelozerov.superfinancer.ui.screens.main
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -18,23 +24,40 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.CombinedLoadStates
+import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.yaabelozerov.superfinancer.ui.viewmodel.MainVM
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>(start = true)
 @Composable
 fun MainScreen(snackBarHostState: SnackbarHostState, viewModel: MainVM = viewModel()) {
     val ticker by viewModel.tickerState.collectAsState()
     val sections by viewModel.sectionState.collectAsState()
     val storyFlow = viewModel.stories.collectAsLazyPagingItems()
+    var refreshLoading by remember { mutableStateOf(true) }
+    var appendLoading by remember { mutableStateOf(true) }
+    LaunchedEffect(storyFlow.loadState.refresh) {
+        refreshLoading = when (storyFlow.loadState.refresh) {
+            is LoadState.Error -> false
+            LoadState.Loading -> true
+            is LoadState.NotLoading -> false
+        }
+        appendLoading = when (storyFlow.loadState.append) {
+            is LoadState.Error -> false
+            LoadState.Loading -> true
+            is LoadState.NotLoading -> false
+        }
+    }
     LaunchedEffect(ticker.error) {
         ticker.error?.run {
             val action = snackBarHostState.showSnackbar(
@@ -60,9 +83,10 @@ fun MainScreen(snackBarHostState: SnackbarHostState, viewModel: MainVM = viewMod
         Modifier
             .fillMaxSize()
             .pullToRefresh(
-                isRefreshing = ticker.isLoading,
-                onRefresh = viewModel::refreshAll,
-                state = refreshState
+                isRefreshing = ticker.isLoading || (refreshLoading && firstTime), onRefresh = {
+                    viewModel.refreshAll()
+                    storyFlow.refresh()
+                }, state = refreshState
             )
     ) {
         LazyColumn(
@@ -70,7 +94,7 @@ fun MainScreen(snackBarHostState: SnackbarHostState, viewModel: MainVM = viewMod
         ) {
             item {
                 RefreshIndicator(
-                    ticker.isLoading,
+                    ticker.isLoading || (refreshLoading && firstTime),
                     ticker.lastUpdated,
                     refreshState.distanceFraction,
                     modifier = Modifier.fillParentMaxWidth()
@@ -78,15 +102,28 @@ fun MainScreen(snackBarHostState: SnackbarHostState, viewModel: MainVM = viewMod
             }
             item { TickerRow(ticker) }
             item { SectionList(sections, viewModel::setSection) }
-            items(storyFlow.itemCount) { index ->
+            if (!refreshLoading) items(storyFlow.itemCount) { index ->
                 storyFlow[index]?.let { story ->
                     StoryCard(
                         story = story,
                         onClickSectionName = viewModel::setSection,
                         modifier = Modifier
                             .animateItem()
-                            .fillParentMaxWidth()
+                            .fillParentMaxWidth().padding(bottom = 8.dp)
                     )
+                }
+            }
+            if (refreshLoading || appendLoading) {
+                item {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(48.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
         }
