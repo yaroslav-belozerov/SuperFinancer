@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.automirrored.filled.TrendingFlat
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.HorizontalRule
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -45,6 +46,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -69,33 +72,58 @@ fun TickerRow(ticker: TickerState, modifier: Modifier = Modifier) = LazyRow(
 @Composable
 fun TickerCard(symbol: String, ticker: Ticker, modifier: Modifier = Modifier) {
     Card(modifier = modifier) {
-        Box(modifier = Modifier.fillMaxSize().padding(12.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp)
+        ) {
             Column(Modifier.align(Alignment.TopStart)) {
                 AsyncImage(
                     model = ticker.logoUrl,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
+                        .padding(bottom = 8.dp)
                         .size(48.dp)
                         .clip(
                             CircleShape
                         )
                 )
-                Text(ticker.name, fontWeight = FontWeight.Bold)
-                Text(ticker.run { "$value $currency" })
-                Text(symbol, color = MaterialTheme.colorScheme.onBackground.copy(0.5f))
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = ticker.value,
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(ticker.currency)
+                }
+                Text(
+                    ticker.name, color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
+                )
+                Text("$$symbol", color = MaterialTheme.colorScheme.onBackground.copy(0.5f))
             }
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.align(Alignment.TopEnd).padding(start = 48.dp)
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(start = 56.dp)
             ) {
                 val percent = ticker.changePercent
                 val icon = when {
-                    percent == null -> Icons.AutoMirrored.Default.TrendingFlat to MaterialTheme.colorScheme.surfaceBright
+                    percent == null -> Icons.Default.HorizontalRule to MaterialTheme.colorScheme.onBackground.copy(
+                        0.5f
+                    )
+
                     percent > 0 -> Icons.AutoMirrored.Default.TrendingUp to MaterialTheme.colorScheme.primary
                     percent < 0 -> Icons.AutoMirrored.Default.TrendingDown to MaterialTheme.colorScheme.error
-                    else -> Icons.AutoMirrored.Default.TrendingFlat to MaterialTheme.colorScheme.surfaceBright
+                    else -> Icons.Default.HorizontalRule to MaterialTheme.colorScheme.onBackground.copy(
+                        0.5f
+                    )
                 }
                 Icon(icon.first, contentDescription = null, tint = icon.second)
                 ticker.changePercent?.takeIf { it != 0.0 }?.let {

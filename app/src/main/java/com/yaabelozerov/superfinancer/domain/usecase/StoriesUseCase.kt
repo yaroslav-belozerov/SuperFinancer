@@ -18,7 +18,7 @@ class StoriesUseCase(
     private val remoteSource: NytSource = NytSource(),
 ) {
     suspend fun getSections(): List<Section> {
-        return remoteSource.getSections().also { println(it.exceptionOrNull()) }.getOrNull()?.let {
+        return remoteSource.getSections().getOrNull()?.let {
             it.list.mapNotNull {
                 if (it.section.isNotEmpty() && it.name.isNotEmpty()) {
                     Section(it.name, it.section)

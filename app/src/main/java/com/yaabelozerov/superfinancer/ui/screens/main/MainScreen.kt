@@ -1,4 +1,4 @@
-package com.yaabelozerov.superfinancer.ui.screens
+package com.yaabelozerov.superfinancer.ui.screens.main
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
@@ -29,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -50,7 +49,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
-import com.yaabelozerov.superfinancer.ui.screens.main.TickerRow
 import com.yaabelozerov.superfinancer.ui.viewmodel.MainVM
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)

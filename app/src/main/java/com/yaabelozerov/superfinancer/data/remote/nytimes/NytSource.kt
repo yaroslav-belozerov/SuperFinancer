@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.map
 class NytSource(private val client: HttpClient = Net.Client) {
     suspend fun getLatestStories(section: String, limit: Int, offset: Int, token: String = BuildConfig.NYT_TOKEN): Result<StoriesDto> = runCatching {
         rateLimiter.acquire()
-        println("Fetching stories $section $limit $offset")
         client.get {
             url("${BASE_URL}content/nyt/$section.json?limit=$limit&offset=$offset&api-key=$token")
         }.body()
@@ -34,7 +33,6 @@ class NytSource(private val client: HttpClient = Net.Client) {
 
     suspend fun getSections(token: String = BuildConfig.NYT_TOKEN): Result<SectionsDto> = runCatching {
         rateLimiter.acquire()
-        println("Fetching sections")
         client.get {
             url("${BASE_URL}content/section-list.json?api-key=$token")
         }.body()
