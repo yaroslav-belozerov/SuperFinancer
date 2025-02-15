@@ -68,7 +68,7 @@ class MainVM(
             _tickerState.update { it.copy(isLoading = true) }
             _tickerState.update {
                 it.copy(
-                    map = tickerUseCase.getFullInfoForSymbols(tickerList)
+                    map = tickerUseCase.getFullInfoForSymbols(preferencesUseCase.defaultTickers)
                 )
             }
             _tickerState.update {
@@ -81,7 +81,7 @@ class MainVM(
 
     private fun subscribeToTickers() {
         viewModelScope.launch(Dispatchers.IO) {
-            tickerUseCase.tickerConnectionFlow(tickerList).collectLatest { newValue ->
+            tickerUseCase.tickerConnectionFlow(preferencesUseCase.defaultTickers).collectLatest { newValue ->
                 _tickerState.update {
                     val inMap = it.map[newValue.first]
                     if (inMap != null) {
@@ -124,10 +124,5 @@ class MainVM(
 
     fun setSection(sectionName: String) {
         _sectionState.value.list.firstOrNull { it.name == sectionName }?.let { setSection(it) }
-    }
-
-    companion object {
-        private val tickerList =
-            listOf("GOOG", "AAPL", "MSFT", "TESLA", "AMZN", "META", "WMT", "JPM", "V", "MA")
     }
 }

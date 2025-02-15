@@ -2,7 +2,9 @@ package com.yaabelozerov.superfinancer
 
 import android.app.Application
 import android.content.Context
+import com.yaabelozerov.superfinancer.data.local.configuration.ConfigManager
 import com.yaabelozerov.superfinancer.data.local.datastore.DataStoreManager
+import kotlinx.serialization.ExperimentalSerializationApi
 
 class Application: Application() {
     override fun onCreate() {
@@ -13,6 +15,13 @@ class Application: Application() {
     companion object {
         private lateinit var app: Application
 
-        fun getDataStoreManager() = DataStoreManager(app.applicationContext)
+        val dataStoreManager by lazy {
+            DataStoreManager(app.applicationContext)
+        }
+
+        @OptIn(ExperimentalSerializationApi::class)
+        val configManager by lazy {
+            ConfigManager(app.applicationContext)
+        }
     }
 }
