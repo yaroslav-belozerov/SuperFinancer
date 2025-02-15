@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,6 +33,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
+import com.yaabelozerov.superfinancer.domain.model.SearchItem
 import com.yaabelozerov.superfinancer.ui.viewmodel.SearchVM
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -42,6 +44,7 @@ import kotlinx.coroutines.launch
 fun SharedTransitionScope.SearchPopup(
     animatedContentScope: AnimatedContentScope,
     onBack: () -> Unit,
+    onClick: (SearchItem) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SearchVM = viewModel(),
 ) {
@@ -71,7 +74,7 @@ fun SharedTransitionScope.SearchPopup(
             )
         }
         items(uiState.searchResults) {
-            ListItem(modifier = Modifier.animateItem(), headlineContent = {
+            ListItem(modifier = Modifier.animateItem().clickable { onClick(it) }, headlineContent = {
                 Text(it.title, style = MaterialTheme.typography.titleMedium)
             }, leadingContent = it.iconUrl?.let { url ->
                 {
@@ -80,7 +83,7 @@ fun SharedTransitionScope.SearchPopup(
                             CircleShape), contentScale = ContentScale.Crop
                     )
                 }
-            }, trailingContent = { Text(it.type) }, supportingContent = { Text(it.description) })
+            }, trailingContent = { Text(it.type.string) }, supportingContent = { Text(it.description) })
         }
     }
 }

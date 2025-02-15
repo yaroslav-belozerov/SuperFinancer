@@ -49,6 +49,7 @@ class StoriesUseCase(
                 title = it.title,
                 description = it.abstract.ifBlank { it.subHeadline }.ifBlank { null },
                 author = it.byline,
+                link = it.url,
                 photoUrl = it.multimedia.maxByOrNull { it.width }?.url,
                 sectionName = it.section,
                 date = LocalDateTime.ofInstant(

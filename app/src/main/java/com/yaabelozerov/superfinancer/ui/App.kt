@@ -19,7 +19,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.navigation.dependency
 import com.yaabelozerov.superfinancer.ui.navigation.BottomBar
-import com.yaabelozerov.superfinancer.ui.navigation.FadeAnimation
+import com.yaabelozerov.superfinancer.ui.navigation.Fade
 
 @Composable
 fun App() {
@@ -43,7 +43,7 @@ fun App() {
         DestinationsNavHost(
             navController = navCtrl,
             navGraph = NavGraphs.root,
-            defaultTransitions = FadeAnimation,
+            defaultTransitions = Fade,
             dependenciesContainerBuilder = {
                 dependency(snackBarState)
             },

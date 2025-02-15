@@ -50,12 +50,15 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.OpenArticleScreenDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.yaabelozerov.superfinancer.domain.model.SearchItemType
 import com.yaabelozerov.superfinancer.ui.viewmodel.MainVM
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Destination<RootGraph>(start = true)
 @Composable
-fun MainScreen(snackBarHostState: SnackbarHostState, viewModel: MainVM = viewModel()) {
+fun MainScreen(navigator: DestinationsNavigator, snackBarHostState: SnackbarHostState, viewModel: MainVM = viewModel()) {
     var isSearching by remember { mutableStateOf(false) }
     val ticker by viewModel.tickerState.collectAsState()
     val sections by viewModel.sectionState.collectAsState()
@@ -98,7 +101,12 @@ fun MainScreen(snackBarHostState: SnackbarHostState, viewModel: MainVM = viewMod
     SharedTransitionLayout {
         AnimatedContent(isSearching) { searching ->
             if (searching) {
-                SearchPopup(this@AnimatedContent, onBack = { isSearching = false })
+                SearchPopup(this@AnimatedContent, onBack = { isSearching = false }, onClick = {
+                    when (it.type) {
+                        SearchItemType.STORY -> navigator.navigate(OpenArticleScreenDestination(it.uri))
+                        SearchItemType.TICKER -> Unit
+                    }
+                })
             } else Box(
                 Modifier
                     .fillMaxSize()
@@ -154,6 +162,7 @@ fun MainScreen(snackBarHostState: SnackbarHostState, viewModel: MainVM = viewMod
                         storyFlow[index]?.let { story ->
                             StoryCard(
                                 story = story,
+                                onClick = { navigator.navigate(OpenArticleScreenDestination(story.link)) },
                                 onClickSectionName = viewModel::setSection,
                                 modifier = Modifier
                                     .animateItem()

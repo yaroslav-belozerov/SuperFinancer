@@ -30,10 +30,12 @@ import com.yaabelozerov.superfinancer.domain.model.Story
 @Composable
 fun StoryCard(
     story: Story,
+    onClick: () -> Unit,
     onClickSectionName: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
+        onClick = onClick,
         modifier = modifier
             .padding(horizontal = 16.dp)
     ) {
