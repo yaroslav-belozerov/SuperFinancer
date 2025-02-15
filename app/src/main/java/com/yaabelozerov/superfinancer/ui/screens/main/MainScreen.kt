@@ -43,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -180,7 +181,7 @@ fun MainScreen(snackBarHostState: SnackbarHostState, viewModel: MainVM = viewMod
                                         Text(story.sectionName)
                                     })
                             }
-                            Text(story.title, style = MaterialTheme.typography.headlineSmall)
+                            Text(story.title, style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold))
                             story.description?.let {
                                 Text(it)
                             }

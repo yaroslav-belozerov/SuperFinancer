@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
@@ -40,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -53,6 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.yaabelozerov.superfinancer.domain.model.Ticker
+import com.yaabelozerov.superfinancer.ui.LoadingBox
 import com.yaabelozerov.superfinancer.ui.viewmodel.TickerState
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -62,15 +65,20 @@ import kotlin.math.absoluteValue
 fun TickerRow(ticker: TickerState, modifier: Modifier = Modifier) = LazyRow(
     modifier = modifier.fillMaxWidth(),
     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-    horizontalArrangement = Arrangement.spacedBy(8.dp)
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
+    userScrollEnabled = !ticker.isLoading
 ) {
-    items(ticker.map.entries.toList(), key = { it.key }) {
+    if (!ticker.isLoading) items(ticker.map.entries.toList(), key = { it.key }) {
         TickerCard(it.key, it.value, Modifier.animateItem())
+    } else {
+        items(3) {
+            LoadingTickerCard(modifier.animateItem())
+        }
     }
 }
 
 @Composable
-fun TickerCard(symbol: String, ticker: Ticker, modifier: Modifier = Modifier) {
+private fun TickerCard(symbol: String, ticker: Ticker, modifier: Modifier = Modifier) {
     Card(modifier = modifier) {
         Box(
             modifier = Modifier
@@ -94,11 +102,8 @@ fun TickerCard(symbol: String, ticker: Ticker, modifier: Modifier = Modifier) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = ticker.value,
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Bold,
+                        text = ticker.value, style = MaterialTheme.typography.headlineMedium
                     )
-                    Text(ticker.currency)
                 }
                 Text(
                     ticker.name, color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
@@ -133,6 +138,20 @@ fun TickerCard(symbol: String, ticker: Ticker, modifier: Modifier = Modifier) {
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun LoadingTickerCard(modifier: Modifier = Modifier) {
+    OutlinedCard(modifier = modifier) {
+        Column(Modifier.padding(12.dp)) {
+            LoadingBox(48.dp, 48.dp, CircleShape)
+            Spacer(Modifier.height(8.dp))
+            LoadingBox(96.dp, 32.dp)
+            Spacer(Modifier.height(8.dp))
+            LoadingBox(104.dp, 40.dp)
+            Spacer(Modifier.height(4.dp))
         }
     }
 }

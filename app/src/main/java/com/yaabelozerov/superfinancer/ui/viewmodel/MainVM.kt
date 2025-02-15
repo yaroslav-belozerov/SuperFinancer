@@ -48,21 +48,23 @@ class MainVM(
 
     init {
         fetchAll()
+        subscribeToTickers()
     }
 
     fun fetchAll() {
         fetchTickerInfos()
-        subscribeToTickers()
         fetchSections()
     }
 
     private fun fetchTickerInfos() {
         viewModelScope.launch(Dispatchers.IO) {
+            _tickerState.update { it.copy(isLoading = true) }
             _tickerState.update {
                 it.copy(
                     map = tickerUseCase.getFullInfoForSymbols(tickerList)
                 )
             }
+            _tickerState.update { it.copy(isLoading = false) }
         }
     }
 
