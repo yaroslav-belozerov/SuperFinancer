@@ -3,7 +3,6 @@ package com.yaabelozerov.superfinancer.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,8 +16,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowRight
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CurrencyRuble
@@ -29,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -42,6 +40,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -51,6 +50,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.yaabelozerov.superfinancer.R
+import com.yaabelozerov.superfinancer.domain.model.Goal
+import com.yaabelozerov.superfinancer.domain.model.Transaction
 import com.yaabelozerov.superfinancer.ui.toString
 import com.yaabelozerov.superfinancer.ui.viewmodel.FinanceVM
 import kotlinx.coroutines.launch
@@ -70,98 +71,47 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Goals", style = MaterialTheme.typography.headlineLarge)
-                Button(onClick = { scope.launch { createGoalState.show() } }) {
-                    Icon(Icons.Default.Add, contentDescription = null)
-                    Text("Add")
-                }
-            }
+            Header(
+                "Goals", "Add", Icons.Default.Add
+            ) { scope.launch { createGoalState.show() } }
         }
-        items(uiState.goals, key = { "goal${it.id}" }) {
-            Column(
-                modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        it.name,
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.weight(1f, false)
-                    )
-                    Spacer(Modifier.width(16.dp))
-                    Text(
-                        "${it.currentRubles.toString(2)} of ${
-                            it.maxRubles.toString(
-                                2
-                            )
-                        } ₽", maxLines = 1
-                    )
-                }
-                LinearProgressIndicator(
-                    progress = { it.currentRubles.div(it.maxRubles).toFloat() },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
+        items(uiState.goals, key = { "goal${it.id}" }) { Goal(it) }
         item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Transactions", style = MaterialTheme.typography.headlineLarge)
-                Button(onClick = { scope.launch { createTransactionState.show() } }) {
-                    Icon(Icons.Default.AttachMoney, contentDescription = null)
-                    Text("Make")
-                }
-            }
+            Header(
+                "Transactions", "Make", Icons.Default.AttachMoney
+            ) { scope.launch { createTransactionState.show() } }
         }
-        items(uiState.transactions, key = { "transaction${it.id}" }) {
-            Column(
-                modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        it.valueInRubles.toString(2).plus(" ₽"),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(it.timestamp, fontStyle = FontStyle.Italic)
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painterResource(R.drawable.right_arrow),
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                    Text(it.goalName, style = MaterialTheme.typography.titleLarge)
-                }
-                if (it.comment.isNotEmpty()) {
-                    Text(it.comment)
-                }
-            }
+        items(uiState.transactions, key = { "transaction${it.id}" }) { Transaction(it) }
+    }
+
+
+    if (createGoalState.isVisible) CreateGoalModal(createGoalState, viewModel::createGoal)
+    if (createTransactionState.isVisible) CreateTransactionModal(
+        createTransactionState, uiState.goals, viewModel::makeTransaction
+    )
+}
+
+@Composable
+private fun Header(title: String, actionName: String, icon: ImageVector, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 24.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(title, style = MaterialTheme.typography.headlineLarge)
+        Button(onClick = onClick) {
+            Icon(icon, contentDescription = null)
+            Text(actionName)
         }
     }
-    if (createGoalState.isVisible) ModalBottomSheet(onDismissRequest = { scope.launch { createGoalState.hide() } }) {
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CreateGoalModal(state: SheetState, onCreate: (String, Double) -> Unit) {
+    val scope = rememberCoroutineScope()
+    ModalBottomSheet(onDismissRequest = { scope.launch { state.hide() } }) {
         Column(
             modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -189,20 +139,97 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
             )
             Button(
                 onClick = {
-                    viewModel.createGoal(name, amount)
-                    scope.launch { createGoalState.hide() }
+                    onCreate(name, amount)
+                    scope.launch { state.hide() }
                 }, modifier = Modifier.fillMaxWidth()
             ) { Text("Save") }
         }
     }
-    if (createTransactionState.isVisible) ModalBottomSheet(onDismissRequest = { scope.launch { createTransactionState.hide() } }) {
+}
+
+@Composable
+fun Goal(goal: Goal) {
+    Column(
+        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                goal.name,
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.weight(1f, false)
+            )
+            Spacer(Modifier.width(16.dp))
+            Text(
+                "${goal.currentRubles.toString(2)} of ${
+                    goal.maxRubles.toString(
+                        2
+                    )
+                } ₽", maxLines = 1
+            )
+        }
+        LinearProgressIndicator(
+            progress = { goal.currentRubles.div(goal.maxRubles).toFloat() },
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun Transaction(transaction: Transaction) {
+    Column(
+        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                transaction.valueInRubles.toString(2).plus(" ₽"),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Text(transaction.timestamp, fontStyle = FontStyle.Italic)
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painterResource(R.drawable.right_arrow),
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = MaterialTheme.colorScheme.onBackground
+            )
+            Text(transaction.goalName, style = MaterialTheme.typography.titleLarge)
+        }
+        if (transaction.comment.isNotEmpty()) {
+            Text(transaction.comment)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CreateTransactionModal(
+    state: SheetState,
+    goals: List<Goal>,
+    onCreate: (Long, Double, String) -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+    ModalBottomSheet(onDismissRequest = { scope.launch { state.hide() } }) {
         Column(
             modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text("Make a payment", style = MaterialTheme.typography.headlineLarge)
             var chosenGoalId by remember { mutableStateOf<Long?>(null) }
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(uiState.goals, key = { it.id }) {
+                items(goals, key = { it.id }) {
                     FilterChip(selected = it.id == chosenGoalId,
                         onClick = { chosenGoalId = it.id },
                         label = {
@@ -236,8 +263,8 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
             Button(
                 onClick = {
                     chosenGoalId?.let {
-                        viewModel.makeTransaction(it, amount, comment)
-                        scope.launch { createGoalState.hide() }
+                        onCreate(it, amount, comment)
+                        scope.launch { state.hide() }
                     }
                 }, modifier = Modifier.fillMaxWidth()
             ) { Text("Save") }
