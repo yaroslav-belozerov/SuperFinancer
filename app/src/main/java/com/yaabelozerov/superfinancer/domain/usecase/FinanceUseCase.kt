@@ -5,11 +5,16 @@ import com.yaabelozerov.superfinancer.data.local.room.finance.FinanceDao
 import com.yaabelozerov.superfinancer.data.local.room.finance.GoalEntity
 import com.yaabelozerov.superfinancer.data.local.room.finance.TransactionEntity
 import com.yaabelozerov.superfinancer.domain.model.Goal
+import com.yaabelozerov.superfinancer.domain.model.Transaction
+import com.yaabelozerov.superfinancer.ui.format
 import com.yaabelozerov.superfinancer.ui.toString
 import kotlinx.coroutines.flow.map
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 class FinanceUseCase(
-    private val financeDao: FinanceDao = Application.financeDao
+    private val financeDao: FinanceDao = Application.financeDao,
 ) {
     val goalFlow = financeDao.getAllTargetsWithTransactions().map {
         it.map {
@@ -26,17 +31,34 @@ class FinanceUseCase(
         }
     }
 
+    val transactionFlow = financeDao.getAllTransactions().map {
+        it.map {
+            val (transaction, goal) = it
+            Transaction(
+                id = transaction.id,
+                valueInRubles = transaction.valueInKopecks.div(100.0),
+                comment = transaction.comment,
+                goalName = goal.name,
+                timestamp = LocalDateTime.ofInstant(
+                    Instant.ofEpochMilli(transaction.timestamp), ZoneId.systemDefault()
+                ).format()
+            )
+        }
+    }
+
     suspend fun createGoal(name: String, amountInRubles: Double) {
         financeDao.createGoal(
             GoalEntity(
-                id = 0,
-                name = name,
-                amountInKopecks = amountInRubles.times(100).toLong()
+                id = 0, name = name, amountInKopecks = amountInRubles.times(100).toLong()
             )
         )
     }
 
-    suspend fun createTransaction(goalId: Long, amountInRubles: Double = 0.0, comment: String = "") {
+    suspend fun createTransaction(
+        goalId: Long,
+        amountInRubles: Double = 0.0,
+        comment: String = "",
+    ) {
         financeDao.upsertTransaction(
             TransactionEntity(
                 id = 0,
