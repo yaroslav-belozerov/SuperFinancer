@@ -2,8 +2,11 @@ package com.yaabelozerov.superfinancer
 
 import android.app.Application
 import android.content.Context
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import com.yaabelozerov.superfinancer.data.local.configuration.ConfigManager
 import com.yaabelozerov.superfinancer.data.local.datastore.DataStoreManager
+import com.yaabelozerov.superfinancer.data.local.room.finance.FinanceDb
 import kotlinx.serialization.ExperimentalSerializationApi
 
 class Application: Application() {
@@ -23,5 +26,10 @@ class Application: Application() {
         val configManager by lazy {
             ConfigManager(app.applicationContext)
         }
+
+        private val financeDb by lazy {
+            Room.databaseBuilder(app.applicationContext, FinanceDb::class.java, "finance.db").build()
+        }
+        val financeDao by lazy { financeDb.dao() }
     }
 }
