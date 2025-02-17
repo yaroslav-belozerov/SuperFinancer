@@ -1,13 +1,21 @@
 package com.yaabelozerov.superfinancer.ui.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -40,18 +48,24 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil3.compose.AsyncImage
+import coil3.compose.rememberAsyncImagePainter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.yaabelozerov.superfinancer.Application
 import com.yaabelozerov.superfinancer.R
 import com.yaabelozerov.superfinancer.domain.model.Goal
 import com.yaabelozerov.superfinancer.domain.model.Transaction
+import com.yaabelozerov.superfinancer.ui.App
 import com.yaabelozerov.superfinancer.ui.toString
 import com.yaabelozerov.superfinancer.ui.viewmodel.FinanceVM
 import kotlinx.coroutines.launch
@@ -82,6 +96,7 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
             ) { scope.launch { createTransactionState.show() } }
         }
         items(uiState.transactions, key = { "transaction${it.id}" }) { Transaction(it) }
+        item { Spacer(Modifier.height(16.dp)) }
     }
 
 
@@ -109,13 +124,44 @@ private fun Header(title: String, actionName: String, icon: ImageVector, onClick
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CreateGoalModal(state: SheetState, onCreate: (String, Double) -> Unit) {
+private fun CreateGoalModal(state: SheetState, onCreate: (String, Double, String) -> Unit) {
     val scope = rememberCoroutineScope()
     ModalBottomSheet(onDismissRequest = { scope.launch { state.hide() } }) {
         Column(
             modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text("Create a goal", style = MaterialTheme.typography.headlineLarge)
+            var currentImage by remember { mutableStateOf<String?>(null) }
+            var currentImageUri by remember { mutableStateOf<Uri?>(null) }
+            val picker =
+                rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+                    uri?.let { uriNotNull ->
+                        currentImageUri = uriNotNull
+                        scope.launch {
+                            Application.mediaManager.importMedia(uriNotNull) {
+                                currentImage?.let { current ->
+                                    scope.launch {
+                                        Application.mediaManager.removeMedia(current)
+                                    }
+                                }
+                                currentImage = it
+                            }
+                        }
+                    }
+                }
+            AsyncImage(model = currentImageUri
+                ?: (if (isSystemInDarkTheme()) R.drawable.image_placeholder_dark else R.drawable.image_placeholder_light),
+                contentDescription = null,
+                contentScale = if (currentImageUri == null) ContentScale.Fit else ContentScale.Crop,
+                modifier = Modifier
+                    .width(256.dp)
+                    .aspectRatio(1.5f)
+                    .clip(
+                        MaterialTheme.shapes.medium
+                    )
+                    .clickable {
+                        picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    })
             var name by remember { mutableStateOf("") }
             TextField(name,
                 onValueChange = { name = it },
@@ -139,7 +185,7 @@ private fun CreateGoalModal(state: SheetState, onCreate: (String, Double) -> Uni
             )
             Button(
                 onClick = {
-                    onCreate(name, amount)
+                    onCreate(name, amount, currentImage ?: "")
                     scope.launch { state.hide() }
                 }, modifier = Modifier.fillMaxWidth()
             ) { Text("Save") }
@@ -152,6 +198,15 @@ fun Goal(goal: Goal) {
     Column(
         modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        AsyncImage(
+            model = goal.image,
+            contentDescription = null,
+            modifier = Modifier
+                .width(256.dp)
+                .aspectRatio(1.5f)
+                .clip(MaterialTheme.shapes.medium),
+            contentScale = ContentScale.Crop
+        )
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,

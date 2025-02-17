@@ -35,9 +35,9 @@ class FinanceVM(
         }
     }
 
-    fun createGoal(name: String, amountInRubles: Double) {
+    fun createGoal(name: String, amountInRubles: Double, image: String) {
         viewModelScope.launch {
-            financeUseCase.createGoal(name = name, amountInRubles = amountInRubles)
+            financeUseCase.createGoal(name = name, amountInRubles = amountInRubles, image = image)
         }
     }
 

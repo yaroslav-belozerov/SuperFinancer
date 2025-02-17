@@ -23,10 +23,11 @@ class FinanceUseCase(
             val rubles = goal.amountInKopecks.div(100.0)
             val transactionRubles = transactions.sumOf { it.valueInKopecks.div(100.0) }
             Goal(
-                goal.id,
-                goal.name,
-                transactionRubles,
-                rubles,
+                id = goal.id,
+                image = goal.image,
+                name = goal.name,
+                currentRubles = transactionRubles,
+                maxRubles = rubles,
             )
         }
     }
@@ -46,10 +47,10 @@ class FinanceUseCase(
         }
     }
 
-    suspend fun createGoal(name: String, amountInRubles: Double) {
+    suspend fun createGoal(name: String, amountInRubles: Double, image: String) {
         financeDao.createGoal(
             GoalEntity(
-                id = 0, name = name, amountInKopecks = amountInRubles.times(100).toLong()
+                id = 0, name = name, image = image, amountInKopecks = amountInRubles.times(100).toLong()
             )
         )
     }
