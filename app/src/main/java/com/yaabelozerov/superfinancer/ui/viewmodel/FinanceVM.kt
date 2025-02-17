@@ -26,4 +26,10 @@ class FinanceVM(
             }
         }
     }
+
+    fun createGoal(name: String, amountInRubles: Double) {
+        viewModelScope.launch {
+            financeUseCase.createGoal(name, amountInRubles)
+        }
+    }
 }
