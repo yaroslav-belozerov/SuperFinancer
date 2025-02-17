@@ -4,15 +4,20 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,12 +36,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -49,26 +55,36 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
-import coil3.compose.rememberAsyncImagePainter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.yaabelozerov.superfinancer.Application
 import com.yaabelozerov.superfinancer.R
 import com.yaabelozerov.superfinancer.domain.model.Goal
 import com.yaabelozerov.superfinancer.domain.model.Transaction
-import com.yaabelozerov.superfinancer.ui.App
 import com.yaabelozerov.superfinancer.ui.toString
 import com.yaabelozerov.superfinancer.ui.viewmodel.FinanceVM
 import kotlinx.coroutines.launch
+import kotlin.math.min
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Destination<RootGraph>
@@ -154,7 +170,7 @@ private fun CreateGoalModal(state: SheetState, onCreate: (String, Double, String
                 contentDescription = null,
                 contentScale = if (currentImageUri == null) ContentScale.Fit else ContentScale.Crop,
                 modifier = Modifier
-                    .width(256.dp)
+                    .width(192.dp)
                     .aspectRatio(1.5f)
                     .clip(
                         MaterialTheme.shapes.medium
@@ -185,8 +201,10 @@ private fun CreateGoalModal(state: SheetState, onCreate: (String, Double, String
             )
             Button(
                 onClick = {
-                    onCreate(name, amount, currentImage ?: "")
-                    scope.launch { state.hide() }
+                    if (amount > 0 && name.isNotBlank()) {
+                        onCreate(name, amount, currentImage ?: "")
+                        scope.launch { state.hide() }
+                    }
                 }, modifier = Modifier.fillMaxWidth()
             ) { Text("Save") }
         }
@@ -198,15 +216,52 @@ fun Goal(goal: Goal) {
     Column(
         modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        AsyncImage(
-            model = goal.image,
-            contentDescription = null,
-            modifier = Modifier
-                .width(256.dp)
-                .aspectRatio(1.5f)
-                .clip(MaterialTheme.shapes.medium),
-            contentScale = ContentScale.Crop
-        )
+        Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            AsyncImage(
+                model = goal.image,
+                contentDescription = null,
+                modifier = Modifier
+                    .height(192.dp)
+                    .weight(0.8f)
+                    .clip(MaterialTheme.shapes.medium),
+                contentScale = ContentScale.Crop
+            )
+            val progress by animateFloatAsState(
+                min(
+                    goal.currentRubles.div(goal.maxRubles), 1.0
+                ).toFloat()
+            )
+            Box(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.surfaceBright)
+                    .height(192.dp)
+                    .weight(0.2f)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(progress)
+                        .align(Alignment.BottomCenter)
+                        .clip(MaterialTheme.shapes.medium)
+                        .background(MaterialTheme.colorScheme.primary)
+                )
+                Surface(
+                    shape = MaterialTheme.shapes.small,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(8.dp)
+                        .fillMaxWidth(),
+                ) {
+                    Text(
+                        "${(progress * 100).roundToInt()}%",
+                        modifier = Modifier.padding(8.dp).fillMaxWidth(),
+                        style = MaterialTheme.typography.titleSmall,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -226,10 +281,6 @@ fun Goal(goal: Goal) {
                 } ₽", maxLines = 1
             )
         }
-        LinearProgressIndicator(
-            progress = { goal.currentRubles.div(goal.maxRubles).toFloat() },
-            modifier = Modifier.fillMaxWidth()
-        )
     }
 }
 
