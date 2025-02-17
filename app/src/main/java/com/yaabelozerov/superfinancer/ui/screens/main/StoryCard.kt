@@ -56,7 +56,7 @@ fun StoryCard(
         ) {
             Text(
                 story.title,
-                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold)
+                style = MaterialTheme.typography.displaySmall
             )
             story.description?.let {
                 Text(it)

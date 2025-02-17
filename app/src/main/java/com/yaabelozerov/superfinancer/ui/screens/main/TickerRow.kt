@@ -102,7 +102,7 @@ private fun TickerCard(symbol: String, ticker: Ticker, modifier: Modifier = Modi
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = ticker.value, style = MaterialTheme.typography.headlineMedium
+                        text = ticker.value, style = MaterialTheme.typography.headlineLarge
                     )
                 }
                 Text(

@@ -255,8 +255,8 @@ fun Goal(goal: Goal) {
                 ) {
                     Text(
                         "${(progress * 100).roundToInt()}%",
-                        modifier = Modifier.padding(8.dp).fillMaxWidth(),
-                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(4.dp).fillMaxWidth(),
+                        style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -269,7 +269,7 @@ fun Goal(goal: Goal) {
         ) {
             Text(
                 goal.name,
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.weight(1f, false)
             )
             Spacer(Modifier.width(16.dp))
