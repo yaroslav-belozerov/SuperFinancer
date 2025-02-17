@@ -93,10 +93,10 @@ fun MainScreen(navigator: DestinationsNavigator, snackBarHostState: SnackbarHost
     }
     val refreshState = rememberPullToRefreshState()
     val haptic = LocalHapticFeedback.current
-    var firstTime by remember { mutableStateOf(false) }
+    var seenAnimation by remember { mutableStateOf(false) }
     LaunchedEffect(refreshState.distanceFraction >= 1f) {
-        if (firstTime) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-        firstTime = true
+        if (seenAnimation) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        seenAnimation = true
     }
     SharedTransitionLayout {
         AnimatedContent(isSearching) { searching ->
@@ -111,7 +111,7 @@ fun MainScreen(navigator: DestinationsNavigator, snackBarHostState: SnackbarHost
                 Modifier
                     .fillMaxSize()
                     .pullToRefresh(
-                        isRefreshing = ticker.isLoading || (refreshLoading && firstTime),
+                        isRefreshing = ticker.isLoading || (refreshLoading && !seenAnimation),
                         onRefresh = {
                             viewModel.refreshAll()
                             storyFlow.refresh()
@@ -125,7 +125,7 @@ fun MainScreen(navigator: DestinationsNavigator, snackBarHostState: SnackbarHost
                 ) {
                     item {
                         RefreshIndicator(
-                            ticker.isLoading || (refreshLoading && firstTime),
+                            ticker.isLoading || (refreshLoading && !seenAnimation),
                             ticker.lastUpdated,
                             refreshState.distanceFraction,
                             modifier = Modifier.fillParentMaxWidth()
