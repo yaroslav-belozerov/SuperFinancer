@@ -21,7 +21,8 @@ class DataStoreManager(context: Context) {
 
     companion object Keys {
         enum class Strings(internal val key: Preferences.Key<String>) {
-            LAST_SECTIONS(stringPreferencesKey("last_sections"))
+            LAST_SECTIONS(stringPreferencesKey("last_sections")),
+            LAST_ROUTE(stringPreferencesKey("last_route"))
         }
     }
 }
