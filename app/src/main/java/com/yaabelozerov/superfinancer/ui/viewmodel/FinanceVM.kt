@@ -13,7 +13,9 @@ import kotlinx.coroutines.launch
 
 data class FinanceState(
     val goals: List<Goal> = emptyList(),
-    val transactions: List<Transaction> = emptyList()
+    val transactions: List<Transaction> = emptyList(),
+    val totalGoal: Double = 1.0,
+    val totalAmount: Double = 0.0
 )
 
 class FinanceVM(
@@ -24,14 +26,16 @@ class FinanceVM(
 
     init {
         viewModelScope.launch {
-            financeUseCase.goalFlow.collect { goals ->
-                _state.update { it.copy(goals = goals) }
-            }
+            financeUseCase.goalFlow.collect { _state.update { st -> st.copy(goals = it) } }
         }
         viewModelScope.launch {
-            financeUseCase.transactionFlow.collect { transactions ->
-                _state.update { it.copy(transactions = transactions) }
-            }
+            financeUseCase.transactionFlow.collect { _state.update { st -> st.copy(transactions = it) } }
+        }
+        viewModelScope.launch {
+            financeUseCase.totalGoalFlow.collect { _state.update { st -> st.copy(totalGoal = it) } }
+        }
+        viewModelScope.launch {
+            financeUseCase.totalAmountFlow.collect { _state.update { st -> st.copy(totalAmount = it) } }
         }
     }
 

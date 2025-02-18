@@ -8,6 +8,7 @@ import com.yaabelozerov.superfinancer.domain.model.Goal
 import com.yaabelozerov.superfinancer.domain.model.Transaction
 import com.yaabelozerov.superfinancer.ui.format
 import com.yaabelozerov.superfinancer.ui.toString
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.time.Instant
 import java.time.LocalDateTime
@@ -46,6 +47,9 @@ class FinanceUseCase(
             )
         }
     }
+
+    val totalGoalFlow = financeDao.totalGoalInKopecks().map { it.div(100.0) }
+    val totalAmountFlow = financeDao.totalTransactionAmountInKopecks().map { it.div(100.0) }
 
     suspend fun createGoal(name: String, amountInRubles: Double, image: String) {
         financeDao.createGoal(

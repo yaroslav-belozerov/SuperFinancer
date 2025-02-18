@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CurrencyRuble
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -46,6 +47,7 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -80,6 +82,7 @@ import com.yaabelozerov.superfinancer.Application
 import com.yaabelozerov.superfinancer.R
 import com.yaabelozerov.superfinancer.domain.model.Goal
 import com.yaabelozerov.superfinancer.domain.model.Transaction
+import com.yaabelozerov.superfinancer.ui.smartRound
 import com.yaabelozerov.superfinancer.ui.toString
 import com.yaabelozerov.superfinancer.ui.viewmodel.FinanceVM
 import kotlinx.coroutines.launch
@@ -100,6 +103,22 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
         contentPadding = PaddingValues(horizontal = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        item {
+            Spacer(Modifier.height(24.dp))
+            Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                val progress by animateFloatAsState((uiState.totalAmount / uiState.totalGoal).toFloat())
+                Column {
+                    Text("Collected", style = MaterialTheme.typography.headlineSmall)
+                    Spacer(Modifier.height(4.dp))
+                    Text("${uiState.totalAmount.toString(2)} of ${uiState.totalGoal.toString(2)} ₽")
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(progress = { progress })
+                    Spacer(Modifier.height(4.dp))
+                    Text("${progress.times(100).smartRound(1)}%", style = MaterialTheme.typography.headlineSmall)
+                }
+            }
+        }
         item {
             Header(
                 "Goals", "Add", Icons.Default.Add
@@ -123,7 +142,7 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
 }
 
 @Composable
-private fun Header(title: String, actionName: String, icon: ImageVector, onClick: () -> Unit) {
+private fun Header(title: String, actionName: String? = null, icon: ImageVector? = null, onClick: (() -> Unit)? = null) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -131,9 +150,11 @@ private fun Header(title: String, actionName: String, icon: ImageVector, onClick
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(title, style = MaterialTheme.typography.headlineLarge)
-        Button(onClick = onClick) {
-            Icon(icon, contentDescription = null)
-            Text(actionName)
+        onClick?.let { action ->
+            Button(onClick = action) {
+                icon?.let { Icon(it, contentDescription = null) }
+                actionName?.let { Text(it) }
+            }
         }
     }
 }

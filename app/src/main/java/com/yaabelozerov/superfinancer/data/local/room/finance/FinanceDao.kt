@@ -17,6 +17,12 @@ interface FinanceDao {
     @Query("SELECT * FROM transactions ORDER BY timestamp DESC")
     fun getAllTransactions(): Flow<List<TransactionAndGoal>>
 
+    @Query("SELECT SUM(amountInKopecks) FROM goals")
+    fun totalGoalInKopecks(): Flow<Long>
+
+    @Query("SELECT SUM(valueInKopecks) from transactions")
+    fun totalTransactionAmountInKopecks(): Flow<Long>
+
     @Insert
     suspend fun createGoal(goalEntity: GoalEntity): Long
 
