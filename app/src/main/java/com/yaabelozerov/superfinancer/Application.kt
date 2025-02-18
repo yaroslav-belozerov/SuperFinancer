@@ -6,6 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.withTransaction
 import com.yaabelozerov.superfinancer.data.local.configuration.ConfigManager
 import com.yaabelozerov.superfinancer.data.local.datastore.DataStoreManager
 import com.yaabelozerov.superfinancer.data.local.media.MediaManager
@@ -34,6 +35,8 @@ class Application: Application() {
             Room.databaseBuilder(app.applicationContext, FinanceDb::class.java, "finance.db").build()
         }
         val financeDao by lazy { financeDb.dao() }
+        suspend fun financeTransaction(block: suspend () -> Unit) =
+            financeDb.withTransaction(block)
 
         val mediaManager by lazy {
             MediaManager(app.applicationContext)

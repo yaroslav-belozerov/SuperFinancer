@@ -1,14 +1,13 @@
 package com.yaabelozerov.superfinancer.domain.usecase
 
 import com.yaabelozerov.superfinancer.Application
+import com.yaabelozerov.superfinancer.data.local.media.MediaManager
 import com.yaabelozerov.superfinancer.data.local.room.finance.FinanceDao
 import com.yaabelozerov.superfinancer.data.local.room.finance.GoalEntity
 import com.yaabelozerov.superfinancer.data.local.room.finance.TransactionEntity
 import com.yaabelozerov.superfinancer.domain.model.Goal
 import com.yaabelozerov.superfinancer.domain.model.Transaction
 import com.yaabelozerov.superfinancer.ui.format
-import com.yaabelozerov.superfinancer.ui.toString
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.time.Instant
 import java.time.LocalDateTime
@@ -16,6 +15,7 @@ import java.time.ZoneId
 
 class FinanceUseCase(
     private val financeDao: FinanceDao = Application.financeDao,
+    private val mediaManager: MediaManager = Application.mediaManager
 ) {
     val goalFlow = financeDao.getAllTargetsWithTransactions().map {
         it.map {
@@ -73,5 +73,13 @@ class FinanceUseCase(
                 goalId = goalId
             )
         )
+    }
+
+    suspend fun deleteGoal(goal: Goal) {
+        Application.financeTransaction {
+            financeDao.deleteAllTransactionsByGoalId(goal.id)
+            financeDao.deleteGoalWithId(goal.id)
+            mediaManager.removeMedia(goal.image)
+        }
     }
 }

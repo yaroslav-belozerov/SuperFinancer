@@ -23,6 +23,12 @@ interface FinanceDao {
     @Query("SELECT SUM(valueInKopecks) from transactions")
     fun totalTransactionAmountInKopecks(): Flow<Long>
 
+    @Query("DELETE FROM transactions WHERE goalId = :id")
+    suspend fun deleteAllTransactionsByGoalId(id: Long)
+
+    @Query("DELETE FROM goals WHERE id = :id")
+    suspend fun deleteGoalWithId(id: Long)
+
     @Insert
     suspend fun createGoal(goalEntity: GoalEntity): Long
 

@@ -1,6 +1,7 @@
 package com.yaabelozerov.superfinancer.ui.screens
 
 import android.net.Uri
+import android.text.BoringLayout
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowColumn
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -50,6 +52,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
@@ -99,12 +102,13 @@ import com.yaabelozerov.superfinancer.domain.model.Goal
 import com.yaabelozerov.superfinancer.domain.model.Transaction
 import com.yaabelozerov.superfinancer.ui.smartRound
 import com.yaabelozerov.superfinancer.ui.toString
+import com.yaabelozerov.superfinancer.ui.viewmodel.FinanceScreenEvent
 import com.yaabelozerov.superfinancer.ui.viewmodel.FinanceVM
 import kotlinx.coroutines.launch
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>
 @Composable
 fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
@@ -125,7 +129,8 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val progress by animateFloatAsState(((uiState.totalAmount / uiState.totalGoal).takeUnless { it.isNaN() } ?: 0).toFloat())
+                val progress by animateFloatAsState(((uiState.totalAmount / uiState.totalGoal).takeUnless { it.isNaN() }
+                    ?: 0).toFloat())
                 Column {
                     Text("Collected", style = MaterialTheme.typography.headlineSmall)
                     Spacer(Modifier.height(4.dp))
@@ -148,7 +153,7 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
         }
         items(uiState.goals, key = { "goal${it.id}" }) {
             Goal(
-                it, modifier = Modifier.animateItem()
+                it, modifier = Modifier.animateItem(), viewModel
             )
         }
         item {
@@ -165,13 +170,20 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
     }
 
 
-    if (createGoalState.isVisible) CreateGoalModal(createGoalState, viewModel::createGoal)
+    if (createGoalState.isVisible) CreateGoalModal(createGoalState) { name, amount, image ->
+        viewModel.onEvent(
+            FinanceScreenEvent.CreateGoal(name, amount, image)
+        )
+    }
     if (createTransactionState.isVisible) {
         var chosenGoalId by remember { mutableLongStateOf(-1L) }
-        CreateTransactionModal(createTransactionState,
-            uiState.goals,
-            viewModel::makeTransaction,
-            chosen = chosenGoalId to { chosenGoalId = (it ?: -1L) })
+        CreateTransactionModal(createTransactionState, uiState.goals, { id, amount, comment ->
+            viewModel.onEvent(
+                FinanceScreenEvent.MakeTransaction(
+                    id, amount, comment
+                )
+            )
+        }, chosen = chosenGoalId to { chosenGoalId = (it ?: -1L) })
     }
 }
 
@@ -274,7 +286,7 @@ private fun CreateGoalModal(state: SheetState, onCreate: (String, Double, String
 }
 
 @Composable
-fun Goal(goal: Goal, modifier: Modifier = Modifier) {
+fun Goal(goal: Goal, modifier: Modifier = Modifier, viewModel: FinanceVM) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -286,8 +298,8 @@ fun Goal(goal: Goal, modifier: Modifier = Modifier) {
                 goal.currentRubles.div(goal.maxRubles), 1.0
             ).toFloat()
         )
-        if (goal.image.isNotBlank()) GoalLineWithImage(goal.image, progress)
-        else GoalLineWithoutImage(progress)
+        if (goal.image.isNotBlank()) GoalLineWithImage(goal, progress, viewModel::onEvent)
+        else GoalLineWithoutImage(goal, progress, viewModel::onEvent)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -311,12 +323,18 @@ fun Goal(goal: Goal, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun GoalLineWithoutImage(progress: Float) {
+private fun GoalLineWithoutImage(
+    goal: Goal,
+    progress: Float,
+    onEvent: (FinanceScreenEvent) -> Unit,
+) {
+    var optionsOpen by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .height(48.dp)
+            .clip(MaterialTheme.shapes.small)
+            .clickable { optionsOpen = true }, verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
@@ -346,10 +364,11 @@ private fun GoalLineWithoutImage(progress: Float) {
             }
         }
     }
+    GoalOptionRow(goal, onEvent, optionsOpen) { optionsOpen = false }
 }
 
 @Composable
-private fun GoalLineWithImage(goalImage: String, progress: Float) {
+private fun GoalLineWithImage(goal: Goal, progress: Float, onEvent: (FinanceScreenEvent) -> Unit) {
     var optionsOpen by remember { mutableStateOf(false) }
     Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Box(
@@ -359,24 +378,14 @@ private fun GoalLineWithImage(goalImage: String, progress: Float) {
                 .clip(MaterialTheme.shapes.medium),
         ) {
             AsyncImage(
-                model = goalImage, contentDescription = null, contentScale = ContentScale.Crop
+                model = goal.image, contentDescription = null, contentScale = ContentScale.Crop
             )
-            AnimatedContent(optionsOpen,
-                transitionSpec = { fadeIn() togetherWith fadeOut() }) { open ->
-                Surface(
-                    color = if (open) MaterialTheme.colorScheme.surfaceBright else Color.Transparent,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    if (open) Column(modifier = Modifier.padding(12.dp)) {
-                        Button(onClick = { optionsOpen = false }) { Text("Delete") }
-                    }
-                }
-                if (!open) {
-                    FilledIconButton(onClick = { optionsOpen = true }) {
-                        Icon(
-                            Icons.Default.Edit, contentDescription = "edit goal"
-                        )
-                    }
+            GoalOptionRow(goal, onEvent, optionsOpen) { optionsOpen = false }
+            if (!optionsOpen) {
+                FilledIconButton(onClick = { optionsOpen = true }) {
+                    Icon(
+                        Icons.Default.Edit, contentDescription = "edit goal"
+                    )
                 }
             }
         }
@@ -510,6 +519,30 @@ private fun CreateTransactionModal(
                     }
                 }, modifier = Modifier.fillMaxWidth()
             ) { Text("Save") }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun GoalOptionRow(
+    goal: Goal,
+    onEvent: (FinanceScreenEvent) -> Unit,
+    isOpen: Boolean,
+    onClose: () -> Unit,
+) = AnimatedContent(isOpen, transitionSpec = { fadeIn() togetherWith fadeOut() }) { open ->
+    Surface(
+        color = if (open) MaterialTheme.colorScheme.surfaceBright else Color.Transparent,
+        modifier = Modifier.fillMaxSize().clip(MaterialTheme.shapes.medium)
+    ) {
+        if (open) FlowColumn(modifier = Modifier.padding(12.dp)) {
+            Button(onClick = {
+                onEvent(FinanceScreenEvent.DeleteGoal(goal))
+                onClose()
+            }) { Text("Delete") }
+            OutlinedButton(onClick = {
+                onClose()
+            }) { Text("Cancel") }
         }
     }
 }
