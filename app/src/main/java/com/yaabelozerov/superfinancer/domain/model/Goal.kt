@@ -4,6 +4,6 @@ data class Goal(
     val id: Long,
     val image: String,
     val name: String,
-    val currentRubles: Double,
-    val maxRubles: Double,
+    val currentRubles: Long,
+    val maxRubles: Long,
 )

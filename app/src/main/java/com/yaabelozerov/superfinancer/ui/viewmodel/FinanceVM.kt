@@ -14,17 +14,17 @@ import kotlinx.coroutines.launch
 data class FinanceState(
     val goals: List<Goal> = emptyList(),
     val transactions: List<Transaction> = emptyList(),
-    val totalGoal: Double = 1.0,
-    val totalAmount: Double = 0.0,
+    val totalGoal: Long = 1,
+    val totalAmount: Long = 0,
 )
 
 sealed interface FinanceScreenEvent {
-    data class CreateGoal(val name: String, val amountInRubles: Double, val image: String) :
+    data class CreateGoal(val name: String, val amountInRubles: Long, val image: String) :
         FinanceScreenEvent
 
     data class MakeTransaction(
         val targetGoalId: Long,
-        val amountInRubles: Double,
+        val amountInRubles: Long,
         val comment: String,
     ) : FinanceScreenEvent
 

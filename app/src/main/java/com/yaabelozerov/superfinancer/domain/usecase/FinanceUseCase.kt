@@ -21,8 +21,8 @@ class FinanceUseCase(
         it.map {
             val goal = it.key
             val transactions = it.value
-            val rubles = goal.amountInKopecks.div(100.0)
-            val transactionRubles = transactions.sumOf { it.valueInKopecks.div(100.0) }
+            val rubles = goal.amountInKopecks.div(100L)
+            val transactionRubles = transactions.sumOf { it.valueInKopecks.div(100L) }
             Goal(
                 id = goal.id,
                 image = goal.image,
@@ -38,7 +38,7 @@ class FinanceUseCase(
             val (transaction, goal) = it
             Transaction(
                 id = transaction.id,
-                valueInRubles = transaction.valueInKopecks.div(100.0),
+                valueInRubles = transaction.valueInKopecks.div(100L),
                 comment = transaction.comment,
                 goalName = goal.name,
                 timestamp = LocalDateTime.ofInstant(
@@ -48,20 +48,20 @@ class FinanceUseCase(
         }
     }
 
-    val totalGoalFlow = financeDao.totalGoalInKopecks().map { it.div(100.0) }
-    val totalAmountFlow = financeDao.totalTransactionAmountInKopecks().map { it.div(100.0) }
+    val totalGoalFlow = financeDao.totalGoalInKopecks().map { it.div(100L) }
+    val totalAmountFlow = financeDao.totalTransactionAmountInKopecks().map { it.div(100L) }
 
-    suspend fun createGoal(name: String, amountInRubles: Double, image: String) {
+    suspend fun createGoal(name: String, amountInRubles: Long, image: String) {
         financeDao.createGoal(
             GoalEntity(
-                id = 0, name = name, image = image, amountInKopecks = amountInRubles.times(100).toLong()
+                id = 0, name = name, image = image, amountInKopecks = amountInRubles.times(100)
             )
         )
     }
 
     suspend fun createTransaction(
         goalId: Long,
-        amountInRubles: Double = 0.0,
+        amountInRubles: Long,
         comment: String = "",
     ) {
         financeDao.upsertTransaction(

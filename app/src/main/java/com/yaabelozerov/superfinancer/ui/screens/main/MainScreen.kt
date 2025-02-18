@@ -176,7 +176,7 @@ fun MainScreen(navigator: DestinationsNavigator, snackBarHostState: SnackbarHost
                             Column(
                                 Modifier
                                     .fillMaxWidth()
-                                    .padding(48.dp),
+                                    .padding(48.dp).animateItem(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {

@@ -51,6 +51,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -130,16 +131,15 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
         item {
             Spacer(Modifier.height(24.dp))
             Row(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val progress by animateFloatAsState(((uiState.totalAmount / uiState.totalGoal).takeUnless { it.isNaN() }
-                    ?: 0).toFloat())
+                val progress by animateFloatAsState(uiState.totalAmount.div(uiState.totalGoal.toDouble()).takeUnless { it.isNaN() }?.toFloat() ?: 0.0f)
                 Column {
                     Text("Collected", style = MaterialTheme.typography.headlineSmall)
                     Spacer(Modifier.height(4.dp))
-                    Text("${uiState.totalAmount.toString(2)} of ${uiState.totalGoal.toString(2)} ₽")
+                    Text("${uiState.totalAmount} of ${uiState.totalGoal} ₽")
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator(progress = { progress })
@@ -199,7 +199,7 @@ private fun Header(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 24.dp),
+            .padding(top = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(title, style = MaterialTheme.typography.headlineLarge)
@@ -214,7 +214,7 @@ private fun Header(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CreateGoalModal(state: SheetState, onCreate: (String, Double, String) -> Unit) {
+private fun CreateGoalModal(state: SheetState, onCreate: (String, Long, String) -> Unit) {
     val scope = rememberCoroutineScope()
     var currentImage by remember { mutableStateOf<String?>(null) }
     var currentImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -228,7 +228,7 @@ private fun CreateGoalModal(state: SheetState, onCreate: (String, Double, String
     }) {
         ElevatedCard {
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(vertical = 16.dp, horizontal = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 val picker =
@@ -279,10 +279,10 @@ private fun CreateGoalModal(state: SheetState, onCreate: (String, Double, String
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.small
                 )
-                var amount by remember { mutableDoubleStateOf(0.0) }
+                var amount by remember { mutableLongStateOf(0L) }
                 OutlinedTextField(
-                    amount.toString(2),
-                    { amount = it.toDoubleOrNull() ?: 0.0 },
+                    amount.toString(),
+                    { amount = it.toLongOrNull() ?: 0L },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     trailingIcon = {
@@ -317,8 +317,8 @@ fun Goal(goal: Goal, modifier: Modifier = Modifier, viewModel: FinanceVM) {
     ) {
         val progress by animateFloatAsState(
             min(
-                goal.currentRubles.div(goal.maxRubles), 1.0
-            ).toFloat()
+                goal.currentRubles.div(goal.maxRubles.toFloat()), 1.0f
+            )
         )
         if (goal.image.isNotBlank()) GoalLineWithImage(goal, progress, viewModel::onEvent)
         else GoalLineWithoutImage(goal, progress, viewModel::onEvent)
@@ -334,10 +334,8 @@ fun Goal(goal: Goal, modifier: Modifier = Modifier, viewModel: FinanceVM) {
             )
             Spacer(Modifier.width(16.dp))
             Text(
-                "${goal.currentRubles.toString(2)} of ${
-                    goal.maxRubles.toString(
-                        2
-                    )
+                "${goal.currentRubles} of ${
+                    goal.maxRubles
                 } ₽", maxLines = 1
             )
         }
@@ -460,7 +458,7 @@ private fun Transaction(transaction: Transaction, modifier: Modifier = Modifier)
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                transaction.valueInRubles.toString(2).plus(" ₽"),
+                transaction.valueInRubles.toString().plus(" ₽"),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -482,6 +480,8 @@ private fun Transaction(transaction: Transaction, modifier: Modifier = Modifier)
         if (transaction.comment.isNotEmpty()) {
             Text(transaction.comment)
         }
+        Spacer(Modifier.height(8.dp))
+        HorizontalDivider()
     }
 }
 
@@ -490,7 +490,7 @@ private fun Transaction(transaction: Transaction, modifier: Modifier = Modifier)
 private fun CreateTransactionModal(
     state: SheetState,
     goals: List<Goal>,
-    onCreate: (Long, Double, String) -> Unit,
+    onCreate: (Long, Long, String) -> Unit,
     chosen: Pair<Long, (Long) -> Unit>,
 ) {
     val scope = rememberCoroutineScope()
@@ -500,7 +500,7 @@ private fun CreateTransactionModal(
     }) {
         ElevatedCard {
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(vertical = 16.dp, horizontal = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text("Make a payment", style = MaterialTheme.typography.headlineLarge)
@@ -515,10 +515,10 @@ private fun CreateTransactionModal(
                             })
                     }
                 }
-                var amount by remember { mutableDoubleStateOf(0.0) }
+                var amount by remember { mutableLongStateOf(0L) }
                 OutlinedTextField(
-                    amount.toString(2),
-                    { amount = it.toDoubleOrNull() ?: 0.0 },
+                    amount.toString(),
+                    { amount = it.toLongOrNull() ?: 0L },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     shape = MaterialTheme.shapes.small,
@@ -534,14 +534,13 @@ private fun CreateTransactionModal(
                 OutlinedTextField(comment,
                     onValueChange = { comment = it },
                     placeholder = { Text("Add a comment") },
-                    singleLine = true,
                     shape = MaterialTheme.shapes.small,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Button(
                     onClick = {
                         if (chosen.first != -1L) {
-                            if (amount != 0.0) {
+                            if (amount != 0L) {
                                 onCreate(chosen.first, amount, comment)
                                 scope.launch { state.hide() }
                             }
