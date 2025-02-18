@@ -81,7 +81,8 @@ class MainVM(
 
     private fun subscribeToTickers() {
         viewModelScope.launch(Dispatchers.IO) {
-            tickerUseCase.tickerConnectionFlow(preferencesUseCase.defaultTickers).collectLatest { newValue ->
+            tickerUseCase.startConnectionsForTickers(preferencesUseCase.defaultTickers)
+            tickerUseCase.tickerConnectionFlow.collectLatest { newValue ->
                 _tickerState.update {
                     val inMap = it.map[newValue.first]
                     if (inMap != null) {

@@ -8,7 +8,10 @@ import com.yaabelozerov.superfinancer.ui.toString
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 
 private infix fun TickerDto.combine(info: ProfileDto): Ticker {
     return Ticker(
@@ -33,13 +36,20 @@ class TickerUseCase(private val source: FinnhubSource = FinnhubSource()) {
         }
     }.awaitAll().filterNotNull().toMap()
 
-    fun tickerConnectionFlow(tickers: List<String>) = flow {
-        tickers.forEach { symbol ->
-            source.startTickerConnection(symbol, onReceive = {
-                it.data.map {
-                    emit(it.symbol to it.price)
+    val tickerConnectionFlow = MutableSharedFlow<Pair<String, Double>>()
+
+    suspend fun startConnectionsForTickers(tickers: List<String>) {
+        coroutineScope {
+            tickers.forEach { symbol ->
+                delay(200L)
+                launch {
+                    source.startTickerConnection(symbol, onReceive = {
+                        it.data.map {
+                            tickerConnectionFlow.emit(it.symbol to it.price)
+                        }
+                    }, onError = { it.printStackTrace() })
                 }
-            }, onError = {  })
+            }
         }
     }
 }
