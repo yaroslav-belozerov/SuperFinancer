@@ -4,8 +4,12 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -16,14 +20,17 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -33,13 +40,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CurrencyRuble
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -47,10 +58,12 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -131,7 +144,7 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
         item {
             Header(
                 "Goals", "Add", Icons.Default.Add
-            ) { scope.launch { createGoalState.show() } }
+            ) { scope.launch { createGoalState.expand() } }
         }
         items(uiState.goals, key = { "goal${it.id}" }) {
             Goal(
@@ -141,7 +154,7 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
         item {
             Header(
                 "Transactions", "Make", Icons.Default.AttachMoney
-            ) { scope.launch { createTransactionState.show() } }
+            ) { scope.launch { createTransactionState.expand() } }
         }
         items(uiState.transactions, key = { "transaction${it.id}" }) {
             Transaction(
@@ -153,9 +166,13 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
 
 
     if (createGoalState.isVisible) CreateGoalModal(createGoalState, viewModel::createGoal)
-    if (createTransactionState.isVisible) CreateTransactionModal(
-        createTransactionState, uiState.goals, viewModel::makeTransaction
-    )
+    if (createTransactionState.isVisible) {
+        var chosenGoalId by remember { mutableLongStateOf(-1L) }
+        CreateTransactionModal(createTransactionState,
+            uiState.goals,
+            viewModel::makeTransaction,
+            chosen = chosenGoalId to { chosenGoalId = (it ?: -1L) })
+    }
 }
 
 @Composable
@@ -222,14 +239,15 @@ private fun CreateGoalModal(state: SheetState, onCreate: (String, Double, String
                         picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     })
             var name by remember { mutableStateOf("") }
-            TextField(name,
+            OutlinedTextField(name,
                 onValueChange = { name = it },
                 placeholder = { Text("Name your goal") },
                 singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.small
             )
             var amount by remember { mutableDoubleStateOf(0.0) }
-            TextField(
+            OutlinedTextField(
                 amount.toString(2),
                 { amount = it.toDoubleOrNull() ?: 0.0 },
                 singleLine = true,
@@ -240,6 +258,7 @@ private fun CreateGoalModal(state: SheetState, onCreate: (String, Double, String
                         contentDescription = null,
                     )
                 },
+                shape = MaterialTheme.shapes.small,
                 modifier = Modifier.fillMaxWidth()
             )
             Button(
@@ -257,7 +276,10 @@ private fun CreateGoalModal(state: SheetState, onCreate: (String, Double, String
 @Composable
 fun Goal(goal: Goal, modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         val progress by animateFloatAsState(
             min(
@@ -328,16 +350,36 @@ private fun GoalLineWithoutImage(progress: Float) {
 
 @Composable
 private fun GoalLineWithImage(goalImage: String, progress: Float) {
+    var optionsOpen by remember { mutableStateOf(false) }
     Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        AsyncImage(
-            model = goalImage,
-            contentDescription = null,
+        Box(
             modifier = Modifier
                 .height(192.dp)
                 .weight(0.8f)
                 .clip(MaterialTheme.shapes.medium),
-            contentScale = ContentScale.Crop
-        )
+        ) {
+            AsyncImage(
+                model = goalImage, contentDescription = null, contentScale = ContentScale.Crop
+            )
+            AnimatedContent(optionsOpen,
+                transitionSpec = { fadeIn() togetherWith fadeOut() }) { open ->
+                Surface(
+                    color = if (open) MaterialTheme.colorScheme.surfaceBright else Color.Transparent,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    if (open) Column(modifier = Modifier.padding(12.dp)) {
+                        Button(onClick = { optionsOpen = false }) { Text("Delete") }
+                    }
+                }
+                if (!open) {
+                    FilledIconButton(onClick = { optionsOpen = true }) {
+                        Icon(
+                            Icons.Default.Edit, contentDescription = "edit goal"
+                        )
+                    }
+                }
+            }
+        }
         Box(
             modifier = Modifier
                 .clip(MaterialTheme.shapes.medium)
@@ -415,18 +457,21 @@ private fun CreateTransactionModal(
     state: SheetState,
     goals: List<Goal>,
     onCreate: (Long, Double, String) -> Unit,
+    chosen: Pair<Long?, (Long?) -> Unit>,
 ) {
     val scope = rememberCoroutineScope()
-    ModalBottomSheet(onDismissRequest = { scope.launch { state.hide() } }) {
+    ModalBottomSheet(onDismissRequest = {
+        scope.launch { state.hide() }
+        chosen.second(null)
+    }) {
         Column(
             modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text("Make a payment", style = MaterialTheme.typography.headlineLarge)
-            var chosenGoalId by remember { mutableStateOf<Long?>(null) }
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(goals, key = { it.id }) {
-                    FilterChip(selected = it.id == chosenGoalId,
-                        onClick = { chosenGoalId = it.id },
+                    FilterChip(selected = it.id == chosen.first,
+                        onClick = { chosen.second(if (chosen.first == it.id) null else it.id) },
                         label = {
                             Text(
                                 it.name, modifier = Modifier.padding(8.dp)
@@ -435,11 +480,12 @@ private fun CreateTransactionModal(
                 }
             }
             var amount by remember { mutableDoubleStateOf(0.0) }
-            TextField(
+            OutlinedTextField(
                 amount.toString(2),
                 { amount = it.toDoubleOrNull() ?: 0.0 },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                shape = MaterialTheme.shapes.small,
                 trailingIcon = {
                     Icon(
                         Icons.Default.CurrencyRuble,
@@ -449,15 +495,16 @@ private fun CreateTransactionModal(
                 modifier = Modifier.fillMaxWidth()
             )
             var comment by remember { mutableStateOf("") }
-            TextField(comment,
+            OutlinedTextField(comment,
                 onValueChange = { comment = it },
                 placeholder = { Text("Add a comment") },
                 singleLine = true,
+                shape = MaterialTheme.shapes.small,
                 modifier = Modifier.fillMaxWidth()
             )
             Button(
                 onClick = {
-                    chosenGoalId?.let {
+                    chosen.first?.let {
                         onCreate(it, amount, comment)
                         scope.launch { state.hide() }
                     }
