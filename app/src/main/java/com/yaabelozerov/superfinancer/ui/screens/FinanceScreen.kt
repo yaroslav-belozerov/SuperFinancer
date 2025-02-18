@@ -125,7 +125,7 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val progress by animateFloatAsState((uiState.totalAmount / uiState.totalGoal).toFloat())
+                val progress by animateFloatAsState(((uiState.totalAmount / uiState.totalGoal).takeUnless { it.isNaN() } ?: 0).toFloat())
                 Column {
                     Text("Collected", style = MaterialTheme.typography.headlineSmall)
                     Spacer(Modifier.height(4.dp))
