@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -57,6 +58,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -105,7 +107,11 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
     ) {
         item {
             Spacer(Modifier.height(24.dp))
-            Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 val progress by animateFloatAsState((uiState.totalAmount / uiState.totalGoal).toFloat())
                 Column {
                     Text("Collected", style = MaterialTheme.typography.headlineSmall)
@@ -115,7 +121,10 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator(progress = { progress })
                     Spacer(Modifier.height(4.dp))
-                    Text("${progress.times(100).smartRound(1)}%", style = MaterialTheme.typography.headlineSmall)
+                    Text(
+                        "${progress.times(100).smartRound(1)}%",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
                 }
             }
         }
@@ -124,13 +133,21 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
                 "Goals", "Add", Icons.Default.Add
             ) { scope.launch { createGoalState.show() } }
         }
-        items(uiState.goals, key = { "goal${it.id}" }) { Goal(it) }
+        items(uiState.goals, key = { "goal${it.id}" }) {
+            Goal(
+                it, modifier = Modifier.animateItem()
+            )
+        }
         item {
             Header(
                 "Transactions", "Make", Icons.Default.AttachMoney
             ) { scope.launch { createTransactionState.show() } }
         }
-        items(uiState.transactions, key = { "transaction${it.id}" }) { Transaction(it) }
+        items(uiState.transactions, key = { "transaction${it.id}" }) {
+            Transaction(
+                it, modifier = Modifier.animateItem()
+            )
+        }
         item { Spacer(Modifier.height(16.dp)) }
     }
 
@@ -142,7 +159,12 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
 }
 
 @Composable
-private fun Header(title: String, actionName: String? = null, icon: ImageVector? = null, onClick: (() -> Unit)? = null) {
+private fun Header(
+    title: String,
+    actionName: String? = null,
+    icon: ImageVector? = null,
+    onClick: (() -> Unit)? = null,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -233,56 +255,17 @@ private fun CreateGoalModal(state: SheetState, onCreate: (String, Double, String
 }
 
 @Composable
-fun Goal(goal: Goal) {
+fun Goal(goal: Goal, modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            AsyncImage(
-                model = goal.image,
-                contentDescription = null,
-                modifier = Modifier
-                    .height(192.dp)
-                    .weight(0.8f)
-                    .clip(MaterialTheme.shapes.medium),
-                contentScale = ContentScale.Crop
-            )
-            val progress by animateFloatAsState(
-                min(
-                    goal.currentRubles.div(goal.maxRubles), 1.0
-                ).toFloat()
-            )
-            Box(
-                modifier = Modifier
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.surfaceBright)
-                    .height(192.dp)
-                    .weight(0.2f)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(progress)
-                        .align(Alignment.BottomCenter)
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(MaterialTheme.colorScheme.primary)
-                )
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(8.dp)
-                        .fillMaxWidth(),
-                ) {
-                    Text(
-                        "${(progress * 100).roundToInt()}%",
-                        modifier = Modifier.padding(4.dp).fillMaxWidth(),
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-        }
+        val progress by animateFloatAsState(
+            min(
+                goal.currentRubles.div(goal.maxRubles), 1.0
+            ).toFloat()
+        )
+        if (goal.image.isNotBlank()) GoalLineWithImage(goal.image, progress)
+        else GoalLineWithoutImage(progress)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -306,9 +289,94 @@ fun Goal(goal: Goal) {
 }
 
 @Composable
-private fun Transaction(transaction: Transaction) {
+private fun GoalLineWithoutImage(progress: Float) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.medium)
+                .background(MaterialTheme.colorScheme.surfaceBright)
+                .fillMaxSize()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(progress)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.primary)
+            )
+            Surface(
+                shape = MaterialTheme.shapes.small,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(8.dp),
+            ) {
+                Text(
+                    "${(progress * 100).roundToInt()}%",
+                    modifier = Modifier.padding(4.dp),
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun GoalLineWithImage(goalImage: String, progress: Float) {
+    Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        AsyncImage(
+            model = goalImage,
+            contentDescription = null,
+            modifier = Modifier
+                .height(192.dp)
+                .weight(0.8f)
+                .clip(MaterialTheme.shapes.medium),
+            contentScale = ContentScale.Crop
+        )
+        Box(
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.medium)
+                .background(MaterialTheme.colorScheme.surfaceBright)
+                .height(192.dp)
+                .weight(0.2f)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(progress)
+                    .align(Alignment.BottomCenter)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.primary)
+            )
+            Surface(
+                shape = MaterialTheme.shapes.small,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(8.dp)
+                    .fillMaxWidth(),
+            ) {
+                Text(
+                    "${(progress * 100).roundToInt()}%",
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .fillMaxWidth(),
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Transaction(transaction: Transaction, modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
