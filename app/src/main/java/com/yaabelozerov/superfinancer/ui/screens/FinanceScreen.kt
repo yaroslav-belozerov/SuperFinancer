@@ -43,8 +43,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CurrencyRuble
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ImageSearch
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilterChip
@@ -92,6 +95,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.ramcosta.composedestinations.annotation.Destination
@@ -100,6 +104,7 @@ import com.yaabelozerov.superfinancer.Application
 import com.yaabelozerov.superfinancer.R
 import com.yaabelozerov.superfinancer.domain.model.Goal
 import com.yaabelozerov.superfinancer.domain.model.Transaction
+import com.yaabelozerov.superfinancer.ui.App
 import com.yaabelozerov.superfinancer.ui.smartRound
 import com.yaabelozerov.superfinancer.ui.toString
 import com.yaabelozerov.superfinancer.ui.viewmodel.FinanceScreenEvent
@@ -147,19 +152,18 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
             }
         }
         item {
-            Header(
-                "Goals", "Add", Icons.Default.Add
-            ) { scope.launch { createGoalState.expand() } }
+            Header("Goals",
+                Triple("Add", Icons.Default.Add) { scope.launch { createGoalState.expand() } })
         }
         items(uiState.goals, key = { "goal${it.id}" }) {
             Goal(
                 it, modifier = Modifier.animateItem(), viewModel
             )
         }
-        item {
-            Header(
-                "Transactions", "Make", Icons.Default.AttachMoney
-            ) { scope.launch { createTransactionState.expand() } }
+        if (uiState.goals.isNotEmpty()) item {
+            Header("Transactions", Triple(
+                "Make", Icons.Default.AttachMoney
+            ) { scope.launch { createTransactionState.expand() } })
         }
         items(uiState.transactions, key = { "transaction${it.id}" }) {
             Transaction(
@@ -183,16 +187,14 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
                     id, amount, comment
                 )
             )
-        }, chosen = chosenGoalId to { chosenGoalId = (it ?: -1L) })
+        }, chosen = chosenGoalId to { chosenGoalId = it })
     }
 }
 
 @Composable
 private fun Header(
     title: String,
-    actionName: String? = null,
-    icon: ImageVector? = null,
-    onClick: (() -> Unit)? = null,
+    action: Triple<String, ImageVector, () -> Unit>? = null,
 ) {
     Row(
         modifier = Modifier
@@ -201,10 +203,10 @@ private fun Header(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(title, style = MaterialTheme.typography.headlineLarge)
-        onClick?.let { action ->
+        action?.let { (name, icon, action) ->
             Button(onClick = action) {
-                icon?.let { Icon(it, contentDescription = null) }
-                actionName?.let { Text(it) }
+                Icon(icon, contentDescription = null)
+                Text(name)
             }
         }
     }
@@ -214,73 +216,93 @@ private fun Header(
 @Composable
 private fun CreateGoalModal(state: SheetState, onCreate: (String, Double, String) -> Unit) {
     val scope = rememberCoroutineScope()
-    ModalBottomSheet(onDismissRequest = { scope.launch { state.hide() } }) {
-        Column(
-            modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Text("Create a goal", style = MaterialTheme.typography.headlineLarge)
-            var currentImage by remember { mutableStateOf<String?>(null) }
-            var currentImageUri by remember { mutableStateOf<Uri?>(null) }
-            val picker =
-                rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-                    uri?.let { uriNotNull ->
-                        currentImageUri = uriNotNull
-                        scope.launch {
-                            Application.mediaManager.importMedia(uriNotNull) {
-                                currentImage?.let { current ->
-                                    scope.launch {
-                                        Application.mediaManager.removeMedia(current)
+    var currentImage by remember { mutableStateOf<String?>(null) }
+    var currentImageUri by remember { mutableStateOf<Uri?>(null) }
+    Dialog(onDismissRequest = {
+        scope.launch {
+            state.hide()
+            currentImage?.let {
+                Application.mediaManager.removeMedia(it)
+            }
+        }
+    }) {
+        ElevatedCard {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                val picker =
+                    rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+                        uri?.let { uriNotNull ->
+                            currentImageUri = uriNotNull
+                            scope.launch {
+                                Application.mediaManager.importMedia(uriNotNull) {
+                                    currentImage?.let { current ->
+                                        scope.launch {
+                                            Application.mediaManager.removeMedia(current)
+                                        }
                                     }
+                                    currentImage = it
                                 }
-                                currentImage = it
                             }
                         }
                     }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Create a goal", style = MaterialTheme.typography.headlineLarge)
+                    Spacer(Modifier.width(16.dp))
+                    if (currentImageUri == null) IconButton(onClick = {
+                        picker.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }) { Icon(Icons.Default.ImageSearch, contentDescription = null) }
                 }
-            AsyncImage(model = currentImageUri
-                ?: (if (isSystemInDarkTheme()) R.drawable.image_placeholder_dark else R.drawable.image_placeholder_light),
-                contentDescription = null,
-                contentScale = if (currentImageUri == null) ContentScale.Fit else ContentScale.Crop,
-                modifier = Modifier
-                    .width(192.dp)
-                    .aspectRatio(1.5f)
-                    .clip(
-                        MaterialTheme.shapes.medium
-                    )
-                    .clickable {
-                        picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                    })
-            var name by remember { mutableStateOf("") }
-            OutlinedTextField(name,
-                onValueChange = { name = it },
-                placeholder = { Text("Name your goal") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.small
-            )
-            var amount by remember { mutableDoubleStateOf(0.0) }
-            OutlinedTextField(
-                amount.toString(2),
-                { amount = it.toDoubleOrNull() ?: 0.0 },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                trailingIcon = {
-                    Icon(
-                        Icons.Default.CurrencyRuble,
-                        contentDescription = null,
-                    )
-                },
-                shape = MaterialTheme.shapes.small,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Button(
-                onClick = {
-                    if (amount > 0 && name.isNotBlank()) {
-                        onCreate(name, amount, currentImage ?: "")
-                        scope.launch { state.hide() }
-                    }
-                }, modifier = Modifier.fillMaxWidth()
-            ) { Text("Save") }
+                if (currentImageUri != null) AsyncImage(model = currentImageUri,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .width(192.dp)
+                        .aspectRatio(1.5f)
+                        .clip(
+                            MaterialTheme.shapes.medium
+                        )
+                        .clickable {
+                            picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        })
+                var name by remember { mutableStateOf("") }
+                OutlinedTextField(name,
+                    onValueChange = { name = it },
+                    placeholder = { Text("Name your goal") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.small
+                )
+                var amount by remember { mutableDoubleStateOf(0.0) }
+                OutlinedTextField(
+                    amount.toString(2),
+                    { amount = it.toDoubleOrNull() ?: 0.0 },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    trailingIcon = {
+                        Icon(
+                            Icons.Default.CurrencyRuble,
+                            contentDescription = null,
+                        )
+                    },
+                    shape = MaterialTheme.shapes.small,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Button(
+                    onClick = {
+                        if (amount > 0 && name.isNotBlank()) {
+                            onCreate(name, amount, currentImage ?: "")
+                            scope.launch { state.hide() }
+                        }
+                    }, modifier = Modifier.fillMaxWidth()
+                ) { Text("Save") }
+            }
         }
     }
 }
@@ -357,7 +379,7 @@ private fun GoalLineWithoutImage(
             ) {
                 Text(
                     "${(progress * 100).roundToInt()}%",
-                    modifier = Modifier.padding(4.dp),
+                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                 )
@@ -378,7 +400,10 @@ private fun GoalLineWithImage(goal: Goal, progress: Float, onEvent: (FinanceScre
                 .clip(MaterialTheme.shapes.medium),
         ) {
             AsyncImage(
-                model = goal.image, contentDescription = null, contentScale = ContentScale.Crop
+                model = goal.image,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
             GoalOptionRow(goal, onEvent, optionsOpen) { optionsOpen = false }
             if (!optionsOpen) {
@@ -466,59 +491,64 @@ private fun CreateTransactionModal(
     state: SheetState,
     goals: List<Goal>,
     onCreate: (Long, Double, String) -> Unit,
-    chosen: Pair<Long?, (Long?) -> Unit>,
+    chosen: Pair<Long, (Long) -> Unit>,
 ) {
     val scope = rememberCoroutineScope()
-    ModalBottomSheet(onDismissRequest = {
+    Dialog(onDismissRequest = {
         scope.launch { state.hide() }
-        chosen.second(null)
+        chosen.second(-1L)
     }) {
-        Column(
-            modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Text("Make a payment", style = MaterialTheme.typography.headlineLarge)
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(goals, key = { it.id }) {
-                    FilterChip(selected = it.id == chosen.first,
-                        onClick = { chosen.second(if (chosen.first == it.id) null else it.id) },
-                        label = {
-                            Text(
-                                it.name, modifier = Modifier.padding(8.dp)
-                            )
-                        })
-                }
-            }
-            var amount by remember { mutableDoubleStateOf(0.0) }
-            OutlinedTextField(
-                amount.toString(2),
-                { amount = it.toDoubleOrNull() ?: 0.0 },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                shape = MaterialTheme.shapes.small,
-                trailingIcon = {
-                    Icon(
-                        Icons.Default.CurrencyRuble,
-                        contentDescription = null,
-                    )
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-            var comment by remember { mutableStateOf("") }
-            OutlinedTextField(comment,
-                onValueChange = { comment = it },
-                placeholder = { Text("Add a comment") },
-                singleLine = true,
-                shape = MaterialTheme.shapes.small,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Button(
-                onClick = {
-                    chosen.first?.let {
-                        onCreate(it, amount, comment)
-                        scope.launch { state.hide() }
+        ElevatedCard {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text("Make a payment", style = MaterialTheme.typography.headlineLarge)
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(goals, key = { it.id }) {
+                        FilterChip(selected = it.id == chosen.first,
+                            onClick = { chosen.second(if (chosen.first == it.id) -1L else it.id) },
+                            label = {
+                                Text(
+                                    it.name, modifier = Modifier.padding(8.dp)
+                                )
+                            })
                     }
-                }, modifier = Modifier.fillMaxWidth()
-            ) { Text("Save") }
+                }
+                var amount by remember { mutableDoubleStateOf(0.0) }
+                OutlinedTextField(
+                    amount.toString(2),
+                    { amount = it.toDoubleOrNull() ?: 0.0 },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    shape = MaterialTheme.shapes.small,
+                    trailingIcon = {
+                        Icon(
+                            Icons.Default.CurrencyRuble,
+                            contentDescription = null,
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                var comment by remember { mutableStateOf("") }
+                OutlinedTextField(comment,
+                    onValueChange = { comment = it },
+                    placeholder = { Text("Add a comment") },
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.small,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Button(
+                    onClick = {
+                        if (chosen.first != -1L) {
+                            if (amount != 0.0) {
+                                onCreate(chosen.first, amount, comment)
+                                scope.launch { state.hide() }
+                            }
+                        }
+                    }, modifier = Modifier.fillMaxWidth()
+                ) { Text("Save") }
+            }
         }
     }
 }
@@ -533,7 +563,9 @@ private fun GoalOptionRow(
 ) = AnimatedContent(isOpen, transitionSpec = { fadeIn() togetherWith fadeOut() }) { open ->
     Surface(
         color = if (open) MaterialTheme.colorScheme.surfaceBright else Color.Transparent,
-        modifier = Modifier.fillMaxSize().clip(MaterialTheme.shapes.medium)
+        modifier = Modifier
+            .fillMaxSize()
+            .clip(MaterialTheme.shapes.medium)
     ) {
         if (open) FlowColumn(modifier = Modifier.padding(12.dp)) {
             Button(onClick = {
