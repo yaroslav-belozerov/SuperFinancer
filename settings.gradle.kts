@@ -21,4 +21,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "SuperFinancer"
 include(":app")
- 
+include(":tickers")
+include(":common")
+include(":stories")
+include(":finance")

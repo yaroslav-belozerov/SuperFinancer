@@ -3,7 +3,7 @@ package com.yaabelozerov.superfinancer.ui.viewmodel
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.yaabelozerov.superfinancer.domain.model.SearchItem
+import com.yaabelozerov.superfinancer.finance.domain.SearchItem
 import com.yaabelozerov.superfinancer.domain.usecase.SearchUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

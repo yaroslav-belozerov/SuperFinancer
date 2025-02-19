@@ -26,7 +26,8 @@ import com.ramcosta.composedestinations.generated.destinations.MainScreenDestina
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.spec.Direction
 import com.yaabelozerov.superfinancer.Application
-import com.yaabelozerov.superfinancer.data.local.datastore.DataStoreManager
+import com.yaabelozerov.superfinancer.common.CommonModule
+import com.yaabelozerov.superfinancer.common.local.config.DataStoreManager
 import com.yaabelozerov.superfinancer.ui.navigation.BottomBar
 import com.yaabelozerov.superfinancer.ui.navigation.Fade
 import kotlinx.coroutines.flow.first
@@ -40,13 +41,13 @@ fun App() {
     var startRoute: String? by remember { mutableStateOf(null) }
     LaunchedEffect(Unit) {
         startRoute =
-            Application.dataStoreManager.getValue(DataStoreManager.Keys.Strings.LAST_ROUTE).first()
+            CommonModule.dataStoreManager.getValue(DataStoreManager.Keys.Strings.LAST_ROUTE).first()
                 ?: MainScreenDestination.route
     }
     Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
         BottomBar(navCtrl) {
             scope.launch {
-                Application.dataStoreManager.setValue(
+                CommonModule.dataStoreManager.setValue(
                     DataStoreManager.Keys.Strings.LAST_ROUTE, it
                 )
             }
