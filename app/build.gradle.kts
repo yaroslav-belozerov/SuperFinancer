@@ -9,17 +9,6 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
 }
 
-val properties = mutableMapOf("FINNHUB_TOKEN" to "", "NYT_TOKEN" to "")
-val propertiesFileName = "local.properties"
-val apikeyPropertiesFile = rootProject.file(propertiesFileName)
-val apikeyProperties = Properties()
-apikeyProperties.load(FileInputStream(apikeyPropertiesFile))
-for (name in properties.keys) {
-    val value = apikeyProperties[name].toString()
-    if (value.isEmpty()) throw IllegalArgumentException("FINNHUB_TOKEN in local.properties is empty.")
-    properties[name] = value
-}
-
 android {
     namespace = "com.yaabelozerov.superfinancer"
     compileSdk = 35
@@ -32,10 +21,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        for ((name, value) in properties) {
-            buildConfigField("String", name, value)
-        }
     }
 
     buildTypes {
@@ -57,11 +42,14 @@ android {
     }
     buildFeatures {
         compose = true
-        buildConfig = true
     }
 }
 
 dependencies {
+    implementation(project(":common"))
+    implementation(project(":tickers"))
+    implementation(project(":stories"))
+    implementation(project(":finance"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -102,4 +90,9 @@ dependencies {
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
+
+    // Room DB
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 }

@@ -13,6 +13,7 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.generated.NavGraphs
@@ -23,6 +24,7 @@ import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
 import com.ramcosta.composedestinations.utils.currentDestinationAsState
 import com.ramcosta.composedestinations.utils.startDestination
 import com.ramcosta.composedestinations.utils.toDestinationsNavigator
+import kotlinx.coroutines.launch
 
 private enum class BottomBarDestinations(
     val direction: DirectionDestinationSpec,
@@ -35,7 +37,7 @@ private enum class BottomBarDestinations(
 }
 
 @Composable
-fun BottomBar(navCtrl: NavHostController) {
+fun BottomBar(navCtrl: NavHostController, onNavigate: (String) -> Unit) {
     val currentDestination =
         navCtrl.currentDestinationAsState().value ?: NavGraphs.root.startDestination
 
@@ -51,6 +53,7 @@ fun BottomBar(navCtrl: NavHostController) {
                             saveState = true
                         }
                     }
+                onNavigate(destination.direction.route)
             }, icon = {
                 Icon(
                     if (selected) destination.iconActive else destination.iconInactive,

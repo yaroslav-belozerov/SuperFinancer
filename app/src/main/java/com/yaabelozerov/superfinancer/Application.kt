@@ -1,18 +1,13 @@
 package com.yaabelozerov.superfinancer
 
 import android.app.Application
-import android.content.Context
-import com.yaabelozerov.superfinancer.data.local.datastore.DataStoreManager
+import com.yaabelozerov.superfinancer.common.CommonModule
+import com.yaabelozerov.superfinancer.finance.FinanceModule
 
 class Application: Application() {
     override fun onCreate() {
+        CommonModule().onCreate(this)
+        FinanceModule().onCreate(this)
         super.onCreate()
-        app = this
-    }
-
-    companion object {
-        private lateinit var app: Application
-
-        fun getDataStoreManager() = DataStoreManager(app.applicationContext)
     }
 }

@@ -26,9 +26,10 @@ val bodyFontFamily = FontFamily(
 )
 
 val displayFontFamily = FontFamily(
-    Font(R.font.libre_baskerville_regular, weight = FontWeight.Normal, style = FontStyle.Normal),
-    Font(R.font.libre_baskerville_bold, weight = FontWeight.Bold, style = FontStyle.Normal),
-    Font(R.font.libre_baskerville_italic, weight = FontWeight.Normal, style = FontStyle.Italic),
+    Font(R.font.ptserif_regular, weight = FontWeight.Normal, style = FontStyle.Normal),
+    Font(R.font.ptserif_bold, weight = FontWeight.Bold, style = FontStyle.Normal),
+    Font(R.font.ptserif_italic, weight = FontWeight.Normal, style = FontStyle.Italic),
+    Font(R.font.ptserif_bold_italic, weight = FontWeight.Bold, style = FontStyle.Italic),
 )
 
 val baseline = Typography()
