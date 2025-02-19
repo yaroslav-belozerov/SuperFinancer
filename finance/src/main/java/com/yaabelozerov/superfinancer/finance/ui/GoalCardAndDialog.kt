@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -55,12 +58,20 @@ fun GoalCard(goal: Goal, modifier: Modifier = Modifier, viewModel: FinanceVM) {
             .clip(MaterialTheme.shapes.medium),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val progress by animateFloatAsState(
+        val progressFloat =
             min(
                 goal.currentRubles.div(goal.maxRubles.toFloat()), 1.0f
             )
+        val progress by animateFloatAsState(progressFloat)
+        val color by animateColorAsState(
+            when {
+                progress < 0.25f -> MaterialTheme.colorScheme.error
+                progress < 0.5f -> MaterialTheme.colorScheme.error.copy(0.5f).compositeOver(MaterialTheme.colorScheme.primary)
+                progress < 0.75f -> MaterialTheme.colorScheme.error.copy(0.25f).compositeOver(MaterialTheme.colorScheme.primary)
+                else -> MaterialTheme.colorScheme.primary
+            }
         )
-        GoalInfoLine(goal, progress, viewModel::onEvent)
+        GoalInfoLine(goal, progress, color, viewModel::onEvent)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
