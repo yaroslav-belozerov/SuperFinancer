@@ -7,6 +7,9 @@ import androidx.room.PrimaryKey
 data class StoryEntity(
     @PrimaryKey val slug: String,
     val timestampSaved: Long,
+    val createdDate: String,
+    val sectionKey: String,
+    val byline: String,
     val title: String,
     val abstract: String,
     val url: String,
