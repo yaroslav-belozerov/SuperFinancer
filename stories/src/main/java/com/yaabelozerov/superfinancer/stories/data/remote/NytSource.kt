@@ -1,4 +1,4 @@
-package com.yaabelozerov.superfinancer.stories.data
+package com.yaabelozerov.superfinancer.stories.data.remote
 
 import com.yaabelozerov.superfinancer.common.BuildConfig
 import com.yaabelozerov.superfinancer.common.remote.Net
@@ -14,7 +14,6 @@ class NytSource(private val client: HttpClient = Net.Client) {
         offset: Int,
         token: String = BuildConfig.NYT_TOKEN,
     ): Result<StoriesDto> = runCatching {
-        println("getLatestStories")
         client.get {
             url("${BASE_URL}content/nyt/$section.json?limit=$limit&offset=$offset&api-key=$token")
         }.body()
@@ -22,7 +21,6 @@ class NytSource(private val client: HttpClient = Net.Client) {
 
     suspend fun getSections(token: String = BuildConfig.NYT_TOKEN): Result<SectionsDto> =
         runCatching {
-            println("getSections")
             client.get {
                 url("${BASE_URL}content/section-list.json?api-key=$token")
             }.body()

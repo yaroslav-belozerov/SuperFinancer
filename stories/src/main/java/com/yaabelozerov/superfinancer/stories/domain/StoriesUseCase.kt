@@ -7,13 +7,16 @@ import androidx.paging.map
 import com.yaabelozerov.superfinancer.common.CommonModule
 import com.yaabelozerov.superfinancer.common.local.config.DataStoreManager
 import com.yaabelozerov.superfinancer.common.util.format
-import com.yaabelozerov.superfinancer.stories.data.StoryPagingDefaults.EXCLUDE
-import com.yaabelozerov.superfinancer.stories.data.StoryPagingDefaults.SECTION
-import com.yaabelozerov.superfinancer.stories.data.NytSource
-import com.yaabelozerov.superfinancer.stories.data.NytStoryPagingSource
-import com.yaabelozerov.superfinancer.stories.data.StoryPagingDefaults
+import com.yaabelozerov.superfinancer.stories.StoriesModule
+import com.yaabelozerov.superfinancer.stories.data.local.StoryEntity
+import com.yaabelozerov.superfinancer.stories.data.remote.StoryPagingDefaults.EXCLUDE
+import com.yaabelozerov.superfinancer.stories.data.remote.StoryPagingDefaults.SECTION
+import com.yaabelozerov.superfinancer.stories.data.remote.NytSource
+import com.yaabelozerov.superfinancer.stories.data.remote.NytStoryPagingSource
+import com.yaabelozerov.superfinancer.stories.data.remote.StoryPagingDefaults
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.time.Instant
@@ -45,6 +48,15 @@ class StoriesUseCase(
         )
     }.flow.map {
         it.map {
+            val entity = StoryEntity(
+                slug = it.slugName,
+                timestampSaved = System.currentTimeMillis(),
+                title = it.title,
+                abstract = it.abstract.ifBlank { it.subHeadline },
+                url = it.url,
+                imageUrl = it.multimedia.maxByOrNull { it.width }?.url
+            )
+            StoriesModule.storyCacheDao.upsert(entity)
             Story(
                 title = it.title,
                 description = it.abstract.ifBlank { it.subHeadline }.ifBlank { null },

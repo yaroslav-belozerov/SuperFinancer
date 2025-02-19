@@ -1,4 +1,4 @@
-package com.yaabelozerov.superfinancer.stories.data
+package com.yaabelozerov.superfinancer.stories.data.remote
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState

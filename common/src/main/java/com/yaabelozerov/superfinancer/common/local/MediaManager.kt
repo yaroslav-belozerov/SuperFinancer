@@ -32,15 +32,12 @@ class MediaManager(private val app: Context) {
                         read = inStream.read(buf)
                     }
                     callback(File(dir, fileName).absolutePath)
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                } catch (_: Exception) {
                 } finally {
                     inStream?.close()
                     outStream.close()
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            } catch (_: Exception) { }
         }
     }
 
@@ -50,9 +47,7 @@ class MediaManager(private val app: Context) {
                 val file = File(name)
                 if (!file.exists()) return@withContext
                 file.delete()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            } catch (_: Exception) { }
         }
     }
 
