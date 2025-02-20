@@ -31,6 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
+import com.yaabelozerov.superfinancer.common.components.AsyncImageWithPlaceholder
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -51,13 +52,13 @@ fun FeedScreen(viewModel: FeedVM = viewModel()) {
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    FlowRow(
+                    if (it.images.isNotEmpty()) FlowRow(
                         modifier = Modifier.clip(MaterialTheme.shapes.medium),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         it.images.forEach {
-                            Box(
+                            AsyncImageWithPlaceholder(it.path,
                                 modifier = Modifier
                                     .sizeIn(
                                         minWidth = 48.dp,
@@ -66,14 +67,8 @@ fun FeedScreen(viewModel: FeedVM = viewModel()) {
                                         maxHeight = 192.dp
                                     )
                                     .weight(1f),
-                            ) {
-                                AsyncImage(
-                                    it.path,
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentDescription = it.altText,
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
+                                contentDescription = it.altText
+                            )
                         }
                     }
                     Text(it.contents)
