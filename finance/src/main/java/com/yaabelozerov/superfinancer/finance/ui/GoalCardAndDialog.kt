@@ -1,12 +1,7 @@
 package com.yaabelozerov.superfinancer.finance.ui
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,12 +16,9 @@ import androidx.compose.material.icons.filled.CurrencyRuble
 import androidx.compose.material.icons.filled.ImageSearch
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil3.compose.AsyncImage
 import com.yaabelozerov.superfinancer.common.CommonModule
+import com.yaabelozerov.superfinancer.common.components.PhotoPickerButton
+import com.yaabelozerov.superfinancer.common.components.PhotoPickerImage
 import com.yaabelozerov.superfinancer.finance.domain.Goal
 import kotlinx.coroutines.launch
 import kotlin.math.min
@@ -95,12 +88,11 @@ fun GoalCard(goal: Goal, modifier: Modifier = Modifier, viewModel: FinanceVM) {
 @Composable
 fun CreateGoalDialog(onHide: () -> Unit, onCreate: (String, Long, String) -> Unit) {
     val scope = rememberCoroutineScope()
-    var currentImage by remember { mutableStateOf<String?>(null) }
-    var currentImageUri by remember { mutableStateOf<Uri?>(null) }
+    var imagePath by remember { mutableStateOf<String?>(null) }
     Dialog(onDismissRequest = {
         scope.launch {
             onHide()
-            currentImage?.let {
+            imagePath?.let {
                 CommonModule.mediaManager.removeMedia(it)
             }
         }
@@ -110,46 +102,15 @@ fun CreateGoalDialog(onHide: () -> Unit, onCreate: (String, Long, String) -> Uni
                 modifier = Modifier.padding(vertical = 16.dp, horizontal = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                val picker =
-                    rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-                        uri?.let { uriNotNull ->
-                            currentImageUri = uriNotNull
-                            scope.launch {
-                                CommonModule.mediaManager.importMedia(uriNotNull) {
-                                    currentImage?.let { current ->
-                                        scope.launch {
-                                            CommonModule.mediaManager.removeMedia(current)
-                                        }
-                                    }
-                                    currentImage = it
-                                }
-                            }
-                        }
-                    }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Create a goal", style = MaterialTheme.typography.headlineLarge)
-                    Spacer(Modifier.width(16.dp))
-                    if (currentImageUri == null) IconButton(onClick = {
-                        picker.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
-                    }) { Icon(Icons.Default.ImageSearch, contentDescription = null) }
                 }
-                if (currentImageUri != null) AsyncImage(model = currentImageUri,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .width(192.dp)
-                        .aspectRatio(1.5f)
-                        .clip(
-                            MaterialTheme.shapes.medium
-                        )
-                        .clickable {
-                            picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                        })
+                imagePath?.let {
+                    PhotoPickerImage(it) { imagePath = null }
+                } ?: PhotoPickerButton { imagePath = it }
                 var name by remember { mutableStateOf("") }
                 OutlinedTextField(name,
                     onValueChange = { name = it },
@@ -176,7 +137,7 @@ fun CreateGoalDialog(onHide: () -> Unit, onCreate: (String, Long, String) -> Uni
                 Button(
                     onClick = {
                         if (amount > 0 && name.isNotBlank()) {
-                            onCreate(name, amount, currentImage ?: "")
+                            onCreate(name, amount, imagePath ?: "")
                             onHide()
                         }
                     }, modifier = Modifier.fillMaxWidth()

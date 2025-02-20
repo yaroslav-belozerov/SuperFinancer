@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.yaabelozerov.superfinancer.common.Module
 import com.yaabelozerov.superfinancer.feed.data.PostDao
 import com.yaabelozerov.superfinancer.feed.data.PostDb
+import com.yaabelozerov.superfinancer.stories.StoriesModule
 
 class FeedModule: Module() {
     override fun onCreate(application: Application) {
@@ -18,5 +19,6 @@ class FeedModule: Module() {
             Room.databaseBuilder(app.applicationContext, PostDb::class.java, "posts.db").build()
         }
         val postDao by lazy { postDb.dao() }
+        val storiesDao by lazy { StoriesModule.storyCacheDao }
     }
 }

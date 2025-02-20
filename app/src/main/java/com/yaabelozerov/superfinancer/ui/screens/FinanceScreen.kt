@@ -1,4 +1,4 @@
-package com.yaabelozerov.superfinancer.ui.screens.main
+package com.yaabelozerov.superfinancer.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
