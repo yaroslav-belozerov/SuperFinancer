@@ -5,13 +5,12 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "stories")
 data class StoryEntity(
-    @PrimaryKey val slug: String,
+    @PrimaryKey val url: String,
     val timestampSaved: Long,
     val createdDate: String,
     val sectionKey: String,
     val byline: String,
     val title: String,
     val abstract: String,
-    val url: String,
     val imageUrl: String?
 )

@@ -32,8 +32,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.SocialScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.yaabelozerov.superfinancer.ui.navigation.SlideInVertically
+import com.yaabelozerov.superfinancer.ui.navigation.bottomNavigate
 import kotlinx.coroutines.delay
 
 @Destination<RootGraph>(style = SlideInVertically::class)
@@ -44,7 +46,14 @@ fun OpenArticleScreen(url: String, navigator: DestinationsNavigator) {
             IconButton(onClick = { navigator.navigateUp() }) {
                 Icon(Icons.Default.Close, contentDescription = "Close")
             }
-            TextButton(onClick = { navigator.navigateUp() }) {
+            TextButton(onClick = {
+                navigator.navigateUp()
+                navigator.bottomNavigate(
+                    SocialScreenDestination(
+                        addToPostArticleUrl = url
+                    )
+                )
+            }) {
                 Text("Add to post")
                 Icon(Icons.Default.Add, contentDescription = null)
             }
@@ -55,7 +64,11 @@ fun OpenArticleScreen(url: String, navigator: DestinationsNavigator) {
             webviewLoaded = true
         }
         AnimatedVisibility(webviewLoaded, enter = fadeIn(), exit = fadeOut()) {
-            Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
                 AndroidView(factory = {
                     WebView(it).apply {
                         layoutParams = ViewGroup.LayoutParams(

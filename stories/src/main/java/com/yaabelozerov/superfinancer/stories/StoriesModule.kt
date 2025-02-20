@@ -10,9 +10,6 @@ import kotlinx.coroutines.launch
 class StoriesModule: Module() {
     override fun onCreate(application: Application) {
         app = application
-        MainScope().launch {
-            storyCacheDao.purgeBefore(System.currentTimeMillis() - 6 * 60 * 60 * 1000)
-        }
     }
 
     companion object {

@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
+import com.yaabelozerov.superfinancer.stories.StoriesModule.Companion.storyCacheDao
 import kotlinx.coroutines.flow.Flow
 
 @Dao

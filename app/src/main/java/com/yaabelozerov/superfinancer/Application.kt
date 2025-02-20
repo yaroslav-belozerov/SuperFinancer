@@ -16,7 +16,7 @@ class Application: Application() {
     }
 
     companion object {
-        val modules = listOf(
+        private val modules = listOf(
             CommonModule(), FinanceModule(), StoriesModule(), FeedModule()
         )
     }

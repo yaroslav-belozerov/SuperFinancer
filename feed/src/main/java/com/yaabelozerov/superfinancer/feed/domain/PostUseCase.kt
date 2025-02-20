@@ -7,6 +7,7 @@ import com.yaabelozerov.superfinancer.feed.data.PostDb
 import com.yaabelozerov.superfinancer.feed.data.PostEntity
 import com.yaabelozerov.superfinancer.feed.data.PostImageEntity
 import com.yaabelozerov.superfinancer.stories.data.local.StoriesDao
+import com.yaabelozerov.superfinancer.stories.domain.Story
 import kotlinx.coroutines.flow.map
 
 class PostUseCase(
@@ -26,22 +27,29 @@ class PostUseCase(
                     )
                 },
                 article = post.articleId?.let { id ->
-                    storiesDao.get(id).run { PostArticle(
-                        slug = slug,
-                        title = title
-                    ) }
+                    storiesDao.getByUrl(id).also { println(it) }.run {
+                        Story(
+                            title = title,
+                            description = abstract,
+                            author = byline,
+                            link = url,
+                            photoUrl = imageUrl,
+                            date = createdDate,
+                            sectionName = sectionKey
+                        )
+                    }
                 }
             )
         }
     }
 
-    suspend fun createPost(contents: String, images: List<Pair<String, String>>, articleSlug: String?) {
+    suspend fun createPost(contents: String, images: List<Pair<String, String>>, articleUrl: String?) {
         postDb.withTransaction {
             val postId = postDao.createPost(
                 PostEntity(
                     id = 0,
                     contents = contents,
-                    articleId = articleSlug
+                    articleId = articleUrl
                 )
             )
             postDao.createImageRecord(

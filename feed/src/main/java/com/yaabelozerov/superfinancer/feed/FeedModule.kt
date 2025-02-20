@@ -6,10 +6,19 @@ import com.yaabelozerov.superfinancer.common.Module
 import com.yaabelozerov.superfinancer.feed.data.PostDao
 import com.yaabelozerov.superfinancer.feed.data.PostDb
 import com.yaabelozerov.superfinancer.stories.StoriesModule
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
-class FeedModule: Module() {
+class FeedModule : Module() {
     override fun onCreate(application: Application) {
         app = application
+        MainScope().launch {
+            StoriesModule.storyCacheDao.purgeBefore(
+                System.currentTimeMillis() - 1000,
+                postDao.getAllPosts().first().mapNotNull { it.key.articleId }
+            )
+        }
     }
 
     companion object {

@@ -1,10 +1,15 @@
 package com.yaabelozerov.superfinancer.feed.ui
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -16,16 +21,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.yaabelozerov.superfinancer.common.CommonModule
+import com.yaabelozerov.superfinancer.common.components.AsyncImageWithPlaceholder
 import com.yaabelozerov.superfinancer.common.components.CardDialog
 import com.yaabelozerov.superfinancer.common.components.PhotoPickerButtonList
 import com.yaabelozerov.superfinancer.common.components.PhotoPickerImage
+import com.yaabelozerov.superfinancer.stories.domain.Story
 import kotlinx.coroutines.launch
 
 @Composable
 fun CreatePostDialog(
-    articleId: String?,
+    article: Story?,
     onDismiss: () -> Unit,
     onCreate: (String, List<Pair<String, String>>) -> Unit,
 ) {
@@ -50,7 +58,12 @@ fun CreatePostDialog(
                 PhotoPickerButtonList { images = images.plus(it) }
             }
         }
-        OutlinedTextField(contents, onValueChange = { contents = it }, shape = MaterialTheme.shapes.small)
+        OutlinedTextField(
+            contents, onValueChange = { contents = it }, shape = MaterialTheme.shapes.small
+        )
+        article?.let {
+            EmbeddedArticleCard(it)
+        }
         Button(onClick = {
             onCreate(contents, images.map { it to "" })
             onDismiss()
