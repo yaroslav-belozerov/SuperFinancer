@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CurrencyRuble
 import androidx.compose.material3.Button
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -41,10 +40,10 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.yaabelozerov.superfinancer.common.components.CardDialog
 import com.yaabelozerov.superfinancer.common.components.Header
 import com.yaabelozerov.superfinancer.finance.R
 import com.yaabelozerov.superfinancer.finance.domain.Goal
@@ -161,60 +160,52 @@ private fun CreateTransactionModal(
     onCreate: (Long, Long, String) -> Unit,
     chosen: Pair<Long, (Long) -> Unit>,
 ) {
-    Dialog(onDismissRequest = {
+    CardDialog("Make a payment", onDismiss = {
         onHide()
         chosen.second(-1L)
     }) {
-        ElevatedCard {
-            Column(
-                modifier = Modifier.padding(vertical = 16.dp, horizontal = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text("Make a payment", style = MaterialTheme.typography.headlineLarge)
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(goals, key = { it.id }) {
-                        FilterChip(selected = it.id == chosen.first,
-                            onClick = { chosen.second(if (chosen.first == it.id) -1L else it.id) },
-                            label = {
-                                Text(
-                                    it.name, modifier = Modifier.padding(8.dp)
-                                )
-                            })
-                    }
-                }
-                var amount by remember { mutableLongStateOf(0L) }
-                OutlinedTextField(
-                    amount.toString(),
-                    { amount = it.toLongOrNull() ?: 0L },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    shape = MaterialTheme.shapes.small,
-                    trailingIcon = {
-                        Icon(
-                            Icons.Default.CurrencyRuble,
-                            contentDescription = null,
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(goals, key = { it.id }) {
+                FilterChip(selected = it.id == chosen.first,
+                    onClick = { chosen.second(if (chosen.first == it.id) -1L else it.id) },
+                    label = {
+                        Text(
+                            it.name, modifier = Modifier.padding(8.dp)
                         )
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                var comment by remember { mutableStateOf("") }
-                OutlinedTextField(comment,
-                    onValueChange = { comment = it },
-                    placeholder = { Text("Add a comment") },
-                    shape = MaterialTheme.shapes.small,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Button(
-                    onClick = {
-                        if (chosen.first != -1L) {
-                            if (amount != 0L) {
-                                onCreate(chosen.first, amount, comment)
-                                onHide()
-                            }
-                        }
-                    }, modifier = Modifier.fillMaxWidth()
-                ) { Text("Save") }
+                    })
             }
         }
+        var amount by remember { mutableLongStateOf(0L) }
+        OutlinedTextField(
+            amount.toString(),
+            { amount = it.toLongOrNull() ?: 0L },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            shape = MaterialTheme.shapes.small,
+            trailingIcon = {
+                Icon(
+                    Icons.Default.CurrencyRuble,
+                    contentDescription = null,
+                )
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+        var comment by remember { mutableStateOf("") }
+        OutlinedTextField(comment,
+            onValueChange = { comment = it },
+            placeholder = { Text("Add a comment") },
+            shape = MaterialTheme.shapes.small,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Button(
+            onClick = {
+                if (chosen.first != -1L) {
+                    if (amount != 0L) {
+                        onCreate(chosen.first, amount, comment)
+                        onHide()
+                    }
+                }
+            }, modifier = Modifier.fillMaxWidth()
+        ) { Text("Save") }
     }
 }

@@ -6,16 +6,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CurrencyRuble
-import androidx.compose.material.icons.filled.ImageSearch
 import androidx.compose.material3.Button
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -31,12 +27,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import coil3.compose.AsyncImage
 import com.yaabelozerov.superfinancer.common.CommonModule
+import com.yaabelozerov.superfinancer.common.components.CardDialog
 import com.yaabelozerov.superfinancer.common.components.PhotoPickerButton
 import com.yaabelozerov.superfinancer.common.components.PhotoPickerImage
 import com.yaabelozerov.superfinancer.finance.domain.Goal
@@ -89,7 +83,8 @@ fun GoalCard(goal: Goal, modifier: Modifier = Modifier, viewModel: FinanceVM) {
 fun CreateGoalDialog(onHide: () -> Unit, onCreate: (String, Long, String) -> Unit) {
     val scope = rememberCoroutineScope()
     var imagePath by remember { mutableStateOf<String?>(null) }
-    Dialog(onDismissRequest = {
+
+    CardDialog("Create a goal", onDismiss = {
         scope.launch {
             onHide()
             imagePath?.let {
@@ -97,52 +92,39 @@ fun CreateGoalDialog(onHide: () -> Unit, onCreate: (String, Long, String) -> Uni
             }
         }
     }) {
-        ElevatedCard {
-            Column(
-                modifier = Modifier.padding(vertical = 16.dp, horizontal = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Create a goal", style = MaterialTheme.typography.headlineLarge)
+        imagePath?.let {
+            PhotoPickerImage(it) { imagePath = null }
+        } ?: PhotoPickerButton { imagePath = it }
+        var name by remember { mutableStateOf("") }
+        OutlinedTextField(name,
+            onValueChange = { name = it },
+            placeholder = { Text("Name your goal") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.small
+        )
+        var amount by remember { mutableLongStateOf(0L) }
+        OutlinedTextField(
+            amount.toString(),
+            { amount = it.toLongOrNull() ?: 0L },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            trailingIcon = {
+                Icon(
+                    Icons.Default.CurrencyRuble,
+                    contentDescription = null,
+                )
+            },
+            shape = MaterialTheme.shapes.small,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Button(
+            onClick = {
+                if (amount > 0 && name.isNotBlank()) {
+                    onCreate(name, amount, imagePath ?: "")
+                    onHide()
                 }
-                imagePath?.let {
-                    PhotoPickerImage(it) { imagePath = null }
-                } ?: PhotoPickerButton { imagePath = it }
-                var name by remember { mutableStateOf("") }
-                OutlinedTextField(name,
-                    onValueChange = { name = it },
-                    placeholder = { Text("Name your goal") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.small
-                )
-                var amount by remember { mutableLongStateOf(0L) }
-                OutlinedTextField(
-                    amount.toString(),
-                    { amount = it.toLongOrNull() ?: 0L },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    trailingIcon = {
-                        Icon(
-                            Icons.Default.CurrencyRuble,
-                            contentDescription = null,
-                        )
-                    },
-                    shape = MaterialTheme.shapes.small,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Button(
-                    onClick = {
-                        if (amount > 0 && name.isNotBlank()) {
-                            onCreate(name, amount, imagePath ?: "")
-                            onHide()
-                        }
-                    }, modifier = Modifier.fillMaxWidth()
-                ) { Text("Save") }
-            }
-        }
+            }, modifier = Modifier.fillMaxWidth()
+        ) { Text("Save") }
     }
 }

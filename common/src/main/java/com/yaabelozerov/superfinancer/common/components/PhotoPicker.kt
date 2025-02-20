@@ -23,6 +23,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
+fun PhotoPickerButtonList(onPick: (List<String>) -> Unit) {
+    val scope = rememberCoroutineScope { Dispatchers.IO }
+    val picker =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uriList ->
+            scope.launch {
+                val lst = mutableListOf<String>()
+                uriList.forEach {
+                    CommonModule.mediaManager.importMedia(it) { lst.add(it) }
+                }
+                onPick(lst)
+            }
+        }
+    IconButton(onClick = {
+        picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+    }) {
+        Icon(Icons.Default.ImageSearch, contentDescription = null)
+    }
+}
+
+@Composable
 fun PhotoPickerButton(onPick: (String) -> Unit) {
     val scope = rememberCoroutineScope { Dispatchers.IO }
     val picker =
