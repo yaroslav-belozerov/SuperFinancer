@@ -42,14 +42,12 @@ class TickerUseCase(private val source: FinnhubSource = FinnhubSource()) {
     suspend fun startConnectionsForTickers(tickers: List<String>) {
         coroutineScope {
             tickers.forEach { symbol ->
-                delay(200L)
-                launch {
-                    source.startTickerConnection(symbol, onReceive = {
-                        it.data.map {
-                            tickerConnectionFlow.emit(it.symbol to it.price)
-                        }
-                    }, onError = { })
-                }
+                delay(500L)
+                source.startTickerConnection(symbol, onReceive = {
+                    it.data.map {
+                        tickerConnectionFlow.emit(it.symbol to it.price)
+                    }
+                }, onError = { System.err.println(it.message) })
             }
         }
     }

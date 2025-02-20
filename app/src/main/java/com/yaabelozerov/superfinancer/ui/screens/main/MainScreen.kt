@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -69,7 +70,7 @@ fun MainScreen(
     val ticker by viewModel.tickerState.collectAsState()
     val sections by viewModel.sectionState.collectAsState()
     val storyFlow = viewModel.stories.collectAsLazyPagingItems()
-    var refreshLoading by remember { mutableStateOf(true) }
+    var refreshLoading by remember { mutableStateOf(false) }
     var appendLoading by remember { mutableStateOf(true) }
     LaunchedEffect(storyFlow.loadState.refresh) {
         refreshLoading = when (storyFlow.loadState.refresh) {
@@ -99,11 +100,10 @@ fun MainScreen(
     }
     val refreshState = rememberPullToRefreshState()
     val haptic = LocalHapticFeedback.current
-    var seenAnimation by remember { mutableStateOf(false) }
     val connected by CommonModule.isNetworkAvailable.collectAsState()
+    val listState = rememberLazyListState()
     LaunchedEffect(refreshState.distanceFraction >= 1f) {
-        if (seenAnimation) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-        seenAnimation = true
+        if (listState.isScrollInProgress) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
     SharedTransitionLayout {
         AnimatedContent(isSearching) { searching ->
@@ -118,7 +118,7 @@ fun MainScreen(
                 Modifier
                     .fillMaxSize()
                     .pullToRefresh(
-                        isRefreshing = ticker.isLoading || (refreshLoading && !seenAnimation),
+                        isRefreshing = ticker.isLoading || refreshLoading,
                         onRefresh = {
                             viewModel.refreshAll()
                             storyFlow.refresh()
@@ -128,11 +128,12 @@ fun MainScreen(
             ) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    state = listState
                 ) {
                     item {
                         RefreshIndicator(
-                            ticker.isLoading || (refreshLoading && !seenAnimation),
+                            ticker.isLoading || refreshLoading,
                             ticker.lastUpdated,
                             refreshState.distanceFraction,
                             modifier = Modifier.fillParentMaxWidth()
