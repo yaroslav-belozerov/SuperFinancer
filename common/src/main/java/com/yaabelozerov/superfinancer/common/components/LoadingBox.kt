@@ -9,8 +9,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 
 @Composable
-fun LoadingBox(width: Dp, height: Dp, shape: Shape = MaterialTheme.shapes.medium) = Box(
-    modifier = Modifier
+fun LoadingBox(width: Dp, height: Dp, modifier: Modifier = Modifier, shape: Shape = MaterialTheme.shapes.medium) = Box(
+    modifier = modifier
         .size(width, height)
         .shimmerBackground(shape)
 )

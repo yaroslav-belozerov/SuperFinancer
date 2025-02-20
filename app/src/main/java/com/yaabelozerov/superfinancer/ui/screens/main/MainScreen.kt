@@ -36,6 +36,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,6 +58,7 @@ import com.yaabelozerov.superfinancer.stories.ui.SectionList
 import com.yaabelozerov.superfinancer.stories.ui.StoryCard
 import com.yaabelozerov.superfinancer.tickers.ui.TickerRow
 import com.yaabelozerov.superfinancer.ui.viewmodel.MainVM
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Destination<RootGraph>(start = true)
@@ -98,6 +100,7 @@ fun MainScreen(
             }
         }
     }
+    val scope = rememberCoroutineScope()
     val refreshState = rememberPullToRefreshState()
     val haptic = LocalHapticFeedback.current
     val connected by CommonModule.isNetworkAvailable.collectAsState()
@@ -167,7 +170,9 @@ fun MainScreen(
                     item { TickerRow(ticker) }
                     item {
                         SectionList(
-                            sections, viewModel::setSection
+                            sections, { viewModel.setSection(it); scope.launch {
+                                listState.animateScrollToItem(0)
+                            } }
                         )
                     }
                     if (!connected) {
