@@ -1,32 +1,22 @@
-import java.io.FileInputStream
-import java.util.Properties
-
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.kotlinx.serialization)
 }
 
 android {
-    namespace = "com.yaabelozerov.superfinancer"
+    namespace = "com.yaabelozerov.superfinancer.feed"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.yaabelozerov.superfinancer"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -40,17 +30,18 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    buildFeatures {
-        compose = true
-    }
 }
 
 dependencies {
     implementation(project(":common"))
-    implementation(project(":tickers"))
-    implementation(project(":stories"))
-    implementation(project(":finance"))
-    implementation(project(":feed"))
+
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -70,30 +61,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    // Ktor Client
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.okhttp)
-    implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.client.serialization.json)
-    implementation(libs.ktor.client.websocket)
-
     // Coil Image Loading
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
-
-    // Compose Destinations Navigation
-    implementation(libs.compose.destinations.core)
-    ksp(libs.compose.destinations.ksp)
-
-    // Paging 3
-    implementation(libs.androidx.paging.runtime)
-    implementation(libs.androidx.paging.compose)
-
-    // DataStore
-    implementation(libs.androidx.datastore.preferences)
-
-    // Room DB
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
 }
