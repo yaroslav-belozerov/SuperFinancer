@@ -1,6 +1,6 @@
 package com.yaabelozerov.superfinancer.domain.usecase
 
-import com.yaabelozerov.superfinancer.stories.data.NytSource
+import com.yaabelozerov.superfinancer.stories.data.remote.NytSource
 import com.yaabelozerov.superfinancer.finance.domain.SearchItem
 import com.yaabelozerov.superfinancer.finance.domain.SearchItemType
 import com.yaabelozerov.superfinancer.tickers.data.FinnhubSource

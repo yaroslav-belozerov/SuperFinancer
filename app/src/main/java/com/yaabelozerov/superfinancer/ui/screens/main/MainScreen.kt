@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
@@ -46,6 +49,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.OpenArticleScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.yaabelozerov.superfinancer.common.CommonModule
 import com.yaabelozerov.superfinancer.common.components.RefreshIndicator
 import com.yaabelozerov.superfinancer.finance.domain.SearchItemType
 import com.yaabelozerov.superfinancer.stories.ui.SectionList
@@ -56,7 +60,11 @@ import com.yaabelozerov.superfinancer.ui.viewmodel.MainVM
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Destination<RootGraph>(start = true)
 @Composable
-fun MainScreen(navigator: DestinationsNavigator, snackBarHostState: SnackbarHostState, viewModel: MainVM = viewModel()) {
+fun MainScreen(
+    navigator: DestinationsNavigator,
+    snackBarHostState: SnackbarHostState,
+    viewModel: MainVM = viewModel(),
+) {
     var isSearching by remember { mutableStateOf(false) }
     val ticker by viewModel.tickerState.collectAsState()
     val sections by viewModel.sectionState.collectAsState()
@@ -92,6 +100,7 @@ fun MainScreen(navigator: DestinationsNavigator, snackBarHostState: SnackbarHost
     val refreshState = rememberPullToRefreshState()
     val haptic = LocalHapticFeedback.current
     var seenAnimation by remember { mutableStateOf(false) }
+    val connected by CommonModule.isNetworkAvailable.collectAsState()
     LaunchedEffect(refreshState.distanceFraction >= 1f) {
         if (seenAnimation) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
         seenAnimation = true
@@ -157,9 +166,28 @@ fun MainScreen(navigator: DestinationsNavigator, snackBarHostState: SnackbarHost
                     item { TickerRow(ticker) }
                     item {
                         SectionList(
-                            sections,
-                            viewModel::setSection
+                            sections, viewModel::setSection
                         )
+                    }
+                    if (!connected) {
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    8.dp, Alignment.CenterHorizontally
+                                ),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Warning,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .alpha(0.5f)
+                                )
+                                Text("No internet connection", modifier = Modifier.padding(16.dp))
+                            }
+                        }
                     }
                     if (!refreshLoading) items(storyFlow.itemCount) { index ->
                         storyFlow[index]?.let { story ->
@@ -179,7 +207,8 @@ fun MainScreen(navigator: DestinationsNavigator, snackBarHostState: SnackbarHost
                             Column(
                                 Modifier
                                     .fillMaxWidth()
-                                    .padding(48.dp).animateItem(),
+                                    .padding(48.dp)
+                                    .animateItem(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {

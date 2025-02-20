@@ -48,7 +48,7 @@ class TickerUseCase(private val source: FinnhubSource = FinnhubSource()) {
                         it.data.map {
                             tickerConnectionFlow.emit(it.symbol to it.price)
                         }
-                    }, onError = { it.printStackTrace() })
+                    }, onError = { })
                 }
             }
         }

@@ -7,9 +7,11 @@ import androidx.paging.map
 import com.yaabelozerov.superfinancer.common.CommonModule
 import com.yaabelozerov.superfinancer.common.local.config.DataStoreManager
 import com.yaabelozerov.superfinancer.common.util.format
+import com.yaabelozerov.superfinancer.stories.StoriesModule
+import com.yaabelozerov.superfinancer.stories.data.local.StoryEntity
 import com.yaabelozerov.superfinancer.stories.data.StoryPagingDefaults.EXCLUDE
 import com.yaabelozerov.superfinancer.stories.data.StoryPagingDefaults.SECTION
-import com.yaabelozerov.superfinancer.stories.data.NytSource
+import com.yaabelozerov.superfinancer.stories.data.remote.NytSource
 import com.yaabelozerov.superfinancer.stories.data.NytStoryPagingSource
 import com.yaabelozerov.superfinancer.stories.data.StoryPagingDefaults
 import kotlinx.coroutines.flow.Flow
@@ -45,6 +47,18 @@ class StoriesUseCase(
         )
     }.flow.map {
         it.map {
+            val entity = StoryEntity(
+                slug = it.slugName,
+                timestampSaved = System.currentTimeMillis(),
+                title = it.title,
+                abstract = it.abstract.ifBlank { it.subHeadline },
+                url = it.url,
+                imageUrl = it.multimedia.maxByOrNull { it.width }?.url,
+                createdDate = it.createdDate,
+                sectionKey = it.section,
+                byline = it.byline
+            )
+            StoriesModule.storyCacheDao.upsert(entity)
             Story(
                 title = it.title,
                 description = it.abstract.ifBlank { it.subHeadline }.ifBlank { null },
