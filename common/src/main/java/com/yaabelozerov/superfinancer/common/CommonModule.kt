@@ -9,12 +9,17 @@ import com.yaabelozerov.superfinancer.common.remote.NetworkCallback
 import com.yaabelozerov.superfinancer.common.remote.networkRequest
 import kotlinx.serialization.ExperimentalSerializationApi
 
-class CommonModule {
-    fun onCreate(application: Application) {
+abstract class Module {
+    abstract fun onCreate(application: Application)
+}
+
+class CommonModule: Module() {
+    override fun onCreate(application: Application) {
         app = application
         val connectivityManager = application.getSystemService(ConnectivityManager::class.java)
         connectivityManager.registerNetworkCallback(networkRequest, NetworkCallback)
     }
+
     companion object {
         private lateinit var app: Application
 
