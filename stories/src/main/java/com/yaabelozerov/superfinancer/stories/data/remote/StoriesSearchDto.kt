@@ -1,4 +1,4 @@
-package com.yaabelozerov.superfinancer.stories.data
+package com.yaabelozerov.superfinancer.stories.data.remote
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

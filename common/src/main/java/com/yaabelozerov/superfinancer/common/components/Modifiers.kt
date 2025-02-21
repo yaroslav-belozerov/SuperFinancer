@@ -13,10 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TileMode
 
-fun Modifier.shimmerBackground(shape: Shape): Modifier = composed {
+fun Modifier.shimmerBackground(shape: Shape, color: Color): Modifier = composed {
     val transition = rememberInfiniteTransition()
 
     val translateAnimation by transition.animateFloat(
@@ -28,8 +29,8 @@ fun Modifier.shimmerBackground(shape: Shape): Modifier = composed {
         label = "",
     )
     val shimmerColors = listOf(
-        MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.7f),
-        MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.0f),
+        color.copy(alpha = 0.7f),
+        color.copy(alpha = 0.0f),
     )
     val brush = Brush.linearGradient(
         colors = shimmerColors,

@@ -1,4 +1,4 @@
-import java.io.FileInputStream
+import java.util.Base64
 import java.util.Properties
 
 plugins {
@@ -23,6 +23,18 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            val file = rootProject.file("secrets.properties")
+            val properties = Properties()
+            properties.load(file.inputStream())
+            storeFile = file("./superfinancer.jks")
+            storePassword = properties.getProperty("KEYSTORE_PASSWORD")
+            keyAlias = properties.getProperty("KEY_ALIAS")
+            keyPassword = properties.getProperty("KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -31,6 +43,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -50,6 +63,7 @@ dependencies {
     implementation(project(":tickers"))
     implementation(project(":stories"))
     implementation(project(":finance"))
+    implementation(project(":feed"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

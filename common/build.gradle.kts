@@ -8,13 +8,13 @@ plugins {
 }
 
 val buildConfigFields = mutableMapOf("FINNHUB_TOKEN" to "", "NYT_TOKEN" to "")
-val file = rootProject.file("local.properties")
+val file = rootProject.file("secrets.properties")
 val properties = Properties()
 properties.load(file.inputStream())
 buildConfigFields.keys.forEach {
     buildConfigFields[it] = properties.getProperty(it)
     if (buildConfigFields[it].isNullOrBlank()) {
-        throw IllegalArgumentException("Missing $it in local.properties")
+        throw IllegalArgumentException("Missing $it in secrets.properties")
     }
 }
 
@@ -80,4 +80,8 @@ dependencies {
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
+
+    // Coil Image Loading
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 }

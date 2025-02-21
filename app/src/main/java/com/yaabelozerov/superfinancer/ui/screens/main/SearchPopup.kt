@@ -5,13 +5,19 @@ import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsEndWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -21,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -50,33 +57,55 @@ fun SharedTransitionScope.SearchPopup(
     }
     LazyColumn(modifier = modifier.fillMaxSize()) {
         item {
-            OutlinedTextField(
-                uiState.query,
-                onValueChange = viewModel::onQueryChange,
-                shape = MaterialTheme.shapes.small,
-                singleLine = true,
-                placeholder = { Text("Search") },
+            Row(
                 modifier = Modifier
-                    .focusRequester(fr)
                     .padding(8.dp)
-                    .fillMaxWidth()
-                    .sharedElement(
-                        rememberSharedContentState("searchbar"),
-                        animatedVisibilityScope = animatedContentScope
-                    )
-            )
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    uiState.query,
+                    onValueChange = viewModel::onQueryChange,
+                    shape = MaterialTheme.shapes.small,
+                    singleLine = true,
+                    placeholder = { Text("Search") },
+                    modifier = Modifier
+                        .focusRequester(fr)
+                        .weight(1f)
+                        .sharedElement(
+                            rememberSharedContentState("searchbar"),
+                            animatedVisibilityScope = animatedContentScope
+                        )
+                )
+                IconButton(onClick = {
+                    onBack()
+                    viewModel.onQueryChange("")
+                }) { Icon(Icons.Default.Close, contentDescription = null) }
+            }
         }
         items(uiState.searchResults) {
-            ListItem(modifier = Modifier.animateItem().clickable { onClick(it) }, headlineContent = {
-                Text(it.title, style = MaterialTheme.typography.titleMedium)
-            }, leadingContent = it.iconUrl?.let { url ->
-                {
-                    AsyncImage(
-                        model = url, contentDescription = null, modifier = Modifier.size(48.dp).clip(
-                            CircleShape), contentScale = ContentScale.Crop
-                    )
-                }
-            }, trailingContent = { Text(it.type.string) }, supportingContent = { Text(it.description) })
+            ListItem(modifier = Modifier
+                .animateItem()
+                .clickable { onClick(it) },
+                headlineContent = {
+                    Text(it.title, style = MaterialTheme.typography.titleMedium)
+                },
+                leadingContent = it.iconUrl?.let { url ->
+                    {
+                        AsyncImage(
+                            model = url,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(
+                                    CircleShape
+                                ),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                },
+                trailingContent = { Text(it.type.string) },
+                supportingContent = { Text(it.description) })
         }
     }
 }

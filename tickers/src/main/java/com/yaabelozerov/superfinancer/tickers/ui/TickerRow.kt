@@ -1,5 +1,9 @@
 package com.yaabelozerov.superfinancer.tickers.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,12 +28,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
+import com.yaabelozerov.superfinancer.common.components.AsyncImageWithPlaceholder
 import com.yaabelozerov.superfinancer.common.components.LoadingBox
 import com.yaabelozerov.superfinancer.tickers.domain.Ticker
 import java.math.RoundingMode
@@ -60,16 +70,12 @@ private fun TickerCard(symbol: String, ticker: Ticker, modifier: Modifier = Modi
                 .padding(12.dp)
         ) {
             Column(Modifier.align(Alignment.TopStart)) {
-                AsyncImage(
+                AsyncImageWithPlaceholder(
                     model = ticker.logoUrl,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .padding(bottom = 8.dp)
                         .size(48.dp)
-                        .clip(
-                            CircleShape
-                        )
+                        .clip(CircleShape)
                 )
                 Row(
                     verticalAlignment = Alignment.Bottom,
@@ -120,7 +126,7 @@ private fun TickerCard(symbol: String, ticker: Ticker, modifier: Modifier = Modi
 private fun LoadingTickerCard(modifier: Modifier = Modifier) {
     OutlinedCard(modifier = modifier) {
         Column(Modifier.padding(12.dp)) {
-            LoadingBox(48.dp, 48.dp, CircleShape)
+            LoadingBox(48.dp, 48.dp, shape = CircleShape)
             Spacer(Modifier.height(8.dp))
             LoadingBox(96.dp, 32.dp)
             Spacer(Modifier.height(8.dp))

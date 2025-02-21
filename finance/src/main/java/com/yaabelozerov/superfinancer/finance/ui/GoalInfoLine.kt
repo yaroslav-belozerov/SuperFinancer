@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,13 +34,14 @@ import com.yaabelozerov.superfinancer.finance.domain.Goal
 import kotlin.math.roundToInt
 
 @Composable
-fun GoalInfoLine(goal: Goal, progress: Float, onEvent: (FinanceScreenEvent) -> Unit) =
-    if (goal.image.isBlank()) GoalInfoLineWithoutImage(goal, progress, onEvent) else GoalInfoLineWithImage(goal, progress, onEvent)
+fun GoalInfoLine(goal: Goal, progress: Float, indicatorColor: Color, onEvent: (FinanceScreenEvent) -> Unit) =
+    if (goal.image.isBlank()) GoalInfoLineWithoutImage(goal, progress, indicatorColor, onEvent) else GoalInfoLineWithImage(goal, progress, indicatorColor, onEvent)
 
 @Composable
 private fun GoalInfoLineWithoutImage(
     goal: Goal,
     progress: Float,
+    color: Color,
     onEvent: (FinanceScreenEvent) -> Unit,
 ) {
     var optionsOpen by remember { mutableStateOf(false) }
@@ -61,7 +63,7 @@ private fun GoalInfoLineWithoutImage(
                     .fillMaxHeight()
                     .fillMaxWidth(progress)
                     .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.primary)
+                    .background(color)
             )
             Surface(
                 shape = MaterialTheme.shapes.small,
@@ -82,7 +84,7 @@ private fun GoalInfoLineWithoutImage(
 }
 
 @Composable
-private fun GoalInfoLineWithImage(goal: Goal, progress: Float, onEvent: (FinanceScreenEvent) -> Unit) {
+private fun GoalInfoLineWithImage(goal: Goal, progress: Float, color: Color, onEvent: (FinanceScreenEvent) -> Unit) {
     var optionsOpen by remember { mutableStateOf(false) }
     Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Box(
@@ -119,7 +121,7 @@ private fun GoalInfoLineWithImage(goal: Goal, progress: Float, onEvent: (Finance
                     .fillMaxHeight(progress)
                     .align(Alignment.BottomCenter)
                     .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.primary)
+                    .background(color)
             )
             Surface(
                 shape = MaterialTheme.shapes.small,
