@@ -1,10 +1,9 @@
-package com.yaabelozerov.superfinancer.ui.viewmodel
+package com.yaabelozerov.superfinancer.search
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.yaabelozerov.superfinancer.finance.domain.SearchItem
-import com.yaabelozerov.superfinancer.domain.usecase.SearchUseCase
+import com.yaabelozerov.superfinancer.common.SearchItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -33,7 +32,6 @@ class SearchVM(
         currentJob?.cancel()
         currentJob = viewModelScope.launch {
             delay(500L)
-            println("job launched")
             if (query.length >= 3) {
                 val list =
                     SnapshotStateList<SearchItem>()

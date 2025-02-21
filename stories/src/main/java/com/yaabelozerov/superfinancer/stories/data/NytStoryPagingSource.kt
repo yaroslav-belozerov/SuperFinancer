@@ -8,16 +8,18 @@ import com.yaabelozerov.superfinancer.stories.data.local.StoryEntity
 import com.yaabelozerov.superfinancer.stories.data.remote.NytSource
 import com.yaabelozerov.superfinancer.stories.data.remote.StoryDto
 import com.yaabelozerov.superfinancer.stories.data.remote.StoryMultimediaDto
+import com.yaabelozerov.superfinancer.stories.domain.Section
 
-object StoryPagingDefaults {
+internal object StoryPagingDefaults {
     const val LIMIT = 15
-    const val SECTION = "all"
+    val SECTION = Section("all", "All")
     val EXCLUDE = listOf("admin")
 }
 
 private fun List<StoryEntity>.toDtos() = map {
     StoryDto(
         slugName = it.url,
+        source = it.source,
         section = it.sectionKey,
         title = it.title,
         abstract = it.title,
@@ -34,9 +36,9 @@ private fun List<StoryEntity>.toDtos() = map {
     )
 }
 
-class NytStoryPagingSource(
+internal class NytStoryPagingSource(
     private val limit: Int = StoryPagingDefaults.LIMIT,
-    private val section: String = StoryPagingDefaults.SECTION,
+    private val section: Section = StoryPagingDefaults.SECTION,
     private val source: NytSource = NytSource(),
     private val dao: StoriesDao = StoriesModule.storyCacheDao
 ) : PagingSource<Int, StoryDto>() {
@@ -48,7 +50,7 @@ class NytStoryPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, StoryDto> {
         val nextPage = params.key ?: 0
         val resp = source.getLatestStories(
-            limit = limit, offset = nextPage, section = section
+            limit = limit, offset = nextPage, section = section.key
         ).getOrNull()
         if (resp != null) {
             val nextKey = (nextPage + limit).takeIf { resp.results.isNotEmpty() }
@@ -56,9 +58,15 @@ class NytStoryPagingSource(
                 prevKey = null,
                 nextKey = nextKey)
         } else {
-            val paged = dao.getPaged(limit, nextPage).toDtos()
+            val paged = dao.run {
+                if (section == StoryPagingDefaults.SECTION) {
+                    getAllPaged(limit, nextPage)
+                } else {
+                    getPaged(limit, nextPage, section.name)
+                }
+            }.toDtos()
             val nextKey = (nextPage + limit).takeIf { paged.isNotEmpty() }
-            return  LoadResult.Page(
+            return LoadResult.Page(
                 data = paged,
                 prevKey = null,
                 nextKey = nextKey

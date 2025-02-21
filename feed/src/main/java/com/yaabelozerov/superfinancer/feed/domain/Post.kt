@@ -1,15 +1,15 @@
 package com.yaabelozerov.superfinancer.feed.domain
 
-import com.yaabelozerov.superfinancer.stories.domain.Story
-
-data class Post(
+internal data class Post(
     val id: Long,
     val contents: String,
-    val images: List<PostImage>,
-    val article: Story?
+    val images: List<String>,
+    val article: PostStory?,
+    val tags: List<String>
 )
 
-data class PostImage(
-    val path: String,
-    val altText: String
+internal data class PostStory(
+    val url: String,
+    val imageUrl: String?,
+    val title: String
 )

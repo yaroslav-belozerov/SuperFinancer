@@ -33,9 +33,12 @@ class CommonModule: Module() {
         }
 
         @OptIn(ExperimentalSerializationApi::class)
-        val configManager by lazy {
+        private val configManager by lazy {
             ConfigManager(app.applicationContext)
         }
+
+        @OptIn(ExperimentalSerializationApi::class)
+        val config by lazy { configManager.readConfig() }
 
         val isNetworkAvailable = NetworkCallback.isConnected.asStateFlow()
     }

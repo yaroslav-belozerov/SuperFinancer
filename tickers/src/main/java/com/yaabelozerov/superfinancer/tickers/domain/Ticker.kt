@@ -1,6 +1,6 @@
 package com.yaabelozerov.superfinancer.tickers.domain
 
-data class Ticker(
+internal data class Ticker(
     val value: String,
     val name: String,
     val currency: String,

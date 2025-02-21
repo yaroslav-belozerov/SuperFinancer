@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.yaabelozerov.superfinancer.common.util.smartRound
 
 @Composable
-fun FinanceStats(uiState: FinanceState) {
+internal fun FinanceStats(uiState: FinanceState) {
     Spacer(Modifier.height(24.dp))
     Row(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),

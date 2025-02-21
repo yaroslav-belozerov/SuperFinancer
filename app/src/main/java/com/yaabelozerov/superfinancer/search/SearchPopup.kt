@@ -1,4 +1,4 @@
-package com.yaabelozerov.superfinancer.ui.screens.main
+package com.yaabelozerov.superfinancer.search
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContentScope
@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsEndWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -36,8 +35,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
-import com.yaabelozerov.superfinancer.finance.domain.SearchItem
-import com.yaabelozerov.superfinancer.ui.viewmodel.SearchVM
+import com.yaabelozerov.superfinancer.common.SearchItem
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable

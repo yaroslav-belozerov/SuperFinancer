@@ -14,7 +14,6 @@ import com.yaabelozerov.superfinancer.stories.data.StoryPagingDefaults.SECTION
 import com.yaabelozerov.superfinancer.stories.data.remote.NytSource
 import com.yaabelozerov.superfinancer.stories.data.NytStoryPagingSource
 import com.yaabelozerov.superfinancer.stories.data.StoryPagingDefaults
-import com.yaabelozerov.superfinancer.stories.data.local.StoriesDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
@@ -23,9 +22,8 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-class StoriesUseCase(
-    private val remoteSource: NytSource = NytSource(),
-    private val dao: StoriesDao = StoriesModule.storyCacheDao
+internal class StoriesUseCase(
+    private val remoteSource: NytSource = NytSource()
 ) {
     suspend fun getSections(interceptDto: (suspend (List<Section>) -> Unit)? = null): List<Section> {
         return remoteSource.getSections().getOrNull()?.let { dto ->
@@ -33,11 +31,11 @@ class StoriesUseCase(
                 if (it.section.isNotEmpty() && it.name.isNotEmpty()) {
                     Section(it.name, it.section)
                 } else null
-            }.filterNot { EXCLUDE.contains(it.key) }.also { interceptDto?.invoke(it) }
+            }.filterNot { EXCLUDE.contains(it.key) }.also { if (it.isNotEmpty()) interceptDto?.invoke(it) }
         } ?: emptyList()
     }
 
-    fun createFlow(key: String?): Flow<PagingData<Story>> = Pager(
+    fun createFlow(key: Section?): Flow<PagingData<Story>> = Pager(
         PagingConfig(
             pageSize = StoryPagingDefaults.LIMIT,
             prefetchDistance = StoryPagingDefaults.LIMIT.div(2),
@@ -51,6 +49,7 @@ class StoriesUseCase(
         it.map {
             val entity = StoryEntity(
                 timestampSaved = System.currentTimeMillis(),
+                source = it.source,
                 title = it.title,
                 abstract = it.abstract.ifBlank { it.subHeadline },
                 url = it.url,
@@ -64,27 +63,18 @@ class StoriesUseCase(
                 title = it.title,
                 description = it.abstract.ifBlank { it.subHeadline }.ifBlank { null },
                 author = it.byline,
+                source = it.source,
                 link = it.url,
                 photoUrl = it.multimedia.maxByOrNull { it.width }?.url,
                 sectionName = it.section,
-                date = LocalDateTime.ofInstant(
-                    Instant.parse(it.updatedDate.ifBlank { it.firstPublishedDate.ifBlank { it.createdDate } }),
-                    ZoneId.systemDefault()
-                ).format()
+                date = runCatching {
+                    LocalDateTime.ofInstant(
+                        Instant.parse(it.updatedDate.ifBlank { it.firstPublishedDate.ifBlank { it.createdDate } }),
+                        ZoneId.systemDefault()
+                    ).format()
+                }.getOrDefault("")
             )
         }
-    }
-
-    suspend fun getCachedStoryByUrl(url: String) = dao.getByUrl(url).run {
-        Story(
-            title = title,
-            description = abstract,
-            author = byline,
-            link = this.url,
-            photoUrl = imageUrl,
-            sectionName = sectionKey,
-            date = createdDate
-        )
     }
 
     companion object {

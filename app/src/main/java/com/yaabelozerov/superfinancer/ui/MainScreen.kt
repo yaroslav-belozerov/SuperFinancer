@@ -1,11 +1,10 @@
-package com.yaabelozerov.superfinancer.ui.screens.main
+package com.yaabelozerov.superfinancer.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,12 +20,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -36,7 +31,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,76 +38,50 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.paging.LoadState
-import androidx.paging.compose.collectAsLazyPagingItems
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.OpenArticleScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.OpenStoryDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.yaabelozerov.superfinancer.common.CommonModule
 import com.yaabelozerov.superfinancer.common.components.RefreshIndicator
-import com.yaabelozerov.superfinancer.finance.domain.SearchItemType
-import com.yaabelozerov.superfinancer.stories.ui.SectionList
-import com.yaabelozerov.superfinancer.stories.ui.StoryCard
-import com.yaabelozerov.superfinancer.tickers.ui.TickerRow
-import com.yaabelozerov.superfinancer.ui.viewmodel.MainVM
-import kotlinx.coroutines.launch
+import com.yaabelozerov.superfinancer.common.SearchItemType
+import com.yaabelozerov.superfinancer.search.SearchPopup
+import com.yaabelozerov.superfinancer.stories.storyItems
+import com.yaabelozerov.superfinancer.tickers.TickerRow
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
-@Destination<RootGraph>(start = true)
 @Composable
 fun MainScreen(
     navigator: DestinationsNavigator,
-    snackBarHostState: SnackbarHostState,
-    viewModel: MainVM = viewModel(),
 ) {
+    val hasInternet by CommonModule.isNetworkAvailable.collectAsState()
+
+    val listState = rememberLazyListState()
+
     var isSearching by remember { mutableStateOf(false) }
-    val ticker by viewModel.tickerState.collectAsState()
-    val sections by viewModel.sectionState.collectAsState()
-    val storyFlow = viewModel.stories.collectAsLazyPagingItems()
-    var refreshLoading by remember { mutableStateOf(false) }
-    var appendLoading by remember { mutableStateOf(true) }
-    LaunchedEffect(storyFlow.loadState.refresh) {
-        refreshLoading = when (storyFlow.loadState.refresh) {
-            is LoadState.Error -> false
-            LoadState.Loading -> true
-            is LoadState.NotLoading -> false
-        }
-        appendLoading = when (storyFlow.loadState.append) {
-            is LoadState.Error -> false
-            LoadState.Loading -> true
-            is LoadState.NotLoading -> false
-        }
-    }
-    LaunchedEffect(ticker.error) {
-        ticker.error?.run {
-            val action = snackBarHostState.showSnackbar(
-                message = localizedMessage ?: message ?: stackTraceToString(),
-                actionLabel = "Refresh",
-                withDismissAction = true,
-                duration = SnackbarDuration.Indefinite
-            )
-            when (action) {
-                SnackbarResult.Dismissed -> Unit
-                SnackbarResult.ActionPerformed -> viewModel.refreshAll()
-            }
-        }
-    }
-    val scope = rememberCoroutineScope()
+    var loadingTickers by remember { mutableStateOf(false to "Starting up...") }
+    var onUpdateTickers by remember { mutableStateOf({}) }
+
+    var loadingStories by remember { mutableStateOf(false) }
+    var onUpdateStories by remember { mutableStateOf({}) }
+    val storyList = storyItems(onClickStory = { navigator.navigate(OpenStoryDestination(it)) },
+        setOnUpdateCallback = {
+            onUpdateStories = it
+        },
+        onSetRefreshing = { loadingStories = it },
+        listState = listState
+    )
+
     val refreshState = rememberPullToRefreshState()
     val haptic = LocalHapticFeedback.current
-    val connected by CommonModule.isNetworkAvailable.collectAsState()
-    val listState = rememberLazyListState()
     LaunchedEffect(refreshState.distanceFraction >= 1f) {
         if (listState.isScrollInProgress) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
+
     SharedTransitionLayout {
         AnimatedContent(isSearching) { searching ->
             if (searching) {
                 SearchPopup(this@AnimatedContent, onBack = { isSearching = false }, onClick = {
                     when (it.type) {
-                        SearchItemType.STORY -> navigator.navigate(OpenArticleScreenDestination(it.uri))
+                        SearchItemType.STORY -> navigator.navigate(OpenStoryDestination(it.uri))
                         SearchItemType.TICKER -> Unit
                     }
                 })
@@ -121,12 +89,10 @@ fun MainScreen(
                 Modifier
                     .fillMaxSize()
                     .pullToRefresh(
-                        isRefreshing = ticker.isLoading || refreshLoading,
-                        onRefresh = {
-                            viewModel.refreshAll()
-                            storyFlow.refresh()
-                        },
-                        state = refreshState
+                        isRefreshing = loadingTickers.first || loadingStories, onRefresh = {
+                            onUpdateStories()
+                            onUpdateTickers()
+                        }, state = refreshState
                     )
             ) {
                 LazyColumn(
@@ -136,13 +102,13 @@ fun MainScreen(
                 ) {
                     item {
                         RefreshIndicator(
-                            ticker.isLoading || refreshLoading,
-                            ticker.lastUpdated,
+                            loadingTickers.first || loadingStories,
+                            loadingTickers.second,
                             refreshState.distanceFraction,
                             modifier = Modifier.fillParentMaxWidth()
                         )
                     }
-                    if (!connected) {
+                    if (!hasInternet) {
                         item {
                             Row(
                                 modifier = Modifier.fillMaxSize(),
@@ -187,41 +153,14 @@ fun MainScreen(
                             }
                         }
                     }
-                    item { TickerRow(ticker) }
                     item {
-                        SectionList(
-                            sections, { viewModel.setSection(it); scope.launch {
-                                listState.animateScrollToItem(0)
-                            } }
-                        )
+                        TickerRow(setRefresh = { loading, lastUpdate ->
+                            loadingTickers = loading to lastUpdate
+                        }, setOnRefreshCallback = {
+                            onUpdateTickers = it
+                        })
                     }
-                    if (!refreshLoading) items(storyFlow.itemCount) { index ->
-                        storyFlow[index]?.let { story ->
-                            StoryCard(
-                                story = story,
-                                onClick = { navigator.navigate(OpenArticleScreenDestination(story.link)) },
-                                onClickSectionName = viewModel::setSection,
-                                modifier = Modifier
-                                    .animateItem()
-                                    .fillParentMaxWidth()
-                                    .padding(bottom = 8.dp)
-                            )
-                        }
-                    }
-                    if (refreshLoading || appendLoading) {
-                        item {
-                            Column(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(48.dp)
-                                    .animateItem(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                CircularProgressIndicator()
-                            }
-                        }
-                    }
+                    storyList()
                 }
             }
         }

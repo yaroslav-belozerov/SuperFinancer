@@ -40,7 +40,7 @@ import com.yaabelozerov.superfinancer.stories.domain.Section
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SectionList(
+internal fun SectionList(
     sections: SectionUiState,
     onSetSection: (Section?) -> Unit,
     modifier: Modifier = Modifier,
@@ -58,6 +58,7 @@ fun SectionList(
                     sections.list.forEach {
                         val selected = it.key == sections.selected?.key
                         if (!selected) FilterChip(false, onClick = {
+                            isExpanded = false
                             onSetSection(it)
                         }, label = { Text(it.name) })
                     }

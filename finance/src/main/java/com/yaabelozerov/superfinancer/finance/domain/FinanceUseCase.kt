@@ -13,9 +13,9 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-class FinanceUseCase(
+internal class FinanceUseCase(
     private val financeDao: FinanceDao = FinanceModule.financeDao,
-    private val mediaManager: MediaManager = CommonModule.mediaManager
+    private val mediaManager: MediaManager = CommonModule.mediaManager,
 ) {
     val goalFlow = financeDao.getAllTargetsWithTransactions().map {
         it.map {
@@ -28,6 +28,11 @@ class FinanceUseCase(
                 image = goal.image,
                 name = goal.name,
                 currentRubles = transactionRubles,
+                expiresAt = it.key.expiresAt?.let {
+                    if (it < System.currentTimeMillis()) "Deadline missed" else LocalDateTime.ofInstant(
+                        Instant.ofEpochMilli(it), ZoneId.systemDefault()
+                    ).format(withTime = false)
+                },
                 maxRubles = rubles,
             )
         }
@@ -40,10 +45,11 @@ class FinanceUseCase(
                 id = transaction.id,
                 valueInRubles = transaction.valueInKopecks.div(100L),
                 comment = transaction.comment,
-                goalName = goal.name,
+                goal = goal.id to goal.name,
                 timestamp = LocalDateTime.ofInstant(
                     Instant.ofEpochMilli(transaction.timestamp), ZoneId.systemDefault()
-                ).format()
+                ).format(),
+                isWithdrawal = transaction.isWithdrawal
             )
         }
     }
@@ -51,10 +57,15 @@ class FinanceUseCase(
     val totalGoalFlow = financeDao.totalGoalInKopecks().map { it.div(100L) }
     val totalAmountFlow = financeDao.totalTransactionAmountInKopecks().map { it.div(100L) }
 
-    suspend fun createGoal(name: String, amountInRubles: Long, image: String) {
+    suspend fun createGoal(name: String, amountInRubles: Long, image: String, expiry: Long?) {
         financeDao.createGoal(
             GoalEntity(
-                id = 0, name = name, image = image, amountInKopecks = amountInRubles.times(100)
+                id = 0,
+                name = name,
+                image = image,
+                amountInKopecks = amountInRubles.times(100),
+                expiresAt = expiry,
+                enabled = true
             )
         )
     }
@@ -63,6 +74,7 @@ class FinanceUseCase(
         goalId: Long,
         amountInRubles: Long,
         comment: String = "",
+        isWithdrawal: Boolean,
     ) {
         financeDao.upsertTransaction(
             TransactionEntity(
@@ -70,16 +82,37 @@ class FinanceUseCase(
                 valueInKopecks = amountInRubles.times(100).toLong(),
                 timestamp = System.currentTimeMillis(),
                 comment = comment,
-                goalId = goalId
+                goalId = goalId,
+                isWithdrawal = isWithdrawal
             )
         )
     }
 
-    suspend fun deleteGoal(goal: Goal) {
+    suspend fun closeGoal(goal: Goal) {
         FinanceModule.financeDb.withTransaction {
+            val total = financeDao.totalTransactionAmountInKopecksByGoalId(goal.id)
             financeDao.deleteAllTransactionsByGoalId(goal.id)
-            financeDao.deleteGoalWithId(goal.id)
+            if (total > 0) {
+                financeDao.upsertTransaction(
+                    TransactionEntity(
+                        id = 0,
+                        valueInKopecks = total,
+                        timestamp = System.currentTimeMillis(),
+                        comment = "Goal \"${goal.name}}\" closed",
+                        goalId = goal.id,
+                        isWithdrawal = true
+                    )
+                )
+                financeDao.deactivateGoalWithId(goal.id)
+            } else {
+                financeDao.deleteGoalWithId(goal.id)
+            }
             mediaManager.removeMedia(goal.image)
         }
+    }
+
+    suspend fun deleteTransaction(id: Long, goalId: Long) {
+        financeDao.deleteTransaction(id)
+        financeDao.tryDeleteUnusedGoal(goalId)
     }
 }

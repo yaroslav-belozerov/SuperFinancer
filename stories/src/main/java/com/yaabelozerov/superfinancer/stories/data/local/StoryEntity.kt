@@ -4,8 +4,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "stories")
-data class StoryEntity(
+internal data class StoryEntity(
     @PrimaryKey val url: String,
+    val source: String,
     val timestampSaved: Long,
     val createdDate: String,
     val sectionKey: String,

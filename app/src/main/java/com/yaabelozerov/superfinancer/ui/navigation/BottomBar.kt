@@ -14,9 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.generated.NavGraphs
-import com.ramcosta.composedestinations.generated.destinations.FinanceScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.MainScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.SocialScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.FinanceDestination
+import com.ramcosta.composedestinations.generated.destinations.MainDestination
+import com.ramcosta.composedestinations.generated.destinations.SocialDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.Direction
 import com.ramcosta.composedestinations.utils.currentDestinationAsState
@@ -29,13 +29,13 @@ private enum class BottomBarDestinations(
     val iconInactive: ImageVector,
     val restoreState: Boolean = true
 ) {
-    Home(MainScreenDestination, Icons.Filled.Home, Icons.Outlined.Home), Finance(
-        FinanceScreenDestination,
+    Home(MainDestination, Icons.Filled.Home, Icons.Outlined.Home), Finance(
+        FinanceDestination,
         Icons.Filled.AccountBalanceWallet,
         Icons.Outlined.AccountBalanceWallet
     ),
     Social(
-        SocialScreenDestination(addToPostArticleUrl = null),
+        SocialDestination(addToPostArticleUrl = null),
         Icons.Filled.People,
         Icons.Outlined.People,
         false
