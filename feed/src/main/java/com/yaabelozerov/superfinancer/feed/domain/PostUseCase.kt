@@ -20,12 +20,7 @@ internal class PostUseCase(
             Post(
                 id = post.id,
                 contents = post.contents,
-                images = images.map { img ->
-                    PostImage(
-                        path = img.path,
-                        altText = img.altText
-                    )
-                },
+                images = images.map { it.path },
                 article = post.articleId?.let { id ->
                     storiesToPostAdapter.getByUrl(id).run {
                         PostStory(
@@ -34,29 +29,23 @@ internal class PostUseCase(
                             url = third
                         )
                     }
-                }
+                },
+                tags = post.tags.split(";").filter { it.isNotEmpty() }
             )
         }
     }
 
-    suspend fun createPost(contents: String, images: List<Pair<String, String>>, articleUrl: String?) {
+    suspend fun createPost(contents: String, images: List<String>, articleUrl: String?, tags: List<String>) {
         postDb.withTransaction {
             val postId = postDao.createPost(
                 PostEntity(
                     id = 0,
                     contents = contents,
-                    articleId = articleUrl
+                    articleId = articleUrl,
+                    tags = tags.joinToString(";")
                 )
             )
-            postDao.createImageRecord(
-                images.map {
-                    PostImageEntity(
-                        postId = postId,
-                        path = it.first,
-                        altText = it.second
-                    )
-                }
-            )
+            postDao.createImageRecords(images.map { PostImageEntity(it, postId) })
         }
     }
 }

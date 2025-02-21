@@ -3,13 +3,9 @@ package com.yaabelozerov.superfinancer.feed.domain
 internal data class Post(
     val id: Long,
     val contents: String,
-    val images: List<PostImage>,
-    val article: PostStory?
-)
-
-internal data class PostImage(
-    val path: String,
-    val altText: String
+    val images: List<String>,
+    val article: PostStory?,
+    val tags: List<String>
 )
 
 internal data class PostStory(

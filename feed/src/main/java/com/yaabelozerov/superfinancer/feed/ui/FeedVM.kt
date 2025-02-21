@@ -2,7 +2,7 @@ package com.yaabelozerov.superfinancer.feed.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.yaabelozerov.superfinancer.feed.FeedModule
+import com.yaabelozerov.superfinancer.common.CommonModule
 import com.yaabelozerov.superfinancer.feed.domain.Post
 import com.yaabelozerov.superfinancer.feed.domain.PostStory
 import com.yaabelozerov.superfinancer.feed.domain.PostUseCase
@@ -34,10 +34,10 @@ internal class FeedVM(
         }
     }
 
-    fun createPost(contents: String, images: List<Pair<String, String>>, articleUrl: String?) {
+    fun createPost(contents: String, images: List<String>, articleUrl: String?, tags: List<String>) {
         viewModelScope.launch {
             useCase.createPost(
-                contents, images, articleUrl
+                contents, images, articleUrl, tags
             )
         }
     }

@@ -2,7 +2,6 @@ package com.yaabelozerov.superfinancer.feed.data
 
 import androidx.room.Dao
 import androidx.room.Query
-import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
@@ -18,5 +17,5 @@ internal interface PostDao {
     suspend fun createPost(postEntity: PostEntity): Long
 
     @Upsert
-    suspend fun createImageRecord(list: List<PostImageEntity>)
+    suspend fun createImageRecords(list: List<PostImageEntity>)
 }

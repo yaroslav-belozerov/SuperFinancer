@@ -59,6 +59,6 @@ internal class TickerUseCase(private val source: FinnhubSource = FinnhubSource()
 
     companion object {
         @OptIn(ExperimentalSerializationApi::class)
-        val defaultTickers = CommonModule.configManager.readConfig().defaultTickers
+        val defaultTickers = CommonModule.config.defaultTickers
     }
 }

@@ -6,4 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Config(
     @SerialName("tickers") val defaultTickers: List<String>,
+    @SerialName("postTags") val defaultPostTags: List<String>
 )

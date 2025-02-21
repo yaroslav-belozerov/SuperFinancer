@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 internal data class PostEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
     val contents: String,
-    val articleId: String?
+    val articleId: String?,
+    val tags: String
 )
