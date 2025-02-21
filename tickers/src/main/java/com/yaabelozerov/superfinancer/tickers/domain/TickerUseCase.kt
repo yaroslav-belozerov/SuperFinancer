@@ -1,16 +1,18 @@
 package com.yaabelozerov.superfinancer.tickers.domain
 
 import com.yaabelozerov.superfinancer.common.CommonModule
-import com.yaabelozerov.superfinancer.common.local.config.DataStoreManager
 import com.yaabelozerov.superfinancer.common.util.toString
 import com.yaabelozerov.superfinancer.tickers.data.FinnhubSource
 import com.yaabelozerov.superfinancer.tickers.data.ProfileDto
 import com.yaabelozerov.superfinancer.tickers.data.TickerDto
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
 
@@ -37,17 +39,20 @@ internal class TickerUseCase(private val source: FinnhubSource = FinnhubSource()
         }
     }.awaitAll().filterNotNull().toMap()
 
-    val tickerConnectionFlow = MutableSharedFlow<Pair<String, Double>>()
+    private val _tickerConnectionFlow = MutableSharedFlow<Pair<String, Double>>(replay = 1)
+    val tickerConnectionFlow = _tickerConnectionFlow.asSharedFlow()
 
     suspend fun startConnectionsForTickers(tickers: List<String>) {
         coroutineScope {
             tickers.forEach { symbol ->
-                delay(500L)
-                source.startTickerConnection(symbol, onReceive = {
-                    it.data.map {
-                        tickerConnectionFlow.emit(it.symbol to it.price)
-                    }
-                }, onError = { System.err.println(it.message) })
+                delay(200L)
+                launch {
+                    source.startTickerConnection(symbol, onReceive = {
+                        it.data.map {
+                            _tickerConnectionFlow.emit(it.symbol to it.price)
+                        }
+                    }, onError = { System.err.println(it.message) })
+                }
             }
         }
     }

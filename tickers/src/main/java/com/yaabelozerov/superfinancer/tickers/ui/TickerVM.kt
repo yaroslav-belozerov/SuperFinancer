@@ -8,7 +8,12 @@ import com.yaabelozerov.superfinancer.tickers.domain.TickerUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.subscribe
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -41,9 +46,11 @@ internal class TickerVM(
     }
 
     private fun subscribeToTickers() {
-        viewModelScope.launch(Dispatchers.IO) {
-            tickerUseCase.startConnectionsForTickers(TickerUseCase.defaultTickers)
-            tickerUseCase.tickerConnectionFlow.collectLatest { newValue ->
+        viewModelScope.launch {
+            launch {
+                tickerUseCase.startConnectionsForTickers(TickerUseCase.defaultTickers)
+            }
+            tickerUseCase.tickerConnectionFlow.collect { newValue ->
                 _tickerState.update {
                     val inMap = it.map[newValue.first]
                     if (inMap != null) {

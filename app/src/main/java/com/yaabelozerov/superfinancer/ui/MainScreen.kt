@@ -57,7 +57,7 @@ fun MainScreen(
     val listState = rememberLazyListState()
 
     var isSearching by remember { mutableStateOf(false) }
-    var loadingTickers by remember { mutableStateOf(true to "Refreshing...") }
+    var loadingTickers by remember { mutableStateOf(false to "Starting up...") }
     var loadingStories by remember { mutableStateOf(false) }
 
     val refreshState = rememberPullToRefreshState()
