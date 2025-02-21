@@ -18,5 +18,6 @@ class FinanceModule: Module() {
             Room.databaseBuilder(app.applicationContext, FinanceDb::class.java, "finance.db").build()
         }
         internal val financeDao by lazy { financeDb.dao() }
+        internal val statsDao by lazy { financeDb.statsDao() }
     }
 }

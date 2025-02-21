@@ -37,9 +37,6 @@ internal interface FinanceDao {
     @Query("DELETE FROM transactions WHERE id = :id")
     suspend fun deleteTransaction(id: Long)
 
-    @Query("DELETE FROM goals WHERE id = :id AND NOT EXISTS (SELECT * FROM transactions WHERE goalId = goals.id)")
-    suspend fun tryDeleteUnusedGoal(id: Long)
-
     @Insert
     suspend fun createGoal(goalEntity: GoalEntity): Long
 

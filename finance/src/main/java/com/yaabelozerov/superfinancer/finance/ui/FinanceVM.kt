@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.yaabelozerov.superfinancer.finance.domain.Goal
 import com.yaabelozerov.superfinancer.finance.domain.Transaction
 import com.yaabelozerov.superfinancer.finance.domain.FinanceUseCase
+import com.yaabelozerov.superfinancer.finance.domain.Stats
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,6 +17,7 @@ internal data class FinanceState(
     val transactions: List<Transaction> = emptyList(),
     val totalGoal: Long = 1,
     val totalAmount: Long = 0,
+    val stats: Stats = Stats()
 )
 
 internal sealed interface FinanceScreenEvent {
@@ -30,7 +32,7 @@ internal sealed interface FinanceScreenEvent {
     ) : FinanceScreenEvent
 
     data class DeleteGoal(val goal: Goal) : FinanceScreenEvent
-    data class DeleteTransaction(val id: Long, val goalId: Long) : FinanceScreenEvent
+    data class DeleteTransaction(val id: Long) : FinanceScreenEvent
 }
 
 internal class FinanceVM(
@@ -52,6 +54,9 @@ internal class FinanceVM(
         viewModelScope.launch {
             financeUseCase.totalAmountFlow.collect { _state.update { st -> st.copy(totalAmount = it) } }
         }
+        viewModelScope.launch {
+            financeUseCase.statsFlow.collect { _state.update { st -> st.copy(stats = it) } }
+        }
     }
 
     fun onEvent(event: FinanceScreenEvent) {
@@ -69,7 +74,7 @@ internal class FinanceVM(
                     isWithdrawal = event.isWithdrawal
                 )
 
-                is FinanceScreenEvent.DeleteTransaction -> financeUseCase.deleteTransaction(event.id, event.goalId)
+                is FinanceScreenEvent.DeleteTransaction -> financeUseCase.deleteTransaction(event.id)
             }
         }
     }

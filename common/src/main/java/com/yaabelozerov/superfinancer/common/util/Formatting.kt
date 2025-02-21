@@ -22,6 +22,6 @@ fun LocalDateTime.format(withTime: Boolean = true): String {
         1L -> "Tomorrow"
         else -> date
     }
-    return formattedDate + if (withTime) "at $time" else ""
+    return formattedDate + if (withTime) " at $time" else ""
 }
 

@@ -102,7 +102,7 @@ internal fun Transaction(
                 }) { Text("Repeat") }
                 Button(onClick = {
                     viewModel.onEvent(
-                        FinanceScreenEvent.DeleteTransaction(transaction.id, transaction.goal.first)
+                        FinanceScreenEvent.DeleteTransaction(transaction.id)
                     )
                 }) { Text("Delete") }
                 OutlinedButton(onClick = {

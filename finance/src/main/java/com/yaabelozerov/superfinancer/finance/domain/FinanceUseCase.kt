@@ -7,7 +7,10 @@ import com.yaabelozerov.superfinancer.common.util.format
 import com.yaabelozerov.superfinancer.finance.FinanceModule
 import com.yaabelozerov.superfinancer.finance.data.FinanceDao
 import com.yaabelozerov.superfinancer.finance.data.GoalEntity
+import com.yaabelozerov.superfinancer.finance.data.StatsDao
 import com.yaabelozerov.superfinancer.finance.data.TransactionEntity
+import com.yaabelozerov.superfinancer.finance.data.toRublePair
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.time.Instant
 import java.time.LocalDateTime
@@ -15,8 +18,27 @@ import java.time.ZoneId
 
 internal class FinanceUseCase(
     private val financeDao: FinanceDao = FinanceModule.financeDao,
+    private val financeStatsDao: StatsDao = FinanceModule.statsDao,
     private val mediaManager: MediaManager = CommonModule.mediaManager,
 ) {
+    val statsFlow = combine(
+        financeStatsDao.getFirstTransactionTimestamp(),
+        financeStatsDao.getLastTransactionTimestamp(),
+        financeStatsDao.openGoalsCountAndSum(),
+        financeStatsDao.closedGoalsCountAndSum()
+    ) { first, last, open, closed ->
+        Stats(firstTransactionDate = first?.let {
+            LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(it), ZoneId.systemDefault()
+            ).format()
+        }, lastTransactionDate = last?.let {
+            LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(it), ZoneId.systemDefault()
+            ).format()
+        }, openGoals = open.toRublePair(), closedGoals = closed.toRublePair()
+        )
+    }
+
     val goalFlow = financeDao.getAllTargetsWithTransactions().map {
         it.map {
             val goal = it.key
@@ -111,8 +133,7 @@ internal class FinanceUseCase(
         }
     }
 
-    suspend fun deleteTransaction(id: Long, goalId: Long) {
+    suspend fun deleteTransaction(id: Long) {
         financeDao.deleteTransaction(id)
-        financeDao.tryDeleteUnusedGoal(goalId)
     }
 }
