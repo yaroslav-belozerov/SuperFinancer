@@ -1,3 +1,6 @@
+import java.util.Base64
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -22,10 +25,13 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("app/keystore.jks")
-            storePassword = System.getenv("KEYSTORE_PASSWORD")
-            keyAlias = System.getenv("KEY_ALIAS")
-            keyPassword = System.getenv("KEY_PASSWORD")
+            val file = rootProject.file("secrets.properties")
+            val properties = Properties()
+            properties.load(file.inputStream())
+            storeFile = file("./superfinancer.jks")
+            storePassword = properties.getProperty("KEYSTORE_PASSWORD")
+            keyAlias = properties.getProperty("KEY_ALIAS")
+            keyPassword = properties.getProperty("KEY_PASSWORD")
         }
     }
 
