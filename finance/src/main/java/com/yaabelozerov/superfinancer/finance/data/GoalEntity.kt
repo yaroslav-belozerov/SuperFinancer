@@ -8,5 +8,6 @@ internal data class GoalEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
     val image: String,
     val name: String,
+    val expiresAt: Long?,
     val amountInKopecks: Long
 )

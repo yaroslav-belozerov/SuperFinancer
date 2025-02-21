@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 
 internal data class FinanceState(
     val goals: List<Goal> = emptyList(),
@@ -19,7 +22,7 @@ internal data class FinanceState(
 )
 
 internal sealed interface FinanceScreenEvent {
-    data class CreateGoal(val name: String, val amountInRubles: Long, val image: String) :
+    data class CreateGoal(val name: String, val amountInRubles: Long, val image: String, val date: Long?) :
         FinanceScreenEvent
 
     data class MakeTransaction(
@@ -57,7 +60,7 @@ internal class FinanceVM(
         viewModelScope.launch(Dispatchers.IO) {
             when (event) {
                 is FinanceScreenEvent.CreateGoal -> financeUseCase.createGoal(
-                    event.name, event.amountInRubles, event.image
+                    event.name, event.amountInRubles, event.image, event.date
                 )
 
                 is FinanceScreenEvent.DeleteGoal -> financeUseCase.deleteGoal(event.goal)

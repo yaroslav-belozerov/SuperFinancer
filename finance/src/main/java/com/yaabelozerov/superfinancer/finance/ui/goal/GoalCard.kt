@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import com.yaabelozerov.superfinancer.finance.domain.Goal
 import com.yaabelozerov.superfinancer.finance.ui.FinanceVM
@@ -56,11 +57,16 @@ internal fun GoalCard(goal: Goal, modifier: Modifier = Modifier, viewModel: Fina
                 modifier = Modifier.weight(1f, false)
             )
             Spacer(Modifier.width(16.dp))
-            Text(
-                "${goal.currentRubles} of ${
-                    goal.maxRubles
-                } ₽", maxLines = 1
-            )
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    "${goal.currentRubles} of ${
+                        goal.maxRubles
+                    } ₽", maxLines = 1
+                )
+                goal.expiresAt?.let { date ->
+                    Text(date, fontStyle = FontStyle.Italic)
+                }
+            }
         }
     }
 }

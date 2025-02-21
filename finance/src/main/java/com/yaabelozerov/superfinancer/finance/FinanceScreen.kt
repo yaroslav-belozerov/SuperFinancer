@@ -71,9 +71,9 @@ fun FinanceScreen() {
 
     if (createGoalVisible) CreateGoalDialog(onHide = {
         createGoalVisible = false
-    }) { name, amount, image ->
+    }) { name, amount, image, date ->
         viewModel.onEvent(
-            FinanceScreenEvent.CreateGoal(name, amount, image)
+            FinanceScreenEvent.CreateGoal(name, amount, image, date)
         )
     }
     if (createTransactionVisible) {

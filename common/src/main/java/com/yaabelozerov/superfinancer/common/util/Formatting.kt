@@ -11,7 +11,7 @@ fun Double.smartRound(precision: Int) = when {
 }
 fun Float.smartRound(precision: Int) = toDouble().smartRound(precision)
 
-fun LocalDateTime.format(): String {
+fun LocalDateTime.format(withTime: Boolean = true): String {
     val time = hour.toString().padStart(2, '0') + ":" + minute.toString().padStart(2, '0')
     val date = dayOfMonth.toString().padStart(2, '0') + "/" + monthValue.toString()
         .padStart(2, '0') + "/" + year
@@ -22,6 +22,6 @@ fun LocalDateTime.format(): String {
         1L -> "Tomorrow"
         else -> date
     }
-    return "$formattedDate at $time"
+    return formattedDate + if (withTime) "at $time" else ""
 }
 

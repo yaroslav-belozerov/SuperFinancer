@@ -15,7 +15,7 @@ import java.time.ZoneId
 
 internal class FinanceUseCase(
     private val financeDao: FinanceDao = FinanceModule.financeDao,
-    private val mediaManager: MediaManager = CommonModule.mediaManager
+    private val mediaManager: MediaManager = CommonModule.mediaManager,
 ) {
     val goalFlow = financeDao.getAllTargetsWithTransactions().map {
         it.map {
@@ -28,6 +28,11 @@ internal class FinanceUseCase(
                 image = goal.image,
                 name = goal.name,
                 currentRubles = transactionRubles,
+                expiresAt = it.key.expiresAt?.let {
+                    if (it < System.currentTimeMillis()) "Deadline missed" else LocalDateTime.ofInstant(
+                        Instant.ofEpochMilli(it), ZoneId.systemDefault()
+                    ).format(withTime = false)
+                },
                 maxRubles = rubles,
             )
         }
@@ -51,10 +56,14 @@ internal class FinanceUseCase(
     val totalGoalFlow = financeDao.totalGoalInKopecks().map { it.div(100L) }
     val totalAmountFlow = financeDao.totalTransactionAmountInKopecks().map { it.div(100L) }
 
-    suspend fun createGoal(name: String, amountInRubles: Long, image: String) {
+    suspend fun createGoal(name: String, amountInRubles: Long, image: String, expiry: Long?) {
         financeDao.createGoal(
             GoalEntity(
-                id = 0, name = name, image = image, amountInKopecks = amountInRubles.times(100)
+                id = 0,
+                name = name,
+                image = image,
+                amountInKopecks = amountInRubles.times(100),
+                expiresAt = expiry
             )
         )
     }
