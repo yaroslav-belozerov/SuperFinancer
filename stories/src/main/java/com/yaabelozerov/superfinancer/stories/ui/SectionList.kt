@@ -58,6 +58,7 @@ internal fun SectionList(
                     sections.list.forEach {
                         val selected = it.key == sections.selected?.key
                         if (!selected) FilterChip(false, onClick = {
+                            isExpanded = false
                             onSetSection(it)
                         }, label = { Text(it.name) })
                     }
