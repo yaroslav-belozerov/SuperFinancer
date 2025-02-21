@@ -4,6 +4,6 @@ internal data class Transaction(
     val id: Long,
     val valueInRubles: Long,
     val comment: String,
-    val goalName: String,
+    val goal: Pair<Long, String>,
     val timestamp: String
 )

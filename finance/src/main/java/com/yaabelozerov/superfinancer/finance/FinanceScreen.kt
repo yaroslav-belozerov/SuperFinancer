@@ -62,7 +62,7 @@ fun FinanceScreen() {
         }
         items(uiState.transactions, key = { "transaction${it.id}" }) {
             Transaction(
-                it, modifier = Modifier.animateItem()
+                it, modifier = Modifier.animateItem(), viewModel
             )
         }
         item { Spacer(Modifier.height(16.dp)) }

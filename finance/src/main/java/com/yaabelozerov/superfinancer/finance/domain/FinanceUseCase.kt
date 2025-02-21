@@ -40,7 +40,7 @@ internal class FinanceUseCase(
                 id = transaction.id,
                 valueInRubles = transaction.valueInKopecks.div(100L),
                 comment = transaction.comment,
-                goalName = goal.name,
+                goal = goal.id to goal.name,
                 timestamp = LocalDateTime.ofInstant(
                     Instant.ofEpochMilli(transaction.timestamp), ZoneId.systemDefault()
                 ).format()
@@ -81,5 +81,9 @@ internal class FinanceUseCase(
             financeDao.deleteGoalWithId(goal.id)
             mediaManager.removeMedia(goal.image)
         }
+    }
+
+    suspend fun deleteTransaction(id: Long) {
+        financeDao.deleteTransaction(id)
     }
 }

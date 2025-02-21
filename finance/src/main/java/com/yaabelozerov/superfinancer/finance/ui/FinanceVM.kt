@@ -29,6 +29,7 @@ internal sealed interface FinanceScreenEvent {
     ) : FinanceScreenEvent
 
     data class DeleteGoal(val goal: Goal) : FinanceScreenEvent
+    data class DeleteTransaction(val id: Long) : FinanceScreenEvent
 }
 
 internal class FinanceVM(
@@ -65,6 +66,8 @@ internal class FinanceVM(
                     amountInRubles = event.amountInRubles,
                     comment = event.comment
                 )
+
+                is FinanceScreenEvent.DeleteTransaction -> financeUseCase.deleteTransaction(event.id)
             }
         }
     }
