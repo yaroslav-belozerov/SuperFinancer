@@ -50,7 +50,7 @@ private fun GoalInfoLineWithoutImage(
             .fillMaxWidth()
             .height(48.dp)
             .clip(MaterialTheme.shapes.small)
-            .clickable { optionsOpen = true }, verticalAlignment = Alignment.CenterVertically
+            .clickable { optionsOpen = !optionsOpen }, verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier

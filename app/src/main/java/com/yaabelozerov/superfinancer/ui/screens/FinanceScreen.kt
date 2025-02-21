@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -35,6 +36,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +47,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.yaabelozerov.superfinancer.common.components.CardDialog
 import com.yaabelozerov.superfinancer.common.components.Header
+import com.yaabelozerov.superfinancer.common.components.horizontalFadingEdge
 import com.yaabelozerov.superfinancer.finance.R
 import com.yaabelozerov.superfinancer.finance.domain.Goal
 import com.yaabelozerov.superfinancer.finance.domain.Transaction
@@ -118,7 +121,7 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
 @Composable
 private fun Transaction(transaction: Transaction, modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -164,7 +167,8 @@ private fun CreateTransactionModal(
         onHide()
         chosen.second(-1L)
     }) {
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        val listState = rememberLazyListState()
+        LazyRow(state = listState, modifier = Modifier.horizontalFadingEdge(listState, 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             items(goals, key = { it.id }) {
                 FilterChip(selected = it.id == chosen.first,
                     onClick = { chosen.second(if (chosen.first == it.id) -1L else it.id) },

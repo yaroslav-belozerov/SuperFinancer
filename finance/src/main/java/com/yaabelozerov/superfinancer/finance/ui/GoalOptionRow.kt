@@ -6,9 +6,14 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowColumn
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -38,7 +43,11 @@ fun GoalOptionRow(
             Button(onClick = {
                 onEvent(FinanceScreenEvent.DeleteGoal(goal))
                 onClose()
-            }) { Text("Delete") }
+            }) {
+                Icon(Icons.Default.CheckCircle, contentDescription = "close goal")
+                Spacer(Modifier.width(8.dp))
+                Text("Close Goal")
+            }
             OutlinedButton(onClick = {
                 onClose()
             }) { Text("Cancel") }

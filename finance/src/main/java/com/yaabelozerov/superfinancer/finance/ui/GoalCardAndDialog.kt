@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -42,6 +43,7 @@ fun GoalCard(goal: Goal, modifier: Modifier = Modifier, viewModel: FinanceVM) {
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .padding(horizontal = 12.dp)
             .clip(MaterialTheme.shapes.medium),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
