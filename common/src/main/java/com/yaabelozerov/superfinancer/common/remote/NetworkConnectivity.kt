@@ -25,4 +25,11 @@ internal object NetworkCallback : ConnectivityManager.NetworkCallback() {
         super.onLost(network)
         isConnected.update { false }
     }
+
+    override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+        super.onCapabilitiesChanged(network, networkCapabilities)
+        isConnected.update {
+            networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        }
+    }
 }
