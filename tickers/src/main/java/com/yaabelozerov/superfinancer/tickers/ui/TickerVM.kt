@@ -29,6 +29,11 @@ internal class TickerVM(
         subscribeToTickers()
     }
 
+    fun refresh() {
+        fetchTickerInfos()
+        subscribeToTickers()
+    }
+
     private fun fetchTickerInfos() {
         viewModelScope.launch(Dispatchers.IO) {
             _tickerState.update { it.copy(isLoading = true) }

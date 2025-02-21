@@ -64,11 +64,13 @@ internal fun StoryCard(
         Column(
             modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                story.title,
-                style = MaterialTheme.typography.displaySmall
-            )
-            story.description?.let {
+            story.title.takeIf { it.isNotEmpty() }?.let { title ->
+                Text(
+                    title,
+                    style = MaterialTheme.typography.displaySmall
+                )
+            }
+            story.description?.takeIf { it.isNotEmpty() }?.let {
                 Text(it)
             }
             Row(
@@ -93,9 +95,9 @@ internal fun StoryCard(
                             overflow = TextOverflow.Ellipsis
                         )
                     }
-                    story.date.takeIf { it.isNotEmpty() }?.let { date ->
+                    if (story.date.isNotEmpty() && story.source.isNotEmpty()) {
                         Text(
-                            date,
+                            story.run { "$date | ${story.source}" },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface.copy(0.75f)
                         )

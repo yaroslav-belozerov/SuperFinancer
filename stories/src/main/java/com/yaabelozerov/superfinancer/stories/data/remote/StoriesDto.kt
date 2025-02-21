@@ -14,11 +14,12 @@ internal data class StoriesDto(
 @Serializable
 internal data class StoryDto(
     @SerialName("slug_name") val slugName: String,
-    val section: String,
+    @SerialName("section") val section: String,
     val title: String,
     val abstract: String,
     val url: String,
     val byline: String,
+    val source: String,
     @SerialName("updated_date") val updatedDate: String,
     @SerialName("created_date") val createdDate: String,
     @SerialName("first_published_date") val firstPublishedDate: String,

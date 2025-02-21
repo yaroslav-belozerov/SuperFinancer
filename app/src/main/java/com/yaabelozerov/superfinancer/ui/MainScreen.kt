@@ -58,23 +58,24 @@ fun MainScreen(
 
     var isSearching by remember { mutableStateOf(false) }
     var loadingTickers by remember { mutableStateOf(false to "Starting up...") }
+    var onUpdateTickers by remember { mutableStateOf({}) }
+
     var loadingStories by remember { mutableStateOf(false) }
-
-    val refreshState = rememberPullToRefreshState()
-    val haptic = LocalHapticFeedback.current
-
-    var onUpdateCallback = {}
+    var onUpdateStories by remember { mutableStateOf({}) }
     val storyList = storyItems(onClickStory = { navigator.navigate(OpenStoryDestination(it)) },
         setOnUpdateCallback = {
-            onUpdateCallback = it
+            onUpdateStories = it
         },
         onSetRefreshing = { loadingStories = it },
         listState = listState
     )
 
+    val refreshState = rememberPullToRefreshState()
+    val haptic = LocalHapticFeedback.current
     LaunchedEffect(refreshState.distanceFraction >= 1f) {
         if (listState.isScrollInProgress) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
+
     SharedTransitionLayout {
         AnimatedContent(isSearching) { searching ->
             if (searching) {
@@ -89,7 +90,8 @@ fun MainScreen(
                     .fillMaxSize()
                     .pullToRefresh(
                         isRefreshing = loadingTickers.first || loadingStories, onRefresh = {
-                            onUpdateCallback()
+                            onUpdateStories()
+                            onUpdateTickers()
                         }, state = refreshState
                     )
             ) {
@@ -154,6 +156,8 @@ fun MainScreen(
                     item {
                         TickerRow(setRefresh = { loading, lastUpdate ->
                             loadingTickers = loading to lastUpdate
+                        }, setOnRefreshCallback = {
+                            onUpdateTickers = it
                         })
                     }
                     storyList()

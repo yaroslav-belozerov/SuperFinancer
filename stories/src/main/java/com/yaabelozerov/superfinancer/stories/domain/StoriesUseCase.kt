@@ -14,7 +14,6 @@ import com.yaabelozerov.superfinancer.stories.data.StoryPagingDefaults.SECTION
 import com.yaabelozerov.superfinancer.stories.data.remote.NytSource
 import com.yaabelozerov.superfinancer.stories.data.NytStoryPagingSource
 import com.yaabelozerov.superfinancer.stories.data.StoryPagingDefaults
-import com.yaabelozerov.superfinancer.stories.data.local.StoriesDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
@@ -32,11 +31,11 @@ internal class StoriesUseCase(
                 if (it.section.isNotEmpty() && it.name.isNotEmpty()) {
                     Section(it.name, it.section)
                 } else null
-            }.filterNot { EXCLUDE.contains(it.key) }.also { interceptDto?.invoke(it) }
+            }.filterNot { EXCLUDE.contains(it.key) }.also { if (it.isNotEmpty()) interceptDto?.invoke(it) }
         } ?: emptyList()
     }
 
-    fun createFlow(key: String?): Flow<PagingData<Story>> = Pager(
+    fun createFlow(key: Section?): Flow<PagingData<Story>> = Pager(
         PagingConfig(
             pageSize = StoryPagingDefaults.LIMIT,
             prefetchDistance = StoryPagingDefaults.LIMIT.div(2),
@@ -50,6 +49,7 @@ internal class StoriesUseCase(
         it.map {
             val entity = StoryEntity(
                 timestampSaved = System.currentTimeMillis(),
+                source = it.source,
                 title = it.title,
                 abstract = it.abstract.ifBlank { it.subHeadline },
                 url = it.url,
@@ -63,6 +63,7 @@ internal class StoriesUseCase(
                 title = it.title,
                 description = it.abstract.ifBlank { it.subHeadline }.ifBlank { null },
                 author = it.byline,
+                source = it.source,
                 link = it.url,
                 photoUrl = it.multimedia.maxByOrNull { it.width }?.url,
                 sectionName = it.section,

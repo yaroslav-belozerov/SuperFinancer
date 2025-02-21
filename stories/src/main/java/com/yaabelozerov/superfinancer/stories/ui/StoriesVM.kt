@@ -25,7 +25,7 @@ internal class StoriesVM(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     var stories: Flow<PagingData<Story>> = _sectionUiState.flatMapLatest { currentState ->
-        storyUseCase.createFlow(currentState.selected?.key)
+        storyUseCase.createFlow(currentState.selected)
     }.cachedIn(viewModelScope)
 
     init {
@@ -36,10 +36,9 @@ internal class StoriesVM(
         viewModelScope.launch(Dispatchers.IO) {
             val savedSections = StoriesUseCase.getSavedSections().first()
             val sections = if (forceRefresh || savedSections == null) {
-                println("refreshing sections")
                 storyUseCase.getSections { StoriesUseCase.setSavedSections(it) }
-            } else savedSections.also { println("using saved sections") }
-            sections?.let {
+            } else savedSections
+            (sections.ifEmpty { savedSections.orEmpty() }).let {
                 _sectionUiState.update { st ->
                     st.copy(list = it,
                         selected = it.firstOrNull { _sectionUiState.value.selected?.key == it.key })

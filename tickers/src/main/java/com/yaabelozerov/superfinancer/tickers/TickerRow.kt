@@ -23,11 +23,16 @@ import com.yaabelozerov.superfinancer.tickers.ui.TickerCard
 import com.yaabelozerov.superfinancer.tickers.ui.TickerVM
 
 @Composable
-fun TickerRow(setRefresh: (Boolean, String) -> Unit, modifier: Modifier = Modifier) {
+fun TickerRow(setRefresh: (Boolean, String) -> Unit, setOnRefreshCallback: (() -> Unit) -> Unit, modifier: Modifier = Modifier) {
     val viewModel = viewModel<TickerVM>()
     val uiState by viewModel.state.collectAsState()
     LaunchedEffect(uiState.isLoading, uiState.lastUpdated) {
         setRefresh(uiState.isLoading, uiState.lastUpdated)
+    }
+    LaunchedEffect(Unit) {
+        setOnRefreshCallback {
+            viewModel.refresh()
+        }
     }
     LazyRow(
         modifier = modifier.fillMaxWidth(),

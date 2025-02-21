@@ -21,10 +21,11 @@ class StoriesSearchAdapter : SearchAdapter {
             storiesDao.upsert(StoryEntity(timestampSaved = System.currentTimeMillis(),
                 title = doc.headline.main,
                 abstract = doc.snippet,
+                source = doc.source,
                 url = doc.webUrl,
                 imageUrl = doc.multimedia.firstOrNull { it.subtype == "thumbnail" }?.url?.let { "$IMAGE_PREFIX$it" },
                 createdDate = doc.createdDate,
-                sectionKey = StoriesUseCase.getSavedSections().first()?.firstOrNull { it.name == doc.sectionName }?.name ?: "",
+                sectionKey = StoriesUseCase.getSavedSections().first()?.firstOrNull { it.name == doc.sectionName }?.name ?: "all",
                 byline = doc.byline.original
             )
             )

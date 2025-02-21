@@ -15,7 +15,7 @@ internal class NytSource(private val client: HttpClient = Net.Client) {
         token: String = BuildConfig.NYT_TOKEN,
     ): Result<StoriesDto> = runCatching {
         client.get {
-            url("${BASE_URL}content/nyt/$section.json?limit=$limit&offset=$offset&api-key=$token")
+            url("${BASE_URL}content/all/$section.json?limit=$limit&offset=$offset&api-key=$token")
         }.body()
     }
 
