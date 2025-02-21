@@ -7,6 +7,7 @@ import com.yaabelozerov.superfinancer.common.local.config.ConfigManager
 import com.yaabelozerov.superfinancer.common.local.config.DataStoreManager
 import com.yaabelozerov.superfinancer.common.remote.NetworkCallback
 import com.yaabelozerov.superfinancer.common.remote.networkRequest
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.ExperimentalSerializationApi
 
 abstract class Module {
@@ -36,6 +37,6 @@ class CommonModule: Module() {
             ConfigManager(app.applicationContext)
         }
 
-        val isNetworkAvailable = NetworkCallback.isConnected
+        val isNetworkAvailable = NetworkCallback.isConnected.asStateFlow()
     }
 }

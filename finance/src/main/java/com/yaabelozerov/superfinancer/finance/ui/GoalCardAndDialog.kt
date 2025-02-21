@@ -118,13 +118,16 @@ fun CreateGoalDialog(onHide: () -> Unit, onCreate: (String, Long, String) -> Uni
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth()
         )
+        val saveEnabled by remember(name, amount) {
+            mutableStateOf(name.isNotBlank() && amount > 0)
+        }
         Button(
             onClick = {
                 if (amount > 0 && name.isNotBlank()) {
                     onCreate(name, amount, imagePath ?: "")
                     onHide()
                 }
-            }, modifier = Modifier.fillMaxWidth()
+            }, modifier = Modifier.fillMaxWidth(), enabled = saveEnabled
         ) { Text("Save") }
     }
 }

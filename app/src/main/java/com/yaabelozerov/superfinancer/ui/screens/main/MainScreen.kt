@@ -142,6 +142,26 @@ fun MainScreen(
                             modifier = Modifier.fillParentMaxWidth()
                         )
                     }
+                    if (!connected) {
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    8.dp, Alignment.CenterHorizontally
+                                ),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.Warning,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .alpha(0.5f)
+                                )
+                                Text("No internet connection", modifier = Modifier.padding(16.dp))
+                            }
+                        }
+                    }
                     item {
                         Card(
                             shape = RoundedCornerShape(24.dp),
@@ -174,26 +194,6 @@ fun MainScreen(
                                 listState.animateScrollToItem(0)
                             } }
                         )
-                    }
-                    if (!connected) {
-                        item {
-                            Row(
-                                modifier = Modifier.fillMaxSize(),
-                                horizontalArrangement = Arrangement.spacedBy(
-                                    8.dp, Alignment.CenterHorizontally
-                                ),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    Icons.Default.Warning,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .alpha(0.5f)
-                                )
-                                Text("No internet connection", modifier = Modifier.padding(16.dp))
-                            }
-                        }
                     }
                     if (!refreshLoading) items(storyFlow.itemCount) { index ->
                         storyFlow[index]?.let { story ->

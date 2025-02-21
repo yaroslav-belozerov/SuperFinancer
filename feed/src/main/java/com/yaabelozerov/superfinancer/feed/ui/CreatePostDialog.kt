@@ -3,6 +3,7 @@ package com.yaabelozerov.superfinancer.feed.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,6 +31,7 @@ import com.yaabelozerov.superfinancer.common.components.PhotoPickerButtonList
 import com.yaabelozerov.superfinancer.common.components.PhotoPickerImage
 import com.yaabelozerov.superfinancer.stories.domain.Story
 import kotlinx.coroutines.launch
+import kotlin.math.max
 
 @Composable
 fun CreatePostDialog(
@@ -40,8 +42,10 @@ fun CreatePostDialog(
     var contents by remember { mutableStateOf("") }
     var images by remember { mutableStateOf(listOf<String>()) }
     val scope = rememberCoroutineScope()
+    val maxSymbols = 300
+    val enablePost by remember(contents) { mutableStateOf(contents.isNotEmpty() && contents.length <= maxSymbols) }
 
-    CardDialog(title = "Post", onDismiss = {
+    CardDialog(title = "Create a post", onDismiss = {
         scope.launch {
             images.forEach { CommonModule.mediaManager.removeMedia(it) }
             onDismiss()
@@ -58,15 +62,25 @@ fun CreatePostDialog(
                 PhotoPickerButtonList { images = images.plus(it) }
             }
         }
-        OutlinedTextField(
-            contents, onValueChange = { contents = it }, shape = MaterialTheme.shapes.small
-        )
+        OutlinedTextField(contents,
+            onValueChange = { contents = it },
+            shape = MaterialTheme.shapes.small,
+            minLines = 3,
+            placeholder = {
+                Text("Write something...")
+            },
+            supportingText = {
+                Text(
+                    "${contents.length}/$maxSymbols",
+                    color = if (contents.length > maxSymbols) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground
+                )
+            })
         article?.let {
             EmbeddedArticleCard(it)
         }
         Button(onClick = {
             onCreate(contents, images.map { it to "" })
             onDismiss()
-        }) { Text("Post") }
+        }, enabled = enablePost, modifier = Modifier.fillMaxWidth()) { Text("Post") }
     }
 }

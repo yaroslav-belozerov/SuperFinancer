@@ -5,11 +5,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yaabelozerov.superfinancer.common.components.AsyncImageWithPlaceholder
+import com.yaabelozerov.superfinancer.common.components.Header
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -35,11 +39,15 @@ fun FeedScreen(articleUrl: String?, onAdd: () -> Unit, viewModel: FeedVM = viewM
     LaunchedEffect(articleUrl) {
         viewModel.setArticle(articleUrl)
     }
-    LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
         item {
-            Button(onClick = { createPostOpen = true }) {
-                Text("Create post")
-            }
+            Header("Posts", Triple(
+                "Create", Icons.Default.Add
+            ) { createPostOpen = true })
         }
         items(uiState.posts) {
             Card {
@@ -75,12 +83,11 @@ fun FeedScreen(articleUrl: String?, onAdd: () -> Unit, viewModel: FeedVM = viewM
             }
         }
     }
-    if (createPostOpen) CreatePostDialog(
-        article = uiState.currentAttachedStory,
-        onDismiss = { createPostOpen = false }) { content, images ->
-        viewModel.createPost(content, images, uiState.currentAttachedStory?.link)
+    if (createPostOpen) CreatePostDialog(article = uiState.currentAttachedStory, onDismiss = {
         createPostOpen = false
         viewModel.setArticle(null)
         onAdd()
+    }) { content, images ->
+        viewModel.createPost(content, images, uiState.currentAttachedStory?.link)
     }
 }

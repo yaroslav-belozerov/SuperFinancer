@@ -65,7 +65,7 @@ fun FinanceScreen(viewModel: FinanceVM = viewModel()) {
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 24.dp),
+        contentPadding = PaddingValues(horizontal = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
@@ -197,6 +197,7 @@ private fun CreateTransactionModal(
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth()
         )
+        val saveEnabled by remember(amount, chosen.first) { mutableStateOf(amount > 0 && chosen.first != -1L) }
         Button(
             onClick = {
                 if (chosen.first != -1L) {
@@ -205,7 +206,7 @@ private fun CreateTransactionModal(
                         onHide()
                     }
                 }
-            }, modifier = Modifier.fillMaxWidth()
+            }, modifier = Modifier.fillMaxWidth(), enabled = saveEnabled
         ) { Text("Save") }
     }
 }

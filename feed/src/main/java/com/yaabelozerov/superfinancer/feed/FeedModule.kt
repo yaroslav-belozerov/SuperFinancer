@@ -15,7 +15,7 @@ class FeedModule : Module() {
         app = application
         MainScope().launch {
             StoriesModule.storyCacheDao.purgeCache(
-                postDao.getAllPosts().first().mapNotNull { it.key.articleId }
+                postDao.getAllUsedArticleIds()
             )
         }
     }
