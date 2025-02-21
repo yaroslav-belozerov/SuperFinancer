@@ -11,14 +11,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-data class FinanceState(
+internal data class FinanceState(
     val goals: List<Goal> = emptyList(),
     val transactions: List<Transaction> = emptyList(),
     val totalGoal: Long = 1,
     val totalAmount: Long = 0,
 )
 
-sealed interface FinanceScreenEvent {
+internal sealed interface FinanceScreenEvent {
     data class CreateGoal(val name: String, val amountInRubles: Long, val image: String) :
         FinanceScreenEvent
 
@@ -31,7 +31,7 @@ sealed interface FinanceScreenEvent {
     data class DeleteGoal(val goal: Goal) : FinanceScreenEvent
 }
 
-class FinanceVM(
+internal class FinanceVM(
     private val financeUseCase: FinanceUseCase = FinanceUseCase(),
 ) : ViewModel() {
     private val _state = MutableStateFlow(FinanceState())

@@ -6,14 +6,14 @@ import com.yaabelozerov.superfinancer.feed.data.PostDao
 import com.yaabelozerov.superfinancer.feed.data.PostDb
 import com.yaabelozerov.superfinancer.feed.data.PostEntity
 import com.yaabelozerov.superfinancer.feed.data.PostImageEntity
-import com.yaabelozerov.superfinancer.stories.data.local.StoriesDao
-import com.yaabelozerov.superfinancer.stories.domain.Story
+import com.yaabelozerov.superfinancer.stories.StoriesModule
+import com.yaabelozerov.superfinancer.stories.StoriesToPostAdapter
 import kotlinx.coroutines.flow.map
 
-class PostUseCase(
+internal class PostUseCase(
     private val postDb: PostDb = FeedModule.postDb,
     private val postDao: PostDao = FeedModule.postDao,
-    private val storiesDao: StoriesDao = FeedModule.storiesDao
+    private val storiesToPostAdapter: StoriesToPostAdapter = StoriesModule.postAdapter
 ) {
     val postFlow = postDao.getAllPosts().map {
         it.map { (post, images) ->
@@ -27,15 +27,11 @@ class PostUseCase(
                     )
                 },
                 article = post.articleId?.let { id ->
-                    storiesDao.getByUrl(id).also { println(it) }.run {
-                        Story(
-                            title = title,
-                            description = abstract,
-                            author = byline,
-                            link = url,
-                            photoUrl = imageUrl,
-                            date = createdDate,
-                            sectionName = sectionKey
+                    storiesToPostAdapter.getByUrl(id).run {
+                        PostStory(
+                            title = first,
+                            imageUrl = second,
+                            url = third
                         )
                     }
                 }

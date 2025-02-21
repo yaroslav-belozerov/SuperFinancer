@@ -2,10 +2,11 @@ package com.yaabelozerov.superfinancer
 
 import android.app.Application
 import com.yaabelozerov.superfinancer.common.CommonModule
-import com.yaabelozerov.superfinancer.common.Module
 import com.yaabelozerov.superfinancer.feed.FeedModule
 import com.yaabelozerov.superfinancer.finance.FinanceModule
 import com.yaabelozerov.superfinancer.stories.StoriesModule
+import com.yaabelozerov.superfinancer.stories.StoriesSearchAdapter
+import com.yaabelozerov.superfinancer.tickers.TickerSearchAdapter
 
 class Application: Application() {
     override fun onCreate() {
@@ -18,6 +19,10 @@ class Application: Application() {
     companion object {
         private val modules = listOf(
             CommonModule(), FinanceModule(), StoriesModule(), FeedModule()
+        )
+
+        val searchAdapters = listOf(
+            TickerSearchAdapter(), StoriesSearchAdapter()
         )
     }
 }

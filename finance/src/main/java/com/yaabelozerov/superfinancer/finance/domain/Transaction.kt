@@ -1,6 +1,6 @@
 package com.yaabelozerov.superfinancer.finance.domain
 
-data class Transaction(
+internal data class Transaction(
     val id: Long,
     val valueInRubles: Long,
     val comment: String,

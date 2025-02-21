@@ -4,13 +4,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SectionsDto(
+internal data class SectionsDto(
     val copyright: String,
     @SerialName("results") val list: List<SectionDto>,
 )
 
 @Serializable
-data class SectionDto(
+internal data class SectionDto(
     val section: String,
     @SerialName("display_name") val name: String
 )

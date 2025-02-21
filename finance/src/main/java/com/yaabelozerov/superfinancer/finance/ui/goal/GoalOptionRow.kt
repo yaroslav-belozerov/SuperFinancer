@@ -1,4 +1,4 @@
-package com.yaabelozerov.superfinancer.finance.ui
+package com.yaabelozerov.superfinancer.finance.ui.goal
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
@@ -24,10 +24,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.yaabelozerov.superfinancer.finance.domain.Goal
+import com.yaabelozerov.superfinancer.finance.ui.FinanceScreenEvent
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun GoalOptionRow(
+internal fun GoalOptionRow(
     goal: Goal,
     onEvent: (FinanceScreenEvent) -> Unit,
     isOpen: Boolean,

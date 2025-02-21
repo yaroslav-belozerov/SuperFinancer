@@ -13,10 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.yaabelozerov.superfinancer.common.components.AsyncImageWithPlaceholder
-import com.yaabelozerov.superfinancer.stories.domain.Story
+import com.yaabelozerov.superfinancer.feed.domain.PostStory
 
 @Composable
-fun EmbeddedArticleCard(article: Story, onClick: () -> Unit = {}) {
+internal fun EmbeddedArticleCard(article: PostStory, onClick: () -> Unit = {}) {
     Card(onClick) {
         Row(
             modifier = Modifier.padding(8.dp),
@@ -24,7 +24,7 @@ fun EmbeddedArticleCard(article: Story, onClick: () -> Unit = {}) {
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             AsyncImageWithPlaceholder(
-                model = article.photoUrl,
+                model = article.imageUrl,
                 modifier = Modifier
                     .size(48.dp)
                     .clip(MaterialTheme.shapes.small)

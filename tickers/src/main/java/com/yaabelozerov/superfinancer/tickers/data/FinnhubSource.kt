@@ -15,7 +15,7 @@ import io.ktor.websocket.readText
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.serialization.json.Json
 
-class FinnhubSource(private val client: HttpClient = Net.Client) {
+internal class FinnhubSource(private val client: HttpClient = Net.Client) {
 
     suspend fun getRateForSymbol(
         symbol: String,

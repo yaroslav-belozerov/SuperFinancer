@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class StoriesDto(
+internal data class StoriesDto(
     val status: String,
     val copyright: String,
     @SerialName("num_results") val numResults: Long,
@@ -12,7 +12,7 @@ data class StoriesDto(
 )
 
 @Serializable
-data class StoryDto(
+internal data class StoryDto(
     @SerialName("slug_name") val slugName: String,
     val section: String,
     val title: String,
@@ -27,13 +27,7 @@ data class StoryDto(
 )
 
 @Serializable
-data class StoryMultimediaDto(
+internal data class StoryMultimediaDto(
     val url: String,
     val width: Long,
-)
-
-@Serializable
-data class StoryRelatedUrlDto(
-    @SerialName("suggested_link_text") val suggestion: String,
-    val url: String
 )

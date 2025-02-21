@@ -5,7 +5,7 @@ import androidx.room.Query
 import androidx.room.Upsert
 
 @Dao
-interface StoriesDao {
+internal interface StoriesDao {
     @Upsert
     suspend fun upsert(story: StoryEntity)
 

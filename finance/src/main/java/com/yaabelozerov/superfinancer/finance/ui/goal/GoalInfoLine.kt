@@ -1,4 +1,4 @@
-package com.yaabelozerov.superfinancer.finance.ui
+package com.yaabelozerov.superfinancer.finance.ui.goal
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,10 +31,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.yaabelozerov.superfinancer.finance.domain.Goal
+import com.yaabelozerov.superfinancer.finance.ui.FinanceScreenEvent
 import kotlin.math.roundToInt
 
 @Composable
-fun GoalInfoLine(goal: Goal, progress: Float, indicatorColor: Color, onEvent: (FinanceScreenEvent) -> Unit) =
+internal fun GoalInfoLine(goal: Goal, progress: Float, indicatorColor: Color, onEvent: (FinanceScreenEvent) -> Unit) =
     if (goal.image.isBlank()) GoalInfoLineWithoutImage(goal, progress, indicatorColor, onEvent) else GoalInfoLineWithImage(goal, progress, indicatorColor, onEvent)
 
 @Composable

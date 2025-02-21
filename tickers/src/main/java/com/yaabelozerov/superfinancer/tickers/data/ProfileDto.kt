@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ProfileDto(
+internal data class ProfileDto(
     val country: String,
     val currency: String,
     val exchange: String,

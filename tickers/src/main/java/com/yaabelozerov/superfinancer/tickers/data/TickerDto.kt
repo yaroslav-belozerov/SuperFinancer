@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class TickerDto(
+internal data class TickerDto(
     @SerialName("c") val current: Double,
     @SerialName("d") val delta: Double?,
     @SerialName("dp") val deltaPercent: Double?,

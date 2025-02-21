@@ -7,7 +7,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.url
 
-class NytSource(private val client: HttpClient = Net.Client) {
+internal class NytSource(private val client: HttpClient = Net.Client) {
     suspend fun getLatestStories(
         section: String,
         limit: Int,

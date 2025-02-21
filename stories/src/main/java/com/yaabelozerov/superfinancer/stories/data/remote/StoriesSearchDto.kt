@@ -4,19 +4,19 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class StoriesSearchDto(
+internal data class StoriesSearchDto(
     val status: String,
     val copyright: String,
     val response: StoriesSearchResponseDto
 )
 
 @Serializable
-data class StoriesSearchResponseDto(
+internal data class StoriesSearchResponseDto(
     val docs: List<StoriesSearchResponseDataDto>
 )
 
 @Serializable
-data class StoriesSearchResponseDataDto(
+internal data class StoriesSearchResponseDataDto(
     @SerialName("web_url") val webUrl: String,
     val snippet: String,
     val multimedia: List<StoriesSearchResponseMultimediaDto>,
@@ -25,7 +25,7 @@ data class StoriesSearchResponseDataDto(
 )
 
 @Serializable
-data class StoriesSearchResponseMultimediaDto(
+internal data class StoriesSearchResponseMultimediaDto(
     val subtype: String,
     val url: String,
     val width: Int,
@@ -33,11 +33,11 @@ data class StoriesSearchResponseMultimediaDto(
 )
 
 @Serializable
-data class StoriesSearchResponseBylineDto(
+internal data class StoriesSearchResponseBylineDto(
     @SerialName("original") val original: String,
 )
 
 @Serializable
-data class StoriesSearchResponseHeadlineDto(
+internal data class StoriesSearchResponseHeadlineDto(
     @SerialName("main") val main: String,
 )

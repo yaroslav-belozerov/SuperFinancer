@@ -23,7 +23,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-class StoriesUseCase(
+internal class StoriesUseCase(
     private val remoteSource: NytSource = NytSource(),
     private val dao: StoriesDao = StoriesModule.storyCacheDao
 ) {

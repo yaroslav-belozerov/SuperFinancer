@@ -1,4 +1,4 @@
-package com.yaabelozerov.superfinancer.feed.ui
+package com.yaabelozerov.superfinancer.feed
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,11 +29,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yaabelozerov.superfinancer.common.components.AsyncImageWithPlaceholder
 import com.yaabelozerov.superfinancer.common.components.Header
-import com.yaabelozerov.superfinancer.stories.domain.Story
+import com.yaabelozerov.superfinancer.feed.ui.CreatePostDialog
+import com.yaabelozerov.superfinancer.feed.ui.EmbeddedArticleCard
+import com.yaabelozerov.superfinancer.feed.ui.FeedVM
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun FeedScreen(articleUrl: String?, onAdd: () -> Unit, onClickArticle: (Story) -> Unit, viewModel: FeedVM = viewModel()) {
+fun FeedScreen(articleUrl: String?, onAdd: () -> Unit, onClickArticle: (String) -> Unit) {
+    val viewModel = viewModel<FeedVM>()
     val uiState by viewModel.state.collectAsState()
     var createPostOpen by remember { mutableStateOf(uiState.currentAttachedStory != null) }
     LaunchedEffect(articleUrl) {
@@ -81,7 +83,7 @@ fun FeedScreen(articleUrl: String?, onAdd: () -> Unit, onClickArticle: (Story) -
                     }
                     Text(it.contents)
                     it.article?.let {
-                        EmbeddedArticleCard(it) { onClickArticle(it) }
+                        EmbeddedArticleCard(it) { onClickArticle(it.url) }
                     }
                 }
             }
@@ -92,6 +94,6 @@ fun FeedScreen(articleUrl: String?, onAdd: () -> Unit, onClickArticle: (Story) -
         viewModel.setArticle(null)
         createPostOpen = false
     }) { content, images ->
-        viewModel.createPost(content, images, uiState.currentAttachedStory?.link)
+        viewModel.createPost(content, images, uiState.currentAttachedStory?.url)
     }
 }

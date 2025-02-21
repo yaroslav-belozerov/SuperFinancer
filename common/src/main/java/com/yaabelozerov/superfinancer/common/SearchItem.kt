@@ -1,4 +1,4 @@
-package com.yaabelozerov.superfinancer.finance.domain
+package com.yaabelozerov.superfinancer.common
 
 data class SearchItem(
     val type: SearchItemType,

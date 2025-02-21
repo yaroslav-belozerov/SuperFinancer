@@ -42,7 +42,7 @@ import com.yaabelozerov.superfinancer.common.components.LoadingBox
 import com.yaabelozerov.superfinancer.stories.domain.Story
 
 @Composable
-fun StoryCard(
+internal fun StoryCard(
     story: Story,
     onClick: () -> Unit,
     onClickSectionName: (String) -> Unit,

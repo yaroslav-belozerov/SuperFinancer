@@ -29,13 +29,13 @@ import com.yaabelozerov.superfinancer.common.components.AsyncImageWithPlaceholde
 import com.yaabelozerov.superfinancer.common.components.CardDialog
 import com.yaabelozerov.superfinancer.common.components.PhotoPickerButtonList
 import com.yaabelozerov.superfinancer.common.components.PhotoPickerImage
-import com.yaabelozerov.superfinancer.stories.domain.Story
+import com.yaabelozerov.superfinancer.feed.domain.PostStory
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
 @Composable
-fun CreatePostDialog(
-    article: Story?,
+internal fun CreatePostDialog(
+    article: PostStory?,
     onDismiss: () -> Unit,
     onCreate: (String, List<Pair<String, String>>) -> Unit,
 ) {

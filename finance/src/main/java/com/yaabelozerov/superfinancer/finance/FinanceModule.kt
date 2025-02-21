@@ -14,9 +14,9 @@ class FinanceModule: Module() {
     companion object {
         private lateinit var app: Application
 
-        val financeDb by lazy {
+        internal val financeDb by lazy {
             Room.databaseBuilder(app.applicationContext, FinanceDb::class.java, "finance.db").build()
         }
-        val financeDao by lazy { financeDb.dao() }
+        internal val financeDao by lazy { financeDb.dao() }
     }
 }

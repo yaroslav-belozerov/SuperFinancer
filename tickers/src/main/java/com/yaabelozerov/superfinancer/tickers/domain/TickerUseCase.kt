@@ -24,7 +24,7 @@ private infix fun TickerDto.combine(info: ProfileDto): Ticker {
     )
 }
 
-class TickerUseCase(private val source: FinnhubSource = FinnhubSource()) {
+internal class TickerUseCase(private val source: FinnhubSource = FinnhubSource()) {
     suspend fun getFullInfoForSymbols(symbols: List<String>): Map<String, Ticker> = coroutineScope {
         symbols.map {
             async {

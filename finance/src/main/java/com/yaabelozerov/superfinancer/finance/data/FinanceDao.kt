@@ -8,7 +8,7 @@ import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface FinanceDao {
+internal interface FinanceDao {
     @Query("SELECT * FROM goals LEFT OUTER JOIN transactions ON goalId = goals.id")
     fun getAllTargetsWithTransactions(): Flow<Map<GoalEntity, List<TransactionEntity>>>
 

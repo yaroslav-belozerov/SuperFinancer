@@ -4,6 +4,6 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 
 @Database(entities = [PostEntity::class, PostImageEntity::class], version = 1, exportSchema = false)
-abstract class PostDb: RoomDatabase() {
+internal abstract class PostDb: RoomDatabase() {
     abstract fun dao(): PostDao
 }

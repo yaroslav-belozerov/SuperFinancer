@@ -9,7 +9,7 @@ import com.yaabelozerov.superfinancer.stories.data.remote.NytSource
 import com.yaabelozerov.superfinancer.stories.data.remote.StoryDto
 import com.yaabelozerov.superfinancer.stories.data.remote.StoryMultimediaDto
 
-object StoryPagingDefaults {
+internal object StoryPagingDefaults {
     const val LIMIT = 15
     const val SECTION = "all"
     val EXCLUDE = listOf("admin")
@@ -34,7 +34,7 @@ private fun List<StoryEntity>.toDtos() = map {
     )
 }
 
-class NytStoryPagingSource(
+internal class NytStoryPagingSource(
     private val limit: Int = StoryPagingDefaults.LIMIT,
     private val section: String = StoryPagingDefaults.SECTION,
     private val source: NytSource = NytSource(),

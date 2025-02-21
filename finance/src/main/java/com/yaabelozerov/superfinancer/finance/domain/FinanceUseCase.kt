@@ -13,7 +13,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-class FinanceUseCase(
+internal class FinanceUseCase(
     private val financeDao: FinanceDao = FinanceModule.financeDao,
     private val mediaManager: MediaManager = CommonModule.mediaManager
 ) {

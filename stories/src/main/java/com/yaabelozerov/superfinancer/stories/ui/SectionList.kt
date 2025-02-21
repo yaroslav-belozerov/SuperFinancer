@@ -40,7 +40,7 @@ import com.yaabelozerov.superfinancer.stories.domain.Section
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SectionList(
+internal fun SectionList(
     sections: SectionUiState,
     onSetSection: (Section?) -> Unit,
     modifier: Modifier = Modifier,

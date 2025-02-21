@@ -1,6 +1,6 @@
 package com.yaabelozerov.superfinancer.stories.domain
 
-data class Story(
+internal data class Story(
     val title: String,
     val description: String?,
     val author: String,
