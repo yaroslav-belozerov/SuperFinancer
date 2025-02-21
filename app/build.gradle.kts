@@ -50,6 +50,7 @@ dependencies {
     implementation(project(":tickers"))
     implementation(project(":stories"))
     implementation(project(":finance"))
+    implementation(project(":feed"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

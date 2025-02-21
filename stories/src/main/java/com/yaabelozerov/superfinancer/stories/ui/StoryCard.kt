@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
+import com.yaabelozerov.superfinancer.common.components.AsyncImageWithPlaceholder
 import com.yaabelozerov.superfinancer.common.components.LoadingBox
 import com.yaabelozerov.superfinancer.stories.domain.Story
 
@@ -53,28 +54,12 @@ fun StoryCard(
             .padding(horizontal = 16.dp)
     ) {
         story.photoUrl?.let { url ->
-            var visible by remember { mutableStateOf(false) }
-            Box(
-                modifier = Modifier
-                    .clip(MaterialTheme.shapes.small)
-                    .height(256.dp)
-                    .fillMaxWidth(),
-            ) {
-                AsyncImage(
-                    modifier = Modifier.fillMaxSize(),
-                    model = url,
-                    onState = {
-                        visible = when (it) {
-                            AsyncImagePainter.State.Empty, is AsyncImagePainter.State.Loading, is AsyncImagePainter.State.Error -> true
-                            is AsyncImagePainter.State.Success -> false
-                        }
-                    },
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop)
-                androidx.compose.animation.AnimatedVisibility(visible, enter = fadeIn(), exit = fadeOut()) {
-                    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.onBackground.copy(0.5f)))
-                }
-            }
+            AsyncImageWithPlaceholder(model = url,
+              modifier = Modifier
+              .clip(MaterialTheme.shapes.small)
+                .height(256.dp)
+                .fillMaxWidth()
+            )
         }
         Column(
             modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)

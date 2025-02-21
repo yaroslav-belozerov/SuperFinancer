@@ -17,7 +17,7 @@ object StoryPagingDefaults {
 
 private fun List<StoryEntity>.toDtos() = map {
     StoryDto(
-        slugName = it.slug,
+        slugName = it.url,
         section = it.sectionKey,
         title = it.title,
         abstract = it.title,

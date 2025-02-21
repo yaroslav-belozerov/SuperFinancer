@@ -3,10 +3,11 @@ package com.yaabelozerov.superfinancer.finance
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
+import com.yaabelozerov.superfinancer.common.Module
 import com.yaabelozerov.superfinancer.finance.data.FinanceDb
 
-open class FinanceModule {
-    fun onCreate(application: Application) {
+class FinanceModule: Module() {
+    override fun onCreate(application: Application) {
         app = application
     }
 

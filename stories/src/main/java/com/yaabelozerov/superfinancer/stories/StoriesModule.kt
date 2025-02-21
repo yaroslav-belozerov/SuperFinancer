@@ -2,16 +2,14 @@ package com.yaabelozerov.superfinancer.stories
 
 import android.app.Application
 import androidx.room.Room
+import com.yaabelozerov.superfinancer.common.Module
 import com.yaabelozerov.superfinancer.stories.data.local.StoriesDb
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
-class StoriesModule {
-    fun onCreate(application: Application) {
+class StoriesModule: Module() {
+    override fun onCreate(application: Application) {
         app = application
-        MainScope().launch {
-            storyCacheDao.purgeBefore(System.currentTimeMillis() - 6 * 60 * 60 * 1000)
-        }
     }
 
     companion object {

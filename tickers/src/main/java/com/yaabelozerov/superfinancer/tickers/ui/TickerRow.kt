@@ -39,6 +39,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
+import com.yaabelozerov.superfinancer.common.components.AsyncImageWithPlaceholder
 import com.yaabelozerov.superfinancer.common.components.LoadingBox
 import com.yaabelozerov.superfinancer.tickers.domain.Ticker
 import java.math.RoundingMode
@@ -69,29 +70,13 @@ private fun TickerCard(symbol: String, ticker: Ticker, modifier: Modifier = Modi
                 .padding(12.dp)
         ) {
             Column(Modifier.align(Alignment.TopStart)) {
-                var visible by remember { mutableStateOf(false) }
-                Box(
+                AsyncImageWithPlaceholder(
+                    model = ticker.logoUrl,
                     modifier = Modifier
                         .padding(bottom = 8.dp)
                         .size(48.dp)
-                        .clip(
-                            CircleShape
-                        )
-                ) {
-                    AsyncImage(
-                        modifier = Modifier.fillMaxSize(),
-                        onState = { visible = when (it) {
-                            AsyncImagePainter.State.Empty, is AsyncImagePainter.State.Error, is AsyncImagePainter.State.Loading -> true
-                            is AsyncImagePainter.State.Success -> false
-                        } },
-                        model = ticker.logoUrl,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                    )
-                    androidx.compose.animation.AnimatedVisibility(visible, enter = fadeIn(), exit = fadeOut()) {
-                        Box(Modifier.size(48.dp).background(MaterialTheme.colorScheme.background))
-                    }
-                }
+                        .clip(CircleShape)
+                )
                 Row(
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
