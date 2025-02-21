@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -73,7 +74,9 @@ internal fun Transaction(
             Icon(
                 painterResource(R.drawable.right_arrow),
                 contentDescription = null,
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(16.dp).run {
+                    if (transaction.isWithdrawal) rotate(180f) else this
+                },
                 tint = MaterialTheme.colorScheme.onBackground
             )
             Text(transaction.goal.second, style = MaterialTheme.typography.titleLarge)
@@ -86,19 +89,20 @@ internal fun Transaction(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Button(onClick = {
+                if (!transaction.isWithdrawal) Button(onClick = {
                     viewModel.onEvent(
                         FinanceScreenEvent.MakeTransaction(
                             transaction.goal.first,
                             transaction.valueInRubles,
-                            transaction.comment
+                            transaction.comment,
+                            false
                         )
                     )
                     detailsOpen = false
                 }) { Text("Repeat") }
                 Button(onClick = {
                     viewModel.onEvent(
-                        FinanceScreenEvent.DeleteTransaction(transaction.id)
+                        FinanceScreenEvent.DeleteTransaction(transaction.id, transaction.goal.first)
                     )
                 }) { Text("Delete") }
                 OutlinedButton(onClick = {

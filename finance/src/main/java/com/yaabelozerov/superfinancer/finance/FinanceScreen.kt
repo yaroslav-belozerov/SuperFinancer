@@ -55,7 +55,7 @@ fun FinanceScreen() {
                 it, modifier = Modifier.animateItem(), viewModel
             )
         }
-        if (uiState.goals.isNotEmpty()) item {
+        if (uiState.goals.isNotEmpty() || uiState.transactions.isNotEmpty()) item {
             Header("Transactions", Triple(
                 "Make", Icons.Default.AttachMoney
             ) { scope.launch { createTransactionVisible = true } })
@@ -83,7 +83,7 @@ fun FinanceScreen() {
             onCreate = { id, amount, comment ->
                 viewModel.onEvent(
                     FinanceScreenEvent.MakeTransaction(
-                        id, amount, comment
+                        id, amount, comment, false
                     )
                 )
             },

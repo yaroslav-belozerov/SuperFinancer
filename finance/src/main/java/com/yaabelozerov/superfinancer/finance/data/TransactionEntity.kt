@@ -9,5 +9,6 @@ internal data class TransactionEntity(
     val valueInKopecks: Long,
     val timestamp: Long,
     val comment: String,
-    val goalId: Long
+    val goalId: Long,
+    val isWithdrawal: Boolean
 )

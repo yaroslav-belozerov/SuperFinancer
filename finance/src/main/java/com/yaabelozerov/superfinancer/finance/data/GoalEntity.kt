@@ -9,5 +9,6 @@ internal data class GoalEntity(
     val image: String,
     val name: String,
     val expiresAt: Long?,
-    val amountInKopecks: Long
+    val amountInKopecks: Long,
+    val enabled: Boolean
 )

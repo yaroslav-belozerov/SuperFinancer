@@ -48,7 +48,8 @@ internal class FinanceUseCase(
                 goal = goal.id to goal.name,
                 timestamp = LocalDateTime.ofInstant(
                     Instant.ofEpochMilli(transaction.timestamp), ZoneId.systemDefault()
-                ).format()
+                ).format(),
+                isWithdrawal = transaction.isWithdrawal
             )
         }
     }
@@ -63,7 +64,8 @@ internal class FinanceUseCase(
                 name = name,
                 image = image,
                 amountInKopecks = amountInRubles.times(100),
-                expiresAt = expiry
+                expiresAt = expiry,
+                enabled = true
             )
         )
     }
@@ -72,6 +74,7 @@ internal class FinanceUseCase(
         goalId: Long,
         amountInRubles: Long,
         comment: String = "",
+        isWithdrawal: Boolean,
     ) {
         financeDao.upsertTransaction(
             TransactionEntity(
@@ -79,20 +82,37 @@ internal class FinanceUseCase(
                 valueInKopecks = amountInRubles.times(100).toLong(),
                 timestamp = System.currentTimeMillis(),
                 comment = comment,
-                goalId = goalId
+                goalId = goalId,
+                isWithdrawal = isWithdrawal
             )
         )
     }
 
-    suspend fun deleteGoal(goal: Goal) {
+    suspend fun closeGoal(goal: Goal) {
         FinanceModule.financeDb.withTransaction {
+            val total = financeDao.totalTransactionAmountInKopecksByGoalId(goal.id)
             financeDao.deleteAllTransactionsByGoalId(goal.id)
-            financeDao.deleteGoalWithId(goal.id)
+            if (total > 0) {
+                financeDao.upsertTransaction(
+                    TransactionEntity(
+                        id = 0,
+                        valueInKopecks = total,
+                        timestamp = System.currentTimeMillis(),
+                        comment = "Goal \"${goal.name}}\" closed",
+                        goalId = goal.id,
+                        isWithdrawal = true
+                    )
+                )
+                financeDao.deactivateGoalWithId(goal.id)
+            } else {
+                financeDao.deleteGoalWithId(goal.id)
+            }
             mediaManager.removeMedia(goal.image)
         }
     }
 
-    suspend fun deleteTransaction(id: Long) {
+    suspend fun deleteTransaction(id: Long, goalId: Long) {
         financeDao.deleteTransaction(id)
+        financeDao.tryDeleteUnusedGoal(goalId)
     }
 }
