@@ -21,7 +21,10 @@ internal data class StoriesSearchResponseDataDto(
     val snippet: String,
     val multimedia: List<StoriesSearchResponseMultimediaDto>,
     val headline: StoriesSearchResponseHeadlineDto,
-    val byline: StoriesSearchResponseBylineDto
+    val byline: StoriesSearchResponseBylineDto,
+    @SerialName("section_name") val sectionName: String,
+    val source: String,
+    @SerialName("pub_date") val createdDate: String
 )
 
 @Serializable

@@ -76,24 +76,30 @@ internal fun StoryCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                FilterChip(selected = false,
-                    onClick = { onClickSectionName(story.sectionName) },
-                    label = { Text(story.sectionName) })
+                story.sectionName.takeIf { it.isNotEmpty() }?.let { sectionName ->
+                    FilterChip(selected = false,
+                        onClick = { onClickSectionName(sectionName) },
+                        label = { Text(sectionName) })
+                }
                 Spacer(Modifier.width(16.dp))
                 Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        story.author,
-                        fontStyle = FontStyle.Italic,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(0.75f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        story.date,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(0.75f)
-                    )
+                    story.author.takeIf { it.isNotEmpty() }?.let { author ->
+                        Text(
+                            author,
+                            fontStyle = FontStyle.Italic,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(0.75f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    story.date.takeIf { it.isNotEmpty() }?.let { date ->
+                        Text(
+                            date,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(0.75f)
+                        )
+                    }
                 }
             }
         }

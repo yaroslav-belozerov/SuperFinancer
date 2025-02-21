@@ -38,7 +38,7 @@ fun storyItems(
     val sections by viewModel.sectionState.collectAsState()
     val scope = rememberCoroutineScope()
     var refreshLoading by remember { mutableStateOf(false) }
-    var appendLoading by remember { mutableStateOf(true) }
+    var appendLoading by remember { mutableStateOf(false) }
     LaunchedEffect(refreshLoading) {
         onSetRefreshing(refreshLoading)
     }
@@ -50,14 +50,12 @@ fun storyItems(
     }
     LaunchedEffect(storyFlow.loadState.refresh) {
         refreshLoading = when (storyFlow.loadState.refresh) {
-            is LoadState.Error -> false
+            is LoadState.Error, is LoadState.NotLoading -> false
             LoadState.Loading -> true
-            is LoadState.NotLoading -> false
         }
         appendLoading = when (storyFlow.loadState.append) {
-            is LoadState.Error -> false
+            is LoadState.Error, is LoadState.NotLoading -> false
             LoadState.Loading -> true
-            is LoadState.NotLoading -> false
         }
     }
     return {
@@ -73,7 +71,6 @@ fun storyItems(
                 StoryCard(
                     story = story,
                     onClick = {
-                        // navigator.navigate(OpenStoryDestination(story.link))
                         onClickStory(story.link)
                     },
                     onClickSectionName = viewModel::setSection,

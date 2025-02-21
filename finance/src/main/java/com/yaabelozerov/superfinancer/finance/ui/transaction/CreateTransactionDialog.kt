@@ -10,6 +10,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CurrencyRuble
 import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +41,11 @@ internal fun CreateTransactionDialog(
         chosen.second(-1L)
     }) {
         val listState = rememberLazyListState()
-        LazyRow(state = listState, modifier = Modifier.horizontalFadingEdge(listState, 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        LazyRow(
+            state = listState, modifier = Modifier.horizontalFadingEdge(
+                listState, 16.dp, edgeColor = CardDefaults.elevatedCardColors().containerColor
+            ), horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             items(goals, key = { it.id }) {
                 FilterChip(selected = it.id == chosen.first,
                     onClick = { chosen.second(if (chosen.first == it.id) -1L else it.id) },
@@ -73,7 +78,9 @@ internal fun CreateTransactionDialog(
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth()
         )
-        val saveEnabled by remember(amount, chosen.first) { mutableStateOf(amount > 0 && chosen.first != -1L) }
+        val saveEnabled by remember(
+            amount, chosen.first
+        ) { mutableStateOf(amount > 0 && chosen.first != -1L) }
         Button(
             onClick = {
                 if (chosen.first != -1L) {

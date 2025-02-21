@@ -24,8 +24,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 internal class StoriesUseCase(
-    private val remoteSource: NytSource = NytSource(),
-    private val dao: StoriesDao = StoriesModule.storyCacheDao
+    private val remoteSource: NytSource = NytSource()
 ) {
     suspend fun getSections(interceptDto: (suspend (List<Section>) -> Unit)? = null): List<Section> {
         return remoteSource.getSections().getOrNull()?.let { dto ->
@@ -67,24 +66,14 @@ internal class StoriesUseCase(
                 link = it.url,
                 photoUrl = it.multimedia.maxByOrNull { it.width }?.url,
                 sectionName = it.section,
-                date = LocalDateTime.ofInstant(
-                    Instant.parse(it.updatedDate.ifBlank { it.firstPublishedDate.ifBlank { it.createdDate } }),
-                    ZoneId.systemDefault()
-                ).format()
+                date = runCatching {
+                    LocalDateTime.ofInstant(
+                        Instant.parse(it.updatedDate.ifBlank { it.firstPublishedDate.ifBlank { it.createdDate } }),
+                        ZoneId.systemDefault()
+                    ).format()
+                }.getOrDefault("")
             )
         }
-    }
-
-    suspend fun getCachedStoryByUrl(url: String) = dao.getByUrl(url).run {
-        Story(
-            title = title,
-            description = abstract,
-            author = byline,
-            link = this.url,
-            photoUrl = imageUrl,
-            sectionName = sectionKey,
-            date = createdDate
-        )
     }
 
     companion object {

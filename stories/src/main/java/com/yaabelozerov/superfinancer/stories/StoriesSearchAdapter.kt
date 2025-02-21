@@ -5,7 +5,9 @@ import com.yaabelozerov.superfinancer.common.SearchItem
 import com.yaabelozerov.superfinancer.common.SearchItemType
 import com.yaabelozerov.superfinancer.stories.data.local.StoryEntity
 import com.yaabelozerov.superfinancer.stories.data.remote.NytSource
+import com.yaabelozerov.superfinancer.stories.domain.StoriesUseCase
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 
 class StoriesSearchAdapter : SearchAdapter {
@@ -15,24 +17,28 @@ class StoriesSearchAdapter : SearchAdapter {
     override fun search(query: String): Flow<SearchItem> = flow {
         storiesSource.searchStories(query).also {
             println(it.exceptionOrNull())
-        }.getOrNull()?.response?.docs?.forEach {
+        }.getOrNull()?.response?.docs?.forEach { doc ->
             storiesDao.upsert(StoryEntity(timestampSaved = System.currentTimeMillis(),
-                title = it.headline.main,
-                abstract = it.snippet,
-                url = it.webUrl,
-                imageUrl = it.multimedia.firstOrNull { it.subtype == "thumbnail" }?.url?.let { "https://www.nytimes.com/$it" },
-                createdDate = "",
-                sectionKey = "",
-                byline = it.byline.original
+                title = doc.headline.main,
+                abstract = doc.snippet,
+                url = doc.webUrl,
+                imageUrl = doc.multimedia.firstOrNull { it.subtype == "thumbnail" }?.url?.let { "$IMAGE_PREFIX$it" },
+                createdDate = doc.createdDate,
+                sectionKey = StoriesUseCase.getSavedSections().first()?.firstOrNull { it.name == doc.sectionName }?.name ?: "",
+                byline = doc.byline.original
             )
             )
             emit(SearchItem(type = SearchItemType.STORY,
-                title = it.headline.main,
-                description = it.byline.original,
-                iconUrl = it.multimedia.firstOrNull { it.subtype == "thumbnail" }?.url?.let { "https://www.nytimes.com/$it" },
-                uri = it.webUrl
+                title = doc.headline.main,
+                description = doc.byline.original,
+                iconUrl = doc.multimedia.firstOrNull { it.subtype == "thumbnail" }?.url?.let { "$IMAGE_PREFIX$it" },
+                uri = doc.webUrl
             )
             )
         }
+    }
+
+    companion object {
+        private const val IMAGE_PREFIX = "https://www.nytimes.com/"
     }
 }
