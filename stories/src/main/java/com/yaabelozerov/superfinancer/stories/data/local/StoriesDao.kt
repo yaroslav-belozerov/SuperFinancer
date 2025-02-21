@@ -15,6 +15,10 @@ interface StoriesDao {
     @Query("SELECT * FROM stories LIMIT :limit OFFSET :offset")
     suspend fun getPaged(limit: Int, offset: Int): List<StoryEntity>
 
-    @Query("DELETE FROM stories WHERE timestampSaved < :timestamp AND url NOT IN (:exclude)")
-    suspend fun purgeBefore(timestamp: Long, exclude: List<String>)
+    @Query("DELETE FROM stories WHERE timestampSaved < :beforeTimestamp AND url NOT IN (:exclude)")
+    suspend fun purgeCache(exclude: List<String>, beforeTimestamp: Long = System.currentTimeMillis() - CACHE_LIFETIME_MILLIS)
+
+    companion object {
+        private const val CACHE_LIFETIME_MILLIS = 6 * 60 * 60 * 1000 // 6 hours
+    }
 }

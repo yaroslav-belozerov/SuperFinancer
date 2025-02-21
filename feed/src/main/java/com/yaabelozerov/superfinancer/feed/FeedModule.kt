@@ -14,8 +14,7 @@ class FeedModule : Module() {
     override fun onCreate(application: Application) {
         app = application
         MainScope().launch {
-            StoriesModule.storyCacheDao.purgeBefore(
-                System.currentTimeMillis() - 1000,
+            StoriesModule.storyCacheDao.purgeCache(
                 postDao.getAllPosts().first().mapNotNull { it.key.articleId }
             )
         }
