@@ -56,9 +56,9 @@ fun FinanceScreen() {
             )
         }
         if (uiState.goals.isNotEmpty() || uiState.transactions.isNotEmpty()) item {
-            Header("Transactions", Triple(
+            Header("Transactions", if (uiState.goals.isNotEmpty()) Triple(
                 "Make", Icons.Default.AttachMoney
-            ) { scope.launch { createTransactionVisible = true } })
+            ) { scope.launch { createTransactionVisible = true } } else null)
         }
         items(uiState.transactions, key = { "transaction${it.id}" }) {
             Transaction(
