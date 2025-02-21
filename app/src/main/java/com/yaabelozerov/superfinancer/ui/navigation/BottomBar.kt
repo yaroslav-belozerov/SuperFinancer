@@ -27,6 +27,7 @@ private enum class BottomBarDestinations(
     val direction: Direction,
     val iconActive: ImageVector,
     val iconInactive: ImageVector,
+    val restoreState: Boolean = true
 ) {
     Home(MainScreenDestination, Icons.Filled.Home, Icons.Outlined.Home), Finance(
         FinanceScreenDestination,
@@ -36,13 +37,14 @@ private enum class BottomBarDestinations(
     Social(
         SocialScreenDestination(addToPostArticleUrl = null),
         Icons.Filled.People,
-        Icons.Outlined.People
+        Icons.Outlined.People,
+        false
     ),
 }
 
-fun DestinationsNavigator.bottomNavigate(direction: Direction) = navigate(direction) {
+fun DestinationsNavigator.bottomNavigate(direction: Direction, restore: Boolean = true) = navigate(direction) {
     launchSingleTop = true
-    restoreState = true
+    restoreState = restore
     popUpTo(NavGraphs.root.startDestination) {
         saveState = true
     }
@@ -57,7 +59,7 @@ fun BottomBar(navCtrl: NavHostController, onNavigate: (String) -> Unit) {
         BottomBarDestinations.entries.forEach { destination ->
             val selected = destination.direction.route.substringBefore('?') == currentDestination.baseRoute
             NavigationBarItem(selected = selected, onClick = {
-                navCtrl.toDestinationsNavigator().bottomNavigate(destination.direction)
+                navCtrl.toDestinationsNavigator().bottomNavigate(destination.direction, destination.restoreState)
                 onNavigate(destination.direction.route)
             }, icon = {
                 Icon(

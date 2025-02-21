@@ -30,14 +30,18 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yaabelozerov.superfinancer.common.components.AsyncImageWithPlaceholder
 import com.yaabelozerov.superfinancer.common.components.Header
+import com.yaabelozerov.superfinancer.stories.domain.Story
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun FeedScreen(articleUrl: String?, onAdd: () -> Unit, viewModel: FeedVM = viewModel()) {
+fun FeedScreen(articleUrl: String?, onAdd: () -> Unit, onClickArticle: (Story) -> Unit, viewModel: FeedVM = viewModel()) {
     val uiState by viewModel.state.collectAsState()
-    var createPostOpen by remember { mutableStateOf(articleUrl != null) }
+    var createPostOpen by remember { mutableStateOf(uiState.currentAttachedStory != null) }
     LaunchedEffect(articleUrl) {
         viewModel.setArticle(articleUrl)
+        if (articleUrl != null) {
+            createPostOpen = true
+        }
     }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -77,16 +81,16 @@ fun FeedScreen(articleUrl: String?, onAdd: () -> Unit, viewModel: FeedVM = viewM
                     }
                     Text(it.contents)
                     it.article?.let {
-                        EmbeddedArticleCard(it)
+                        EmbeddedArticleCard(it) { onClickArticle(it) }
                     }
                 }
             }
         }
     }
     if (createPostOpen) CreatePostDialog(article = uiState.currentAttachedStory, onDismiss = {
-        createPostOpen = false
-        viewModel.setArticle(null)
         onAdd()
+        viewModel.setArticle(null)
+        createPostOpen = false
     }) { content, images ->
         viewModel.createPost(content, images, uiState.currentAttachedStory?.link)
     }

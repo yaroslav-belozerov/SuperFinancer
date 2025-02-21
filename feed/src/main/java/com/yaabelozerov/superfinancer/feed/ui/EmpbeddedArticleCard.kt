@@ -16,8 +16,8 @@ import com.yaabelozerov.superfinancer.common.components.AsyncImageWithPlaceholde
 import com.yaabelozerov.superfinancer.stories.domain.Story
 
 @Composable
-fun EmbeddedArticleCard(article: Story) {
-    Card {
+fun EmbeddedArticleCard(article: Story, onClick: () -> Unit = {}) {
+    Card(onClick) {
         Row(
             modifier = Modifier.padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,

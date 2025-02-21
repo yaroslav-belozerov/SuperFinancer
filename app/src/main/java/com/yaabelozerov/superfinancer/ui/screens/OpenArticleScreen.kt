@@ -106,7 +106,7 @@ fun OpenArticleScreen(url: String, navigator: DestinationsNavigator) {
                         navigator.bottomNavigate(
                             SocialScreenDestination(
                                 addToPostArticleUrl = url
-                            )
+                            ), restore = false
                         )
                     }
                 ) {
