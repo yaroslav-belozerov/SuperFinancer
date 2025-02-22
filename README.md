@@ -22,32 +22,32 @@ SuperFinancer - удобное и быстрое приложение для з�
 <details>
     <summary> <h4> BFR 1/2 – ✅ </h4> </summary>
     Весь функционал реализован. Дизайн система - Material3 с кастомной темой. Шрифтовая пара - PT Serif / Inter.
-    ![main screen showcase](./promo/main_1.jpg)
-    ![main screen showcase](./promo/main_2.jpg)
-    ![main screen showcase](./promo/main_3.jpg)
+    ![main screen showcase](./promo/convert/main_1.jpg)
+    ![main screen showcase](./promo/convert/main_2.jpg)
+    ![main screen showcase](./promo/convert/main_3.jpg)
 </details>
 
 <details>
     <summary> <h4> BFR 3/4 – ✅ </h4> </summary>
     Чтобы зарегистрировать модуль поиска достаточно имплементировать интерфейс SearchAdapter и указать его в списке адаптеров. 
     WebView реализован и доступен везде, где есть ссылка на статью.
-    ![search screen showcase](./promo/search.jpg)
-    ![article webview screen showcase](./promo/article_webview.jpg)
+    ![search screen showcase](./promo/convert/search.jpg)
+    ![article webview screen showcase](./promo/convert/article_webview.jpg)
 </details>
 
 <details>
     <summary> <h4> BFR 5 – ✅ </h4> </summary>
     Весь функционал реализован: создание и закрытие финансовых целей, отслеживание транзакций и статистики.
-    ![finance screen showcase](./promo/finance_1.jpg)
-    ![finance screen showcase](./promo/finance_2.jpg)
+    ![finance screen showcase](./promo/convert/finance_1.jpg)
+    ![finance screen showcase](./promo/convert/finance_2.jpg)
 </details>
 
 <details>
     <summary> <h4> BFR 6 – ✅ </h4> </summary>
     Лента реализована: есть свёртка поста, фото, тэги. Модуль зависит только от модуля статей (что логично).
 Избранное живёт отдельно и открывается по паролю.
-    ![feed screen showcase](./promo/finance_1.jpg)
-    ![feed screen showcase](./promo/finance_2.jpg)
+    ![feed screen showcase](./promo/convert/finance_1.jpg)
+    ![feed screen showcase](./promo/convert/finance_2.jpg)
 </details>
 
 ## 🚀 Дополнительные фичи
@@ -63,7 +63,7 @@ SuperFinancer - удобное и быстрое приложение для з�
 
 ### Architectural Decision Record
 
-[ADR по ссылке](https://github.com/yaabelozerov/SuperFinancer/tree/main/ADR.md)
+[ADR по ссылке](https://gitlab.prodcontest.ru/2025-final-projects-mobile/yaroslav-belozerov/-/tree/dev?ref_type=heads)
 
 ### Установка
 
@@ -77,7 +77,7 @@ SuperFinancer - удобное и быстрое приложение для з�
 
 Собрать приложение в режиме релиза:
 
-- Создайте `./app/superfinancer.jkd`
+- Создайте `./app/superfinancer.jks`
 - Добавьте переменные KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD в `./secrets.properties`
 
 ```bash
