@@ -23,10 +23,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.yaabelozerov.superfinancer.common.components.CardDialog
 import com.yaabelozerov.superfinancer.common.components.horizontalFadingEdge
+import com.yaabelozerov.superfinancer.finance.R
 import com.yaabelozerov.superfinancer.finance.domain.Goal
 
 @Composable
@@ -36,7 +38,7 @@ internal fun CreateTransactionDialog(
     onCreate: (Long, Long, String) -> Unit,
     chosen: Pair<Long, (Long) -> Unit>,
 ) {
-    CardDialog("Make a payment", onDismiss = {
+    CardDialog(stringResource(R.string.make_a_payment), onDismiss = {
         onHide()
         chosen.second(-1L)
     }) {
@@ -74,7 +76,7 @@ internal fun CreateTransactionDialog(
         var comment by remember { mutableStateOf("") }
         OutlinedTextField(comment,
             onValueChange = { comment = it },
-            placeholder = { Text("Add a comment") },
+            placeholder = { Text(stringResource(R.string.add_a_comment)) },
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth()
         )
@@ -90,6 +92,6 @@ internal fun CreateTransactionDialog(
                     }
                 }
             }, modifier = Modifier.fillMaxWidth(), enabled = saveEnabled
-        ) { Text("Save") }
+        ) { Text(stringResource(R.string.save)) }
     }
 }

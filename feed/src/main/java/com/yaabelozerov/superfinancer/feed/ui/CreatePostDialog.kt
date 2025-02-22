@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
@@ -46,6 +47,7 @@ import com.yaabelozerov.superfinancer.common.components.AsyncImageWithPlaceholde
 import com.yaabelozerov.superfinancer.common.components.CardDialog
 import com.yaabelozerov.superfinancer.common.components.PhotoPickerButtonList
 import com.yaabelozerov.superfinancer.common.components.PhotoPickerImage
+import com.yaabelozerov.superfinancer.feed.R
 import com.yaabelozerov.superfinancer.feed.domain.PostStory
 import kotlinx.coroutines.launch
 import kotlin.math.max
@@ -65,7 +67,7 @@ internal fun CreatePostDialog(
     val maxSymbols = 300
     val enablePost by remember(contents, tags.values) { mutableStateOf(contents.isNotEmpty() && contents.length <= maxSymbols && tags.values.contains(true)) }
 
-    CardDialog(title = "Create a post", onDismiss = {
+    CardDialog(title = stringResource(R.string.create_a_post), onDismiss = {
         scope.launch {
             images.forEach { CommonModule.mediaManager.removeMedia(it) }
             onDismiss()
@@ -86,7 +88,7 @@ internal fun CreatePostDialog(
             chooseTagsOpen = true
         }) {
             val cnt = tags.filter { it.value }.size
-            Text("Add tags${if (cnt != 0) "  ($cnt)" else ""}")
+            Text("${stringResource(R.string.add_tags)}${if (cnt != 0) "  ($cnt)" else ""}")
         }
         OutlinedTextField(contents,
             onValueChange = { contents = it },
@@ -94,7 +96,7 @@ internal fun CreatePostDialog(
             shape = MaterialTheme.shapes.small,
             minLines = 3,
             placeholder = {
-                Text("Write something...")
+                Text(stringResource(R.string.write_something))
             },
             supportingText = {
                 Text(
@@ -108,7 +110,7 @@ internal fun CreatePostDialog(
         Button(onClick = {
             onCreate(contents, images, tags.filter { it.value }.keys.toList())
             onDismiss()
-        }, enabled = enablePost, modifier = Modifier.fillMaxWidth()) { Text("Post") }
+        }, enabled = enablePost, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.post)) }
         if (chooseTagsOpen) Dialog(onDismissRequest = { chooseTagsOpen = false }) {
             OutlinedCard {
                 Column(
@@ -120,7 +122,7 @@ internal fun CreatePostDialog(
                     OutlinedTextField(currentQuery,
                         onValueChange = { currentQuery = it },
                         shape = MaterialTheme.shapes.small,
-                        placeholder = { Text("Search tags") })
+                        placeholder = { Text(stringResource(R.string.search_tags)) })
                     val foundTags = remember(currentQuery, tags.values) {
                         tags.filter { (it, _) ->
                             it.lowercase().filter { it.isLetter() }

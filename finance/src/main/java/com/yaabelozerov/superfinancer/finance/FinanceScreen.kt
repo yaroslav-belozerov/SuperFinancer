@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yaabelozerov.superfinancer.common.components.Header
@@ -48,7 +49,7 @@ fun FinanceScreen() {
             FinanceStats(uiState)
         }
         item {
-            Header("Goals", Triple("Add", Icons.Default.Add) { createGoalVisible = true })
+            Header(stringResource(R.string.goals), Triple(stringResource(R.string.add), Icons.Default.Add) { createGoalVisible = true })
         }
         items(uiState.goals, key = { "goal${it.id}" }) {
             GoalCard(
@@ -56,8 +57,9 @@ fun FinanceScreen() {
             )
         }
         if (uiState.goals.isNotEmpty() || uiState.transactions.isNotEmpty()) item {
-            Header("Transactions", if (uiState.goals.isNotEmpty()) Triple(
-                "Make", Icons.Default.AttachMoney
+            Header(
+                stringResource(R.string.transactions), if (uiState.goals.isNotEmpty()) Triple(
+                    stringResource(R.string.make), Icons.Default.AttachMoney
             ) { scope.launch { createTransactionVisible = true } } else null)
         }
         items(uiState.transactions, key = { "transaction${it.id}" }) {

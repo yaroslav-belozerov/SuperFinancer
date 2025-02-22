@@ -37,9 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ramcosta.composedestinations.generated.destinations.OpenStoryDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.yaabelozerov.superfinancer.R
 import com.yaabelozerov.superfinancer.common.CommonModule
 import com.yaabelozerov.superfinancer.common.components.RefreshIndicator
 import com.yaabelozerov.superfinancer.common.SearchItemType
@@ -57,7 +59,8 @@ fun MainScreen(
     val listState = rememberLazyListState()
 
     var isSearching by remember { mutableStateOf(false) }
-    var loadingTickers by remember { mutableStateOf(false to "Starting up...") }
+    val startingUp = stringResource(R.string.starting_up)
+    var loadingTickers by remember { mutableStateOf(false to startingUp) }
     var onUpdateTickers by remember { mutableStateOf({}) }
 
     var loadingStories by remember { mutableStateOf(false) }
@@ -124,7 +127,7 @@ fun MainScreen(
                                         .size(32.dp)
                                         .alpha(0.5f)
                                 )
-                                Text("No internet connection", modifier = Modifier.padding(16.dp))
+                                Text(stringResource(R.string.no_internet_connection), modifier = Modifier.padding(16.dp))
                             }
                         }
                     }
@@ -149,7 +152,7 @@ fun MainScreen(
                             ) {
                                 Icon(Icons.Default.Search, contentDescription = null)
                                 Spacer(Modifier.width(8.dp))
-                                Text("Search")
+                                Text(stringResource(R.string.search))
                             }
                         }
                     }

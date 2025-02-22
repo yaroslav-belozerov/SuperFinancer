@@ -32,9 +32,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
+import com.yaabelozerov.superfinancer.R
 import com.yaabelozerov.superfinancer.common.SearchItem
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -66,7 +68,7 @@ fun SharedTransitionScope.SearchPopup(
                     onValueChange = viewModel::onQueryChange,
                     shape = MaterialTheme.shapes.small,
                     singleLine = true,
-                    placeholder = { Text("Search") },
+                    placeholder = { Text(stringResource(R.string.search)) },
                     modifier = Modifier
                         .focusRequester(fr)
                         .weight(1f)
@@ -102,7 +104,7 @@ fun SharedTransitionScope.SearchPopup(
                         )
                     }
                 },
-                trailingContent = { Text(it.type.string) },
+                trailingContent = { Text(stringResource(it.type.stringRes)) },
                 supportingContent = { Text(it.description) })
         }
     }

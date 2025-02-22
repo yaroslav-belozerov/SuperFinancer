@@ -1,10 +1,12 @@
 package com.yaabelozerov.superfinancer.finance.domain
 
+import android.content.Context
 import androidx.room.withTransaction
 import com.yaabelozerov.superfinancer.common.CommonModule
 import com.yaabelozerov.superfinancer.common.local.MediaManager
 import com.yaabelozerov.superfinancer.common.util.format
 import com.yaabelozerov.superfinancer.finance.FinanceModule
+import com.yaabelozerov.superfinancer.finance.R
 import com.yaabelozerov.superfinancer.finance.data.FinanceDao
 import com.yaabelozerov.superfinancer.finance.data.GoalEntity
 import com.yaabelozerov.superfinancer.finance.data.StatsDao
@@ -17,6 +19,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 internal class FinanceUseCase(
+    private val context: Context = FinanceModule.context,
     private val financeDao: FinanceDao = FinanceModule.financeDao,
     private val financeStatsDao: StatsDao = FinanceModule.statsDao,
     private val mediaManager: MediaManager = CommonModule.mediaManager,
@@ -30,11 +33,11 @@ internal class FinanceUseCase(
         Stats(firstTransactionDate = first?.let {
             LocalDateTime.ofInstant(
                 Instant.ofEpochMilli(it), ZoneId.systemDefault()
-            ).format()
+            ).format(context)
         }, lastTransactionDate = last?.let {
             LocalDateTime.ofInstant(
                 Instant.ofEpochMilli(it), ZoneId.systemDefault()
-            ).format()
+            ).format(context)
         }, openGoals = open.toRublePair(), closedGoals = closed.toRublePair()
         )
     }
@@ -51,9 +54,9 @@ internal class FinanceUseCase(
                 name = goal.name,
                 currentRubles = transactionRubles,
                 expiresAt = it.key.expiresAt?.let {
-                    if (it < System.currentTimeMillis()) "Deadline missed" else LocalDateTime.ofInstant(
+                    if (it < System.currentTimeMillis()) context.getString(R.string.deadline_missed) else LocalDateTime.ofInstant(
                         Instant.ofEpochMilli(it), ZoneId.systemDefault()
-                    ).format(withTime = false)
+                    ).format(context, withTime = false)
                 },
                 maxRubles = rubles,
             )
@@ -70,7 +73,7 @@ internal class FinanceUseCase(
                 goal = goal.id to goal.name,
                 timestamp = LocalDateTime.ofInstant(
                     Instant.ofEpochMilli(transaction.timestamp), ZoneId.systemDefault()
-                ).format(),
+                ).format(context),
                 isWithdrawal = transaction.isWithdrawal
             )
         }
@@ -120,7 +123,10 @@ internal class FinanceUseCase(
                         id = 0,
                         valueInKopecks = total,
                         timestamp = System.currentTimeMillis(),
-                        comment = "Goal \"${goal.name}}\" closed",
+                        comment = "${context.getString(R.string.goal_closed_goal)} \"${goal.name}}\" ${
+                            context.getString(
+                                R.string.goal_closed_closed
+                            )}",
                         goalId = goal.id,
                         isWithdrawal = true
                     )

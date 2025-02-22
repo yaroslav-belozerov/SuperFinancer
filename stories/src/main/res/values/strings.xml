@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="collapse">Collapse</string>
+    <string name="expand">Expand</string>
+    <string name="close">Close</string>
+    <string name="copy_url">Copy URL</string>
+    <string name="open_in_browser">Open in browser</string>
+    <string name="add_to_post">Add to post</string>
+</resources>

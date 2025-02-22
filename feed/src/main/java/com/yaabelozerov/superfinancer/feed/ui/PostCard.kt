@@ -29,11 +29,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.yaabelozerov.superfinancer.common.components.AsyncImageWithPlaceholder
+import com.yaabelozerov.superfinancer.feed.R
 import com.yaabelozerov.superfinancer.feed.domain.Post
 import com.yaabelozerov.superfinancer.feed.domain.PostStory
 
@@ -85,7 +87,10 @@ internal fun PostCard(it: Post, onClickFavourite: () -> Unit, onClickArticle: (S
                             if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                             contentDescription = null
                         )
-                        Text(if (isExpanded) "Show less" else "Show more")
+                        Text(if (isExpanded) stringResource(R.string.show_less) else stringResource(
+                            R.string.show_more
+                        )
+                        )
                     }
                 }
             }
@@ -98,7 +103,10 @@ internal fun PostCard(it: Post, onClickFavourite: () -> Unit, onClickArticle: (S
             ) {
                 Icon(
                     Icons.Default.Star,
-                    modifier = Modifier.clip(MaterialTheme.shapes.small).clickable { onClickFavourite() }.padding(4.dp),
+                    modifier = Modifier
+                        .clip(MaterialTheme.shapes.small)
+                        .clickable { onClickFavourite() }
+                        .padding(4.dp),
                     contentDescription = null,
                     tint = if (it.isFavourite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
                 )

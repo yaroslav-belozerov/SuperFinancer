@@ -46,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
@@ -89,8 +90,8 @@ fun FeedScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                Header("Posts", Triple(
-                    "Create", Icons.Default.Add
+                Header(title = stringResource(R.string.posts), action = Triple(
+                    first = stringResource(R.string.create), second = Icons.Default.Add
                 ) { createPostOpen = true })
             }
             items(uiState.posts) {
@@ -99,7 +100,9 @@ fun FeedScreen(
                 }, onClickArticle)
             }
         }
-        FloatingActionButton(elevation = FloatingActionButtonDefaults.loweredElevation(), modifier = Modifier.padding(16.dp).align(Alignment.BottomEnd), onClick = { showAuthModal = true }) {
+        FloatingActionButton(elevation = FloatingActionButtonDefaults.loweredElevation(), modifier = Modifier
+            .padding(16.dp)
+            .align(Alignment.BottomEnd), onClick = { showAuthModal = true }) {
             Icon(Icons.Default.Star, contentDescription = null)
         }
     }
@@ -110,7 +113,7 @@ fun FeedScreen(
         var isError by remember { mutableStateOf(false) }
         ModalBottomSheet(onDismissRequest = { showAuthModal = false }) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(12.dp)) {
-                Header(if (isPasswordSet) "Login" else "Set password", null)
+                Header(if (isPasswordSet) stringResource(R.string.login) else stringResource(R.string.set_password), null)
                 OutlinedTextField(currentPassword,
                     visualTransformation = PasswordVisualTransformation('*'),
                     modifier = Modifier.fillMaxWidth(),
@@ -118,7 +121,7 @@ fun FeedScreen(
                     isError = isError,
                     shape = MaterialTheme.shapes.small,
                     placeholder = {
-                        Text("Enter your password")
+                        Text(stringResource(R.string.enter_your_password))
                     })
                 val scope = rememberCoroutineScope()
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
@@ -137,7 +140,7 @@ fun FeedScreen(
                                     }
                                 })
                         }
-                    }) { Text("Login") }
+                    }) { Text(stringResource(R.string.login)) }
                 }
             }
         }

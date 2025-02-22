@@ -1,5 +1,7 @@
 package com.yaabelozerov.superfinancer.common.util
 
+import android.content.Context
+import com.yaabelozerov.superfinancer.common.R
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -11,15 +13,15 @@ fun Double.smartRound(precision: Int) = when {
 }
 fun Float.smartRound(precision: Int) = toDouble().smartRound(precision)
 
-fun LocalDateTime.format(withTime: Boolean = true): String {
+fun LocalDateTime.format(context: Context, withTime: Boolean = true): String {
     val time = hour.toString().padStart(2, '0') + ":" + minute.toString().padStart(2, '0')
     val date = dayOfMonth.toString().padStart(2, '0') + "/" + monthValue.toString()
         .padStart(2, '0') + "/" + year
     val daysBetween = ChronoUnit.DAYS.between(LocalDateTime.now(), this)
     val formattedDate = when (daysBetween) {
-        -1L -> "Yesterday"
-        0L -> "Today"
-        1L -> "Tomorrow"
+        -1L -> context.getString(R.string.yesterday)
+        0L -> context.getString(R.string.today)
+        1L -> context.getString(R.string.tomorrow)
         else -> date
     }
     return formattedDate + if (withTime) " at $time" else ""

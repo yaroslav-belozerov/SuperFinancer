@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_a_post">Create a post</string>
+    <string name="add_tags">Add tags</string>
+    <string name="write_something">Write something...</string>
+    <string name="post">Post</string>
+    <string name="search_tags">Search tags</string>
+    <string name="show_less">Show less</string>
+    <string name="show_more">Show more</string>
+    <string name="favourites">Favourites</string>
+    <string name="posts">Posts</string>
+    <string name="create">Create</string>
+    <string name="login">Login</string>
+    <string name="set_password">Set password</string>
+    <string name="enter_your_password">Enter your password</string>
+</resources>

@@ -27,12 +27,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import com.yaabelozerov.superfinancer.common.CommonModule
 import com.yaabelozerov.superfinancer.common.components.CardDialog
 import com.yaabelozerov.superfinancer.common.components.PhotoPickerButton
 import com.yaabelozerov.superfinancer.common.components.PhotoPickerImage
 import com.yaabelozerov.superfinancer.common.util.format
+import com.yaabelozerov.superfinancer.finance.R
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDateTime
@@ -46,7 +48,7 @@ internal fun CreateGoalDialog(onHide: () -> Unit, onCreate: (String, Long, Strin
     var dateEpochMillis by remember { mutableStateOf<Long?>(null) }
     var openDatePicker by remember { mutableStateOf(false) }
 
-    CardDialog("Create a goal", onDismiss = {
+    CardDialog(stringResource(R.string.create_a_goal), onDismiss = {
         scope.launch {
             onHide()
             imagePath?.let {
@@ -60,7 +62,7 @@ internal fun CreateGoalDialog(onHide: () -> Unit, onCreate: (String, Long, Strin
         var name by remember { mutableStateOf("") }
         OutlinedTextField(name,
             onValueChange = { name = it },
-            placeholder = { Text("Name your goal") },
+            placeholder = { Text(stringResource(R.string.name_your_goal)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.small
@@ -86,7 +88,7 @@ internal fun CreateGoalDialog(onHide: () -> Unit, onCreate: (String, Long, Strin
                 IconButton(onClick = { dateEpochMillis = null }) { Icon(Icons.Default.Close, contentDescription = null) }
             }
         } ?: TextButton(onClick = { openDatePicker = true }) {
-            Text("Add deadline")
+            Text(stringResource(R.string.add_deadline))
         }
         val saveEnabled by remember(name, amount) {
             mutableStateOf(name.isNotBlank() && amount > 0)
@@ -98,14 +100,14 @@ internal fun CreateGoalDialog(onHide: () -> Unit, onCreate: (String, Long, Strin
                     onHide()
                 }
             }, modifier = Modifier.fillMaxWidth(), enabled = saveEnabled
-        ) { Text("Save") }
+        ) { Text(stringResource(R.string.save)) }
         if (openDatePicker) {
             val datePickerState = rememberDatePickerState()
             DatePickerDialog(onDismissRequest = { openDatePicker = false }, confirmButton = {
                 Button(onClick = {
                     dateEpochMillis = datePickerState.selectedDateMillis
                     openDatePicker = false
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.ok)) }
             }) {
                 DatePicker(datePickerState)
             }

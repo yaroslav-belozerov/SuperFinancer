@@ -22,7 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.yaabelozerov.superfinancer.finance.R
 import com.yaabelozerov.superfinancer.finance.domain.Goal
 import com.yaabelozerov.superfinancer.finance.ui.FinanceScreenEvent
 
@@ -45,13 +47,13 @@ internal fun GoalOptionRow(
                 onEvent(FinanceScreenEvent.DeleteGoal(goal))
                 onClose()
             }) {
-                Icon(Icons.Default.CheckCircle, contentDescription = "close goal")
+                Icon(Icons.Default.CheckCircle, contentDescription = stringResource(R.string.close_goal))
                 Spacer(Modifier.width(8.dp))
-                Text("Close Goal")
+                Text(stringResource(R.string.close_goal))
             }
             OutlinedButton(onClick = {
                 onClose()
-            }) { Text("Cancel") }
+            }) { Text(stringResource(R.string.cancel)) }
         }
     }
 }

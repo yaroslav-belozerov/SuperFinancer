@@ -23,6 +23,8 @@ class StoriesModule: Module() {
             storyCacheDb.dao()
         }
 
+        internal val context by lazy { app.applicationContext }
+
         val postAdapter by lazy { StoriesToPostAdapter() }
     }
 }
