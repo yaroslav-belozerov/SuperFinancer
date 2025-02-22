@@ -63,7 +63,7 @@ SuperFinancer - удобное и быстрое приложение для з�
 
 ### Architectural Decision Record
 
-[ADR по ссылке](https://gitlab.prodcontest.ru/2025-final-projects-mobile/yaroslav-belozerov/-/tree/dev?ref_type=heads)
+[ADR по ссылке](https://gitlab.prodcontest.ru/2025-final-projects-mobile/yaroslav-belozerov/-/blob/dev/ADR.md?ref_type=heads)
 
 ### Установка
 
