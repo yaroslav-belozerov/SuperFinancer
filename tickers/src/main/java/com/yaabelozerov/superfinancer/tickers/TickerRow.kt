@@ -20,11 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yaabelozerov.superfinancer.common.components.LoadingBox
 import com.yaabelozerov.superfinancer.tickers.ui.TickerCard
-import com.yaabelozerov.superfinancer.tickers.ui.TickerVM
+import com.yaabelozerov.superfinancer.tickers.ui.TickerRowVM
 
 @Composable
-fun TickerRow(setRefresh: (Boolean, String) -> Unit, setOnRefreshCallback: (() -> Unit) -> Unit, modifier: Modifier = Modifier) {
-    val viewModel = viewModel<TickerVM>()
+fun TickerRow(onClick: (String) -> Unit, setRefresh: (Boolean, String) -> Unit, setOnRefreshCallback: (() -> Unit) -> Unit, modifier: Modifier = Modifier) {
+    val viewModel = viewModel<TickerRowVM>()
     val uiState by viewModel.state.collectAsState()
     LaunchedEffect(uiState.isLoading, uiState.lastUpdated) {
         setRefresh(uiState.isLoading, uiState.lastUpdated)
@@ -41,7 +41,7 @@ fun TickerRow(setRefresh: (Boolean, String) -> Unit, setOnRefreshCallback: (() -
         userScrollEnabled = !uiState.isLoading
     ) {
         if (!uiState.isLoading) items(uiState.map.entries.toList(), key = { it.key }) {
-            TickerCard(it.key, it.value, Modifier.animateItem())
+            TickerCard(it.key, it.value, Modifier.animateItem(), onClick)
         } else {
             items(3) {
                 LoadingTickerCard(modifier.animateItem())

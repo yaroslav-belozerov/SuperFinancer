@@ -27,6 +27,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import com.yaabelozerov.superfinancer.common.CommonModule
@@ -83,8 +84,9 @@ internal fun CreateGoalDialog(onHide: () -> Unit, onCreate: (String, Long, Strin
             modifier = Modifier.fillMaxWidth()
         )
         dateEpochMillis?.let {
+            val ctx = LocalContext.current
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneId.systemDefault()).format(withTime = false))
+                Text(LocalDateTime.ofInstant(Instant.ofEpochMilli(it), ZoneId.systemDefault()).format(context = ctx, withTime = false))
                 IconButton(onClick = { dateEpochMillis = null }) { Icon(Icons.Default.Close, contentDescription = null) }
             }
         } ?: TextButton(onClick = { openDatePicker = true }) {

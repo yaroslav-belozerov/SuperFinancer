@@ -65,6 +65,20 @@ internal class FinnhubSource(private val client: HttpClient = Net.Client) {
         } catch (t: Throwable) { onError(t) }
     }
 
+    suspend fun getRecommendations(symbol: String, token: String = BuildConfig.FINNHUB_TOKEN): Result<List<RecommendationDto>> = kotlin.runCatching {
+        client.get {
+            url("${BASE_URL}stock/recommendation?symbol=$symbol")
+            headers { header("X-Finnhub-Token", token) }
+        }.body()
+    }
+
+    suspend fun getEarnings(symbol: String, token: String = BuildConfig.FINNHUB_TOKEN): Result<List<EarningsDto>> = kotlin.runCatching {
+        client.get {
+            url("${BASE_URL}stock/earnings?symbol=$symbol")
+            headers { header("X-Finnhub-Token", token) }
+        }.body()
+    }
+
     companion object {
         private const val BASE_URL = "https://finnhub.io/api/v1/"
         private const val BASE_URL_WS = "wss://ws.finnhub.io/"

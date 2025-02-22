@@ -6,6 +6,7 @@ import com.yaabelozerov.superfinancer.feed.FeedModule
 import com.yaabelozerov.superfinancer.finance.FinanceModule
 import com.yaabelozerov.superfinancer.stories.StoriesModule
 import com.yaabelozerov.superfinancer.stories.StoriesSearchAdapter
+import com.yaabelozerov.superfinancer.tickers.TickerModule
 import com.yaabelozerov.superfinancer.tickers.TickerSearchAdapter
 
 class Application: Application() {
@@ -18,7 +19,7 @@ class Application: Application() {
 
     companion object {
         private val modules = listOf(
-            CommonModule(), FinanceModule(), StoriesModule(), FeedModule()
+            CommonModule(), FinanceModule(), StoriesModule(), FeedModule(), TickerModule()
         )
 
         val searchAdapters = listOf(

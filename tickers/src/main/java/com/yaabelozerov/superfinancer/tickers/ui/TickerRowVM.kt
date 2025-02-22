@@ -1,26 +1,18 @@
 package com.yaabelozerov.superfinancer.tickers.ui
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yaabelozerov.superfinancer.common.util.format
 import com.yaabelozerov.superfinancer.common.util.toString
-import com.yaabelozerov.superfinancer.tickers.TickerModule
 import com.yaabelozerov.superfinancer.tickers.domain.TickerUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.subscribe
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
-internal class TickerVM(
+internal class TickerRowVM(
     private val tickerUseCase: TickerUseCase = TickerUseCase(),
 ): ViewModel() {
     private val _tickerState = MutableStateFlow(TickerUiState())
