@@ -42,7 +42,7 @@ import com.yaabelozerov.superfinancer.common.components.LoadingBox
 import com.yaabelozerov.superfinancer.stories.domain.Story
 
 @Composable
-fun StoryCard(
+internal fun StoryCard(
     story: Story,
     onClick: () -> Unit,
     onClickSectionName: (String) -> Unit,
@@ -64,11 +64,13 @@ fun StoryCard(
         Column(
             modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                story.title,
-                style = MaterialTheme.typography.displaySmall
-            )
-            story.description?.let {
+            story.title.takeIf { it.isNotEmpty() }?.let { title ->
+                Text(
+                    title,
+                    style = MaterialTheme.typography.displaySmall
+                )
+            }
+            story.description?.takeIf { it.isNotEmpty() }?.let {
                 Text(it)
             }
             Row(
@@ -76,24 +78,30 @@ fun StoryCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                FilterChip(selected = false,
-                    onClick = { onClickSectionName(story.sectionName) },
-                    label = { Text(story.sectionName) })
+                story.sectionName.takeIf { it.isNotEmpty() }?.let { sectionName ->
+                    FilterChip(selected = false,
+                        onClick = { onClickSectionName(sectionName) },
+                        label = { Text(sectionName) })
+                }
                 Spacer(Modifier.width(16.dp))
                 Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        story.author,
-                        fontStyle = FontStyle.Italic,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(0.75f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        story.date,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(0.75f)
-                    )
+                    story.author.takeIf { it.isNotEmpty() }?.let { author ->
+                        Text(
+                            author,
+                            fontStyle = FontStyle.Italic,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(0.75f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    if (story.date.isNotEmpty() && story.source.isNotEmpty()) {
+                        Text(
+                            story.run { "$date | ${story.source}" },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(0.75f)
+                        )
+                    }
                 }
             }
         }

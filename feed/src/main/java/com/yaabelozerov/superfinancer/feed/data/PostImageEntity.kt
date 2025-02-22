@@ -4,8 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "images")
-data class PostImageEntity(
+internal data class PostImageEntity(
     @PrimaryKey val path: String,
-    val altText: String,
     val postId: Long
 )

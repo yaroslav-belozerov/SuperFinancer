@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.NavGraphs
-import com.ramcosta.composedestinations.generated.destinations.MainScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.MainDestination
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.spec.Direction
 import com.yaabelozerov.superfinancer.Application
@@ -42,14 +42,12 @@ fun App() {
     LaunchedEffect(Unit) {
         startRoute =
             CommonModule.dataStoreManager.getValue(DataStoreManager.Keys.Strings.LAST_ROUTE).first()
-                ?: MainScreenDestination.route
+                ?: MainDestination.route
     }
     Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
         BottomBar(navCtrl) {
             scope.launch {
-                CommonModule.dataStoreManager.setValue(
-                    DataStoreManager.Keys.Strings.LAST_ROUTE, it
-                )
+                CommonModule.dataStoreManager.setLastRoute(it)
             }
         }
     }, snackbarHost = {

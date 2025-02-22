@@ -4,9 +4,11 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "goals")
-data class GoalEntity(
+internal data class GoalEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
     val image: String,
     val name: String,
-    val amountInKopecks: Long
+    val expiresAt: Long?,
+    val amountInKopecks: Long,
+    val enabled: Boolean
 )

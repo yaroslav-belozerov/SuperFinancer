@@ -6,61 +6,54 @@ import com.yaabelozerov.superfinancer.feed.data.PostDao
 import com.yaabelozerov.superfinancer.feed.data.PostDb
 import com.yaabelozerov.superfinancer.feed.data.PostEntity
 import com.yaabelozerov.superfinancer.feed.data.PostImageEntity
-import com.yaabelozerov.superfinancer.stories.data.local.StoriesDao
-import com.yaabelozerov.superfinancer.stories.domain.Story
+import com.yaabelozerov.superfinancer.stories.StoriesModule
+import com.yaabelozerov.superfinancer.stories.StoriesToPostAdapter
 import kotlinx.coroutines.flow.map
 
-class PostUseCase(
+private suspend fun Map<PostEntity, List<PostImageEntity>>.toDomain(storiesToPostAdapter: StoriesToPostAdapter): List<Post> {
+    return map { (post, images) ->
+        Post(
+            id = post.id,
+            contents = post.contents,
+            images = images.map { it.path },
+            article = post.articleId?.let { id ->
+                storiesToPostAdapter.getByUrl(id).run {
+                    PostStory(
+                        title = first,
+                        imageUrl = second,
+                        url = third
+                    )
+                }
+            },
+            tags = post.tags.split(";").filter { it.isNotEmpty() },
+            isFavourite = post.isFavorite
+        )
+    }
+}
+
+internal class PostUseCase(
     private val postDb: PostDb = FeedModule.postDb,
     private val postDao: PostDao = FeedModule.postDao,
-    private val storiesDao: StoriesDao = FeedModule.storiesDao
+    private val storiesToPostAdapter: StoriesToPostAdapter = StoriesModule.postAdapter
 ) {
-    val postFlow = postDao.getAllPosts().map {
-        it.map { (post, images) ->
-            Post(
-                id = post.id,
-                contents = post.contents,
-                images = images.map { img ->
-                    PostImage(
-                        path = img.path,
-                        altText = img.altText
-                    )
-                },
-                article = post.articleId?.let { id ->
-                    storiesDao.getByUrl(id).also { println(it) }.run {
-                        Story(
-                            title = title,
-                            description = abstract,
-                            author = byline,
-                            link = url,
-                            photoUrl = imageUrl,
-                            date = createdDate,
-                            sectionName = sectionKey
-                        )
-                    }
-                }
-            )
-        }
-    }
+    val postFlow = postDao.getAllPosts().map { it.toDomain(storiesToPostAdapter) }
+    val favouriteFlow = postDao.getAllFavourites().map { it.toDomain(storiesToPostAdapter) }
 
-    suspend fun createPost(contents: String, images: List<Pair<String, String>>, articleUrl: String?) {
+    suspend fun createPost(contents: String, images: List<String>, articleUrl: String?, tags: List<String>) {
         postDb.withTransaction {
             val postId = postDao.createPost(
                 PostEntity(
                     id = 0,
                     contents = contents,
-                    articleId = articleUrl
+                    articleId = articleUrl,
+                    tags = tags.joinToString(";")
                 )
             )
-            postDao.createImageRecord(
-                images.map {
-                    PostImageEntity(
-                        postId = postId,
-                        path = it.first,
-                        altText = it.second
-                    )
-                }
-            )
+            postDao.createImageRecords(images.map { PostImageEntity(it, postId) })
         }
+    }
+
+    suspend fun switchFavourite(it: Post) {
+        postDao.setFavourite(it.id, !it.isFavourite)
     }
 }

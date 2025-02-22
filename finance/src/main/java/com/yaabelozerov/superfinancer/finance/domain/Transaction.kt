@@ -1,9 +1,10 @@
 package com.yaabelozerov.superfinancer.finance.domain
 
-data class Transaction(
+internal data class Transaction(
     val id: Long,
     val valueInRubles: Long,
     val comment: String,
-    val goalName: String,
-    val timestamp: String
+    val goal: Pair<Long, String>,
+    val timestamp: String,
+    val isWithdrawal: Boolean
 )
