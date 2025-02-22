@@ -28,7 +28,7 @@ fun CardDialog(
     Dialog(onDismissRequest = onDismiss) {
         ElevatedCard {
             Column(
-                modifier = Modifier.padding(vertical = 16.dp).padding(start = 24.dp, end = 12.dp),
+                modifier = Modifier.padding(vertical = 16.dp, horizontal = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 DialogHeader(title, onDismiss)
@@ -41,7 +41,7 @@ fun CardDialog(
 @Composable
 private fun DialogHeader(title: String, onDismiss: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(start = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

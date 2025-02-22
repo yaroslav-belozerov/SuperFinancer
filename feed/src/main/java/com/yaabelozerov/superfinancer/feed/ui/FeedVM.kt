@@ -7,6 +7,7 @@ import com.yaabelozerov.superfinancer.feed.domain.Post
 import com.yaabelozerov.superfinancer.feed.domain.PostStory
 import com.yaabelozerov.superfinancer.feed.domain.PostUseCase
 import com.yaabelozerov.superfinancer.stories.StoriesToPostAdapter
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -25,11 +26,18 @@ internal class FeedVM(
     private val _state = MutableStateFlow(FeedUiState())
     val state = _state.asStateFlow()
 
+    private val _favourites = MutableStateFlow<List<Post>>(emptyList())
+    val favourites = _favourites.asStateFlow()
 
     init {
         viewModelScope.launch {
             useCase.postFlow.collectLatest { posts ->
                 _state.update { it.copy(posts = posts) }
+            }
+        }
+        viewModelScope.launch {
+            useCase.favouriteFlow.collectLatest { posts ->
+                _favourites.update { posts }
             }
         }
     }
@@ -55,6 +63,12 @@ internal class FeedVM(
                     }
                 })
             }
+        }
+    }
+
+    fun switchFavourite(it: Post) {
+        viewModelScope.launch {
+            useCase.switchFavourite(it)
         }
     }
 }

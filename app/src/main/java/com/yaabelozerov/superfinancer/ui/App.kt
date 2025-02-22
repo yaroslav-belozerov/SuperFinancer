@@ -47,9 +47,7 @@ fun App() {
     Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = {
         BottomBar(navCtrl) {
             scope.launch {
-                CommonModule.dataStoreManager.setValue(
-                    DataStoreManager.Keys.Strings.LAST_ROUTE, it
-                )
+                CommonModule.dataStoreManager.setLastRoute(it)
             }
         }
     }, snackbarHost = {

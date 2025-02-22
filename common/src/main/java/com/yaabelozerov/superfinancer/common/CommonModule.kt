@@ -2,6 +2,7 @@ package com.yaabelozerov.superfinancer.common
 
 import android.app.Application
 import android.net.ConnectivityManager
+import com.yaabelozerov.superfinancer.common.local.AuthenticationManager
 import com.yaabelozerov.superfinancer.common.local.MediaManager
 import com.yaabelozerov.superfinancer.common.local.config.ConfigManager
 import com.yaabelozerov.superfinancer.common.local.config.DataStoreManager
@@ -41,5 +42,7 @@ class CommonModule: Module() {
         val config by lazy { configManager.readConfig() }
 
         val isNetworkAvailable = NetworkCallback.isConnected.asStateFlow()
+
+        val authManager by lazy { AuthenticationManager() }
     }
 }

@@ -5,7 +5,8 @@ internal data class Post(
     val contents: String,
     val images: List<String>,
     val article: PostStory?,
-    val tags: List<String>
+    val tags: List<String>,
+    val isFavourite: Boolean
 )
 
 internal data class PostStory(

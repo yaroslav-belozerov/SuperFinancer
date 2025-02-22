@@ -8,5 +8,6 @@ internal data class PostEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
     val contents: String,
     val articleId: String?,
-    val tags: String
+    val tags: String,
+    val isFavorite: Boolean = false
 )

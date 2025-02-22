@@ -63,7 +63,7 @@ internal fun CreatePostDialog(
     var chooseTagsOpen by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val maxSymbols = 300
-    val enablePost by remember(contents) { mutableStateOf(contents.isNotEmpty() && contents.length <= maxSymbols) }
+    val enablePost by remember(contents, tags.values) { mutableStateOf(contents.isNotEmpty() && contents.length <= maxSymbols && tags.values.contains(true)) }
 
     CardDialog(title = "Create a post", onDismiss = {
         scope.launch {
@@ -90,6 +90,7 @@ internal fun CreatePostDialog(
         }
         OutlinedTextField(contents,
             onValueChange = { contents = it },
+            modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.small,
             minLines = 3,
             placeholder = {

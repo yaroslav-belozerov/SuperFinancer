@@ -86,8 +86,8 @@ internal class StoriesUseCase(
                     }
                 }
 
-        suspend fun setSavedSections(list: List<Section>) = CommonModule.dataStoreManager.setValue(
-            DataStoreManager.Keys.Strings.LAST_SECTIONS, Json.encodeToString(list)
+        suspend fun setSavedSections(list: List<Section>) = CommonModule.dataStoreManager.setSections(
+            Json.encodeToString(list)
         )
     }
 }
