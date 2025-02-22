@@ -22,40 +22,32 @@ SuperFinancer - удобное и быстрое приложение для з�
 <details>
     <summary> <h4> BFR 1/2 – ✅ </h4> </summary>
     Весь функционал реализован. Дизайн система - Material3 с кастомной темой. Шрифтовая пара - PT Serif / Inter.
-    <div style="display: flex; flex-direction: row;">
-        <img style="width: 20%;" alt="main screen showcase" src="./promo/main_1.jpg" />
-        <img style="width: 20%;" alt="main screen showcase" src="./promo/main_2.jpg" />
-        <img style="width: 20%;" alt="main screen showcase" src="./promo/main_3.jpg" />
-    </div>
+    ![main screen showcase](./promo/main_1.jpg)
+    ![main screen showcase](./promo/main_2.jpg)
+    ![main screen showcase](./promo/main_3.jpg)
 </details>
 
 <details>
     <summary> <h4> BFR 3/4 – ✅ </h4> </summary>
     Чтобы зарегистрировать модуль поиска достаточно имплементировать интерфейс SearchAdapter и указать его в списке адаптеров. 
     WebView реализован и доступен везде, где есть ссылка на статью.
-    <div style="display: flex; flex-direction: row;">
-        <img style="width: 20%;" alt="main screen showcase" src="./promo/search.jpg" />
-        <img style="width: 20%;" alt="main screen showcase" src="./promo/article_webview.jpg" />
-    </div>
+    ![search screen showcase](./promo/search.jpg)
+    ![article webview screen showcase](./promo/article_webview.jpg)
 </details>
 
 <details>
     <summary> <h4> BFR 5 – ✅ </h4> </summary>
     Весь функционал реализован: создание и закрытие финансовых целей, отслеживание транзакций и статистики.
-    <div style="display: flex; flex-direction: row;">
-        <img style="width: 20%;" alt="main screen showcase" src="./promo/finance_1.jpg" />
-        <img style="width: 20%;" alt="main screen showcase" src="./promo/finance_2.jpg" />
-    </div>
+    ![finance screen showcase](./promo/finance_1.jpg)
+    ![finance screen showcase](./promo/finance_2.jpg)
 </details>
 
 <details>
     <summary> <h4> BFR 6 – ✅ </h4> </summary>
     Лента реализована: есть свёртка поста, фото, тэги. Модуль зависит только от модуля статей (что логично).
 Избранное живёт отдельно и открывается по паролю.
-    <div style="display: flex; flex-direction: row;">
-        <img style="width: 20%;" alt="main screen showcase" src="./promo/feed_1.jpg" />
-        <img style="width: 20%;" alt="main screen showcase" src="./promo/feed_2.jpg" />
-    </div>
+    ![feed screen showcase](./promo/finance_1.jpg)
+    ![feed screen showcase](./promo/finance_2.jpg)
 </details>
 
 ## 🚀 Дополнительные фичи
