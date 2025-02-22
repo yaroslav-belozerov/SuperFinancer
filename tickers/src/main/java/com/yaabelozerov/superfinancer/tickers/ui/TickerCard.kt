@@ -27,8 +27,13 @@ import java.math.RoundingMode
 import kotlin.math.absoluteValue
 
 @Composable
-internal fun TickerCard(symbol: String, ticker: Ticker, modifier: Modifier = Modifier) {
-    Card(modifier = modifier) {
+internal fun TickerCard(
+    symbol: String,
+    ticker: Ticker,
+    modifier: Modifier = Modifier,
+    onClick: (String) -> Unit
+) {
+    Card(modifier = modifier, onClick = { onClick(symbol) }) {
         Box(
             modifier = Modifier
                 .fillMaxSize()

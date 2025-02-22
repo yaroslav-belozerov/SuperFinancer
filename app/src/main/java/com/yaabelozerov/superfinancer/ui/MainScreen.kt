@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ramcosta.composedestinations.generated.destinations.OpenStoryDestination
+import com.ramcosta.composedestinations.generated.destinations.TickerDetailsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.yaabelozerov.superfinancer.R
 import com.yaabelozerov.superfinancer.common.CommonModule
@@ -48,6 +49,7 @@ import com.yaabelozerov.superfinancer.common.SearchItemType
 import com.yaabelozerov.superfinancer.search.SearchPopup
 import com.yaabelozerov.superfinancer.stories.storyItems
 import com.yaabelozerov.superfinancer.tickers.TickerRow
+import com.yaabelozerov.superfinancer.tickers.TickerScreen
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
@@ -85,7 +87,7 @@ fun MainScreen(
                 SearchPopup(this@AnimatedContent, onBack = { isSearching = false }, onClick = {
                     when (it.type) {
                         SearchItemType.STORY -> navigator.navigate(OpenStoryDestination(it.uri))
-                        SearchItemType.TICKER -> Unit
+                        SearchItemType.TICKER -> navigator.navigate(TickerDetailsDestination(it.uri))
                     }
                 })
             } else Box(
@@ -161,7 +163,7 @@ fun MainScreen(
                             loadingTickers = loading to lastUpdate
                         }, setOnRefreshCallback = {
                             onUpdateTickers = it
-                        })
+                        }, onClick = { navigator.navigate(TickerDetailsDestination(it)) })
                     }
                     storyList()
                 }

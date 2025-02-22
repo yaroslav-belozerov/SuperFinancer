@@ -7,11 +7,11 @@ import com.ramcosta.composedestinations.generated.destinations.FavouritesDestina
 import com.ramcosta.composedestinations.generated.destinations.OpenStoryDestination
 import com.ramcosta.composedestinations.generated.destinations.SocialDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.yaabelozerov.superfinancer.common.CommonModule
 import com.yaabelozerov.superfinancer.feed.FavouriteScreen
 import com.yaabelozerov.superfinancer.feed.FeedScreen
 import com.yaabelozerov.superfinancer.finance.FinanceScreen
 import com.yaabelozerov.superfinancer.stories.OpenArticleScreen
+import com.yaabelozerov.superfinancer.tickers.TickerScreen
 import com.yaabelozerov.superfinancer.ui.MainScreen
 
 @Destination<RootGraph>(start = true)
@@ -47,3 +47,7 @@ fun Social(addToPostArticleUrl: String?, navigator: DestinationsNavigator) = Fee
 fun Favourites(navigator: DestinationsNavigator) = FavouriteScreen(onClickArticle = {
     navigator.navigate(OpenStoryDestination(it))
 })
+
+@Destination<RootGraph>
+@Composable
+fun TickerDetails(symbol: String) = TickerScreen(symbol)
