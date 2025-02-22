@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="refreshing">Refreshing...</string>
+    <string name="last_updated">Last updated:</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="story">Story</string>
+    <string name="ticker">Ticker</string>
+</resources>

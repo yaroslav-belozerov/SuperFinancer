@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -47,7 +48,8 @@ internal fun Transaction(
     var detailsOpen by remember { mutableStateOf(false) }
     Column(
         modifier = modifier
-            .fillMaxWidth().clip(MaterialTheme.shapes.medium)
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium)
             .clickable {
                 detailsOpen = !detailsOpen
             }
@@ -74,9 +76,11 @@ internal fun Transaction(
             Icon(
                 painterResource(R.drawable.right_arrow),
                 contentDescription = null,
-                modifier = Modifier.size(16.dp).run {
-                    if (transaction.isWithdrawal) rotate(180f) else this
-                },
+                modifier = Modifier
+                    .size(16.dp)
+                    .run {
+                        if (transaction.isWithdrawal) rotate(180f) else this
+                    },
                 tint = MaterialTheme.colorScheme.onBackground
             )
             Text(transaction.goal.second, style = MaterialTheme.typography.titleLarge)
@@ -99,15 +103,15 @@ internal fun Transaction(
                         )
                     )
                     detailsOpen = false
-                }) { Text("Repeat") }
+                }) { Text(stringResource(R.string.repeat)) }
                 Button(onClick = {
                     viewModel.onEvent(
                         FinanceScreenEvent.DeleteTransaction(transaction.id)
                     )
-                }) { Text("Delete") }
+                }) { Text(stringResource(R.string.delete)) }
                 OutlinedButton(onClick = {
                     detailsOpen = false
-                }) { Text("Cancel") }
+                }) { Text(stringResource(R.string.cancel)) }
             }
         }
         Spacer(Modifier.height(8.dp))

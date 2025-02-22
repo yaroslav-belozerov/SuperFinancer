@@ -10,9 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.zIndex
+import com.yaabelozerov.superfinancer.common.R
 import kotlin.math.min
 
 @Composable
@@ -31,8 +33,8 @@ fun RefreshIndicator(isLoading: Boolean, text: String, distanceFraction: Float, 
         )
         Text(
             text.let {
-                if (it.isBlank() || isLoading) "Refreshing..."
-                else "Last updated: $it"
+                if (it.isBlank() || isLoading) stringResource(R.string.refreshing)
+                else "${stringResource(R.string.last_updated)} $it"
             }, color = textColor
         )
     }

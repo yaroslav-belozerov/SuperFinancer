@@ -101,6 +101,21 @@ internal fun StoryCard(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface.copy(0.75f)
                         )
+                    } else {
+                        story.date.takeIf { it.isNotEmpty() }?.let { date ->
+                            Text(
+                                date,
+                                  style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface.copy(0.75f)
+                            )
+                        }
+                        story.source.takeIf { it.isNotEmpty() }?.let { source ->
+                            Text(
+                                source,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface.copy(0.75f)
+                            )
+                        }
                     }
                 }
             }

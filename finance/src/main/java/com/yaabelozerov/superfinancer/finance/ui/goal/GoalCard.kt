@@ -17,8 +17,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
+import com.yaabelozerov.superfinancer.finance.R
 import com.yaabelozerov.superfinancer.finance.domain.Goal
 import com.yaabelozerov.superfinancer.finance.ui.FinanceVM
 import kotlin.math.min
@@ -59,7 +61,7 @@ internal fun GoalCard(goal: Goal, modifier: Modifier = Modifier, viewModel: Fina
             Spacer(Modifier.width(16.dp))
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    "${goal.currentRubles} of ${
+                    "${goal.currentRubles} ${stringResource(R.string.of)} ${
                         goal.maxRubles
                     } ₽", maxLines = 1
                 )

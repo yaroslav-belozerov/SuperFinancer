@@ -35,7 +35,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.yaabelozerov.superfinancer.stories.R
 import com.yaabelozerov.superfinancer.stories.domain.Section
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -85,7 +87,7 @@ internal fun SectionList(
             ) {
                 TextButton(onClick = { isExpanded = !isExpanded }) {
                     Text(
-                        if (isExpanded) "Collapse" else "Expand",
+                        if (isExpanded) stringResource(R.string.collapse) else stringResource(R.string.expand),
                         color = MaterialTheme.colorScheme.primary
                     )
                     Icon(

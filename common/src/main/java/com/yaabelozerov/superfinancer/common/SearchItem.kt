@@ -8,6 +8,6 @@ data class SearchItem(
     val uri: String
 )
 
-enum class SearchItemType(val string: String) {
-    STORY("Story"), TICKER("Ticker");
+enum class SearchItemType(val stringRes: Int) {
+    STORY(R.string.story), TICKER(R.string.ticker);
 }

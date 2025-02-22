@@ -23,8 +23,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.yaabelozerov.superfinancer.common.util.smartRound
+import com.yaabelozerov.superfinancer.finance.R
 
 @Composable
 internal fun FinanceStats(uiState: FinanceState) {
@@ -35,10 +37,16 @@ internal fun FinanceStats(uiState: FinanceState) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
         repeat(pager.pageCount) {
             val color by animateColorAsState(
-                if (it == pager.currentPage) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground.copy(0.25f)
+                if (it == pager.currentPage) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground.copy(
+                    0.25f
+                )
             )
             Box(
-                modifier = Modifier.size(20.dp, 4.dp).clip(MaterialTheme.shapes.medium).padding(horizontal = 4.dp).background(color)
+                modifier = Modifier
+                    .size(20.dp, 4.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .padding(horizontal = 4.dp)
+                    .background(color)
             )
         }
     }
@@ -57,7 +65,10 @@ internal fun FinanceStats(uiState: FinanceState) {
                             .takeUnless { it.isNaN() }?.toFloat() ?: 0.0f
                     )
                     Column {
-                        Text("Collected", style = MaterialTheme.typography.headlineSmall)
+                        Text(
+                            stringResource(R.string.collected),
+                            style = MaterialTheme.typography.headlineSmall
+                        )
                         Spacer(Modifier.height(4.dp))
                         Text("${uiState.totalAmount} of ${uiState.totalGoal} ₽")
                     }
@@ -81,17 +92,29 @@ internal fun FinanceStats(uiState: FinanceState) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text("Open goals", style = MaterialTheme.typography.headlineSmall)
+                        Text(stringResource(R.string.open_goals), style = MaterialTheme.typography.headlineSmall)
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            text = uiState.stats.openGoals.run { "$first with $second ₽ in total" },
+                            text = uiState.stats.openGoals.run {
+                                "$first ${stringResource(R.string.with)} $second ₽ ${
+                                    stringResource(
+                                        R.string.in_total
+                                    )
+                                }"
+                            },
                         )
                     }
                     Column(horizontalAlignment = Alignment.End) {
-                        Text("Closed goals", style = MaterialTheme.typography.headlineSmall)
+                        Text(stringResource(R.string.closed_goals), style = MaterialTheme.typography.headlineSmall)
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            text = uiState.stats.closedGoals.run { "$first with $second ₽ in total" },
+                            text = uiState.stats.closedGoals.run {
+                                "$first ${stringResource(R.string.with)} $second ₽ ${
+                                    stringResource(
+                                        R.string.in_total
+                                    )
+                                }"
+                            },
                         )
                     }
                 }
@@ -108,7 +131,7 @@ internal fun FinanceStats(uiState: FinanceState) {
                     uiState.stats.firstTransactionDate?.let {
                         Column {
                             Text(
-                                "First transaction", style = MaterialTheme.typography.headlineSmall
+                                stringResource(R.string.first_transaction), style = MaterialTheme.typography.headlineSmall
                             )
                             Spacer(Modifier.height(4.dp))
                             Text(it)
@@ -116,7 +139,7 @@ internal fun FinanceStats(uiState: FinanceState) {
                     }
                     uiState.stats.lastTransactionDate?.let {
                         Column(horizontalAlignment = Alignment.End) {
-                            Text("Last transaction", style = MaterialTheme.typography.headlineSmall)
+                            Text(stringResource(R.string.last_transaction), style = MaterialTheme.typography.headlineSmall)
                             Spacer(Modifier.height(4.dp))
                             Text(it)
                         }

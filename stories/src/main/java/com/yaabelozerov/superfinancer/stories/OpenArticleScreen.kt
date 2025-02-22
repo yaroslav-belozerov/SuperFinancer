@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
@@ -74,7 +75,7 @@ fun OpenArticleScreen(url: String, onBack: () -> Unit, onAddToPost: (String) -> 
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { onBack() }) {
-                    Icon(Icons.Default.Close, contentDescription = "Close")
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
                 }
                 val clipboardManager = LocalClipboardManager.current
                 IconButton(onClick = {
@@ -83,12 +84,12 @@ fun OpenArticleScreen(url: String, onBack: () -> Unit, onAddToPost: (String) -> 
                         addLink(LinkAnnotation.Url(url), 0, url.length)
                     })
                 }) {
-                    Icon(Icons.Default.ContentCopy, contentDescription = "Copy URL")
+                    Icon(Icons.Default.ContentCopy, contentDescription = stringResource(R.string.copy_url))
                 }
                 val uriHandler = LocalUriHandler.current
                 IconButton(onClick = { uriHandler.openUri(url) }) {
                     Icon(
-                        Icons.AutoMirrored.Default.OpenInNew, contentDescription = "Open in browser"
+                        Icons.AutoMirrored.Default.OpenInNew, contentDescription = stringResource(R.string.open_in_browser)
                     )
                 }
                 Spacer(Modifier.weight(1f))
@@ -96,7 +97,7 @@ fun OpenArticleScreen(url: String, onBack: () -> Unit, onAddToPost: (String) -> 
                     onClick = {
                         onAddToPost(url)
                     }) {
-                    Text("Add to post")
+                    Text(stringResource(R.string.add_to_post))
                     Icon(Icons.Default.Add, contentDescription = null)
                 }
             }

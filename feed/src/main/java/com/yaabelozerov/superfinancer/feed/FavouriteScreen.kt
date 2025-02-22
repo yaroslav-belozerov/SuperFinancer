@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yaabelozerov.superfinancer.common.components.Header
@@ -29,7 +30,7 @@ fun FavouriteScreen(onClickArticle: (String) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Header("Favourites", null)
+            Header(stringResource(R.string.favourites), null)
         }
         items(posts) {
             PostCard(it, { viewModel.switchFavourite(it) }, onClickArticle)

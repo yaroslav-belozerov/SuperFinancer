@@ -1,5 +1,6 @@
 package com.yaabelozerov.superfinancer.stories.domain
 
+import android.content.Context
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -23,6 +24,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 internal class StoriesUseCase(
+    private val context: Context = StoriesModule.context,
     private val remoteSource: NytSource = NytSource()
 ) {
     suspend fun getSections(interceptDto: (suspend (List<Section>) -> Unit)? = null): List<Section> {
@@ -71,7 +73,7 @@ internal class StoriesUseCase(
                     LocalDateTime.ofInstant(
                         Instant.parse(it.updatedDate.ifBlank { it.firstPublishedDate.ifBlank { it.createdDate } }),
                         ZoneId.systemDefault()
-                    ).format()
+                    ).format(context)
                 }.getOrDefault("")
             )
         }

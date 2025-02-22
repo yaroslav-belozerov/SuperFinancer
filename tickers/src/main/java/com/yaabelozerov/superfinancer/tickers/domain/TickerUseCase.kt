@@ -1,7 +1,9 @@
 package com.yaabelozerov.superfinancer.tickers.domain
 
+import android.content.Context
 import com.yaabelozerov.superfinancer.common.CommonModule
 import com.yaabelozerov.superfinancer.common.util.toString
+import com.yaabelozerov.superfinancer.tickers.TickerModule
 import com.yaabelozerov.superfinancer.tickers.data.FinnhubSource
 import com.yaabelozerov.superfinancer.tickers.data.ProfileDto
 import com.yaabelozerov.superfinancer.tickers.data.TickerDto
@@ -26,7 +28,10 @@ private infix fun TickerDto.combine(info: ProfileDto): Ticker {
     )
 }
 
-internal class TickerUseCase(private val source: FinnhubSource = FinnhubSource()) {
+internal class TickerUseCase(
+    val context: Context = TickerModule.context,
+    private val source: FinnhubSource = FinnhubSource(),
+) {
     suspend fun getFullInfoForSymbols(symbols: List<String>): Map<String, Ticker> = coroutineScope {
         symbols.map {
             async {

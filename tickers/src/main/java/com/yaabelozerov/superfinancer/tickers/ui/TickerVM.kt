@@ -1,9 +1,11 @@
 package com.yaabelozerov.superfinancer.tickers.ui
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yaabelozerov.superfinancer.common.util.format
 import com.yaabelozerov.superfinancer.common.util.toString
+import com.yaabelozerov.superfinancer.tickers.TickerModule
 import com.yaabelozerov.superfinancer.tickers.domain.TickerUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +46,7 @@ internal class TickerVM(
             }
             _tickerState.update {
                 it.copy(
-                    isLoading = false, lastUpdated = LocalDateTime.now().format()
+                    isLoading = false, lastUpdated = LocalDateTime.now().format(tickerUseCase.context)
                 )
             }
         }
@@ -64,7 +66,7 @@ internal class TickerVM(
                                 newValue.first to inMap.copy(
                                     value = newValue.second.toString(2)
                                 )
-                            ), lastUpdated = LocalDateTime.now().format()
+                            ), lastUpdated = LocalDateTime.now().format(tickerUseCase.context)
                         )
                     } else it
                 }
