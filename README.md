@@ -22,32 +22,32 @@ SuperFinancer - удобное и быстрое приложение для з�
 <details>
     <summary> <h4> BFR 1/2 – ✅ </h4> </summary>
     Весь функционал реализован. Дизайн система - Material3 с кастомной темой. Шрифтовая пара - PT Serif / Inter.
-    ![main screen showcase](./promo/convert/main_1.jpg)
-    ![main screen showcase](./promo/convert/main_2.jpg)
-    ![main screen showcase](./promo/convert/main_3.jpg)
+    <img style="width: 20%;" alt="main screen showcase 1" src="./promo/convert/main_1.jpg" />
+    <img style="width: 20%;" alt="main screen showcase 2" src="./promo/convert/main_2.jpg" />
+    <img style="width: 20%;" alt="main screen showcase 3" src="./promo/convert/main_3.jpg" />
 </details>
 
 <details>
     <summary> <h4> BFR 3/4 – ✅ </h4> </summary>
     Чтобы зарегистрировать модуль поиска достаточно имплементировать интерфейс SearchAdapter и указать его в списке адаптеров. 
     WebView реализован и доступен везде, где есть ссылка на статью.
-    ![search screen showcase](./promo/convert/search.jpg)
-    ![article webview screen showcase](./promo/convert/article_webview.jpg)
+    <img style="width: 20%;" alt="search showcase" src="./promo/convert/search.jpg" />
+    <img style="width: 20%;" alt="webview showcase" src="./promo/convert/article_webview.jpg" />
 </details>
 
 <details>
     <summary> <h4> BFR 5 – ✅ </h4> </summary>
     Весь функционал реализован: создание и закрытие финансовых целей, отслеживание транзакций и статистики.
-    ![finance screen showcase](./promo/convert/finance_1.jpg)
-    ![finance screen showcase](./promo/convert/finance_2.jpg)
+    <img style="width: 20%;" alt="finance screen showcase 1" src="./promo/convert/finance_1.jpg" />
+    <img style="width: 20%;" alt="finance screen showcase 2" src="./promo/convert/finance_2.jpg" />
 </details>
 
 <details>
     <summary> <h4> BFR 6 – ✅ </h4> </summary>
     Лента реализована: есть свёртка поста, фото, тэги. Модуль зависит только от модуля статей (что логично).
 Избранное живёт отдельно и открывается по паролю.
-    ![feed screen showcase](./promo/convert/finance_1.jpg)
-    ![feed screen showcase](./promo/convert/finance_2.jpg)
+    <img style="width: 20%;" alt="finance screen showcase 1" src="./promo/convert/feed_1.jpg" />
+    <img style="width: 20%;" alt="finance screen showcase 2" src="./promo/convert/feed_2.jpg" />
 </details>
 
 ## 🚀 Дополнительные фичи
@@ -64,7 +64,7 @@ SuperFinancer - удобное и быстрое приложение для з�
 
 ### Architectural Decision Record
 
-[ADR по ссылке](https://gitlab.prodcontest.ru/2025-final-projects-mobile/yaroslav-belozerov/-/blob/dev/ADR.md?ref_type=heads)
+[ADR по ссылке](https://github.com/yaroslav-belozerov/SuperFinancer/blob/master/ADR.md)
 
 ### Установка
 
@@ -87,12 +87,12 @@ SuperFinancer - удобное и быстрое приложение для з�
 
 ## Структура проекта (модули и интеграция)
 
-**app** - само приложние, включает навигацию, тему и специфичные для Android решения
-**common** - компоненты, которые используются во всех модулях
-**tickers** - тикеры (акции)
-**finance** - финансовый планировщик
-**stories** - статьи с NYT
-**feed** - лента постов (заделка под соцсеть), зависит от **stories**
+**app** - само приложние, включает навигацию, тему и специфичные для Android решения  
+**common** - компоненты, которые используются во всех модулях  
+**tickers** - тикеры (акции)  
+**finance** - финансовый планировщик  
+**stories** - статьи с NYT  
+**feed** - лента постов (заделка под соцсеть), зависит от **stories**  
 
 > Все модули выстроены так, чтобы как можно меньше зависеть друг от друга, чтобы сделать приложение
 > более масштабируемым и тестируемым. Все публичные API модулей находятся в их корне. Всё остальное
