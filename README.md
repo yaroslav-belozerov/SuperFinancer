@@ -1,3 +1,6 @@
+> [!WARNING]
+> moved to [forgejo](https://fj.tarakoshka.tech/tarakoshka/SuperFinancer)
+---
 # SuperFinancer
 
 ## 🔗 Быстрые ссылки
